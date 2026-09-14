@@ -1,0 +1,9 @@
+newmtl Noyau
+Kd 1 0.25 0.015
+Ke 1 0.25 0.015
+Ns 80
+
+newmtl Metal
+Kd 0.065 0.08 0.11
+Ks 0.6 0.6 0.6
+Ns 100
