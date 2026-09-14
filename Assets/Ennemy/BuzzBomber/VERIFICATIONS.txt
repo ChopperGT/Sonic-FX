@@ -1,0 +1,18 @@
+Verification du pack Guepe robot
+
+Modele : 9002 sommets, 15552 triangles, 79 objets/articulations.
+Hierarchie et references de parents valides. UV dans l'atlas, geometrie finie,
+pas de triangle de surface nulle, orientation globale des surfaces verifiee.
+Rendus de face, de dos et animation issus des meshes et de l'atlas du pack.
+
+Les scripts runtime et Editor compilent avec les assemblies de Unity 6000.5.10f1
+et les assemblies du projet Sonic-FX existant.
+145894 assertions passent sur le code de parcours de production : aller-retour,
+boucle, tous les sous-ensembles de 0 a 8 points, points supprimes, routes vides,
+un seul point et index initial hors limites.
+
+Limite : la generation et l'essai Play dans une instance Unity isolee n'ont pas pu
+demarrer, le client de licence Unity n'etant pas joignable dans cette instance.
+Le test des tirs, collisions et animations dans la scene Sonic-FX reste a faire.
+Le menu Tools > Sonic FX > Creer la guepe robot genere les prefabs et clips dans
+le projet de l'utilisateur. Aucun fichier du projet Sonic-FX n'a ete modifie.
