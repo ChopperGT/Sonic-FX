@@ -1,0 +1,1 @@
+Bloc virage : geometrie, collision et prefab verifies.

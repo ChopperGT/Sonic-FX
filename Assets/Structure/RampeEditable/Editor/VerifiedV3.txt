@@ -1,0 +1,1 @@
+Rampe editable V3 : profondeur du mur, piste preservee, collision laterale et reinitialisation verifiees.
