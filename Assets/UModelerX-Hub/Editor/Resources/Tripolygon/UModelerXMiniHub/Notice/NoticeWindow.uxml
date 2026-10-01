@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="notice-window-root" class="notice-window-root">
+        <ui:ScrollView name="notice-list" class="notice-list" />
+        <ui:Label name="notice-empty-label" text="No notices to display." class="notice-empty-label" />
+    </ui:VisualElement>
+</ui:UXML>

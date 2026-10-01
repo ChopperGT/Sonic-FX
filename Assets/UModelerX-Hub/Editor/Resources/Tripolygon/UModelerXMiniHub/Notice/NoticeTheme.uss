@@ -1,0 +1,80 @@
+/* UModeler X Hub 공지 UI 테마 변수.
+ * UModelerX 본체 UMXGlobalTheme.uss 에서 공지가 쓰는 변수만 발췌한 것이다.
+ * 본체 테마가 바뀌어도 여기는 따라가지 않는다 — 전환 기간이 끝나면 이쪽이 유일본이 된다.
+ * 적용은 NoticeTheme.Apply(root) 가 한다(다크/라이트 클래스도 거기서 붙인다).
+ */
+
+.umx-theme--dark {
+    --umx-bg-surface: #252525;
+    --umx-bg-elevated: #303030;
+    --umx-bg-content: #373737;
+    --umx-bg-hover: #555555;
+
+    --umx-border-strong: #212121;
+    --umx-border: #333333;
+    --umx-border-subtle: #555555;
+
+    --umx-text: #ffffff;
+    --umx-text-secondary: #d0d0d0;
+    --umx-text-tertiary: #aaaaaa;
+    --umx-text-muted: #808080;
+
+    /* 상태: 알림 (노란색) */
+    --umx-status-info-bg: #8a7a2a;
+    --umx-status-info-border: #d4c44a;
+    --umx-status-info-fg: #f0e060;
+
+    /* 상태: 경고 (주황색) */
+    --umx-status-warn-bg: #8a5a2a;
+    --umx-status-warn-border: #d49040;
+    --umx-status-warn-fg: #f0a050;
+
+    /* 상태: 업데이트 (파란색) */
+    --umx-status-update-bg: #2a4a8a;
+    --umx-status-update-border: #4080d4;
+    --umx-status-update-fg: #60a0f0;
+
+    /* 상태: 긴급 (빨간색) */
+    --umx-status-urgent-bg: #8a2a2a;
+    --umx-status-urgent-border: #d44040;
+    --umx-status-urgent-fg: #f06060;
+}
+
+.umx-theme--light {
+    --umx-bg-surface: #d4d4d4;
+    --umx-bg-elevated: #d0d0d0;
+    --umx-bg-content: #c8c8c8;
+    --umx-bg-hover: #b0b0b0;
+
+    --umx-border-strong: #999999;
+    --umx-border: #aaaaaa;
+    --umx-border-subtle: #bbbbbb;
+
+    --umx-text: #1a1a1a;
+    --umx-text-secondary: #333333;
+    --umx-text-tertiary: #666666;
+    --umx-text-muted: #888888;
+
+    --umx-status-info-bg: #e8d86a;
+    --umx-status-info-border: #c4b040;
+    --umx-status-info-fg: #8a7a20;
+
+    --umx-status-warn-bg: #f0b870;
+    --umx-status-warn-border: #d08840;
+    --umx-status-warn-fg: #8a5520;
+
+    --umx-status-update-bg: #70a8f0;
+    --umx-status-update-border: #4080c4;
+    --umx-status-update-fg: #2a4070;
+
+    --umx-status-urgent-bg: #f07070;
+    --umx-status-urgent-border: #d04040;
+    --umx-status-urgent-fg: #8a2020;
+}
+
+/* 테마 무관 */
+.umx-theme--dark, .umx-theme--light {
+    --umx-accent: #81cfb6;
+    --umx-accent-light: #a8e6d5;
+    --umx-link: #6cacf0;
+}

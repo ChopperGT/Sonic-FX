@@ -1,0 +1,214 @@
+/* 루트 */
+.notice-window-root {
+    flex-grow: 1;
+    padding: 4px;
+    background-color: var(--umx-bg-surface);
+}
+
+/* 스크롤 리스트 */
+.notice-list {
+    flex-grow: 1;
+    padding: 4px;
+}
+
+/* 스크롤 리스트 내부 컨테이너 간격 */
+.notice-list > * > * {
+    margin-bottom: 8px;
+}
+
+/* 빈 상태 라벨 */
+.notice-empty-label {
+    -unity-text-align: middle-center;
+    color: var(--umx-text-muted);
+    font-size: 16px;
+    padding: 40px 20px;
+    display: none;
+}
+
+/* 숨긴 공지 보기 토글 버튼 */
+.notice-toggle-dismissed-btn {
+    font-size: 14px;
+    color: var(--umx-text-muted);
+    background-color: var(--umx-bg-content);
+    border-top-width: 1px;
+    border-top-color: var(--umx-border-subtle);
+    border-bottom-width: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-radius: 0;
+    margin-top: 4px;
+    padding: 4px 0;
+    -unity-text-align: middle-center;
+}
+
+/* === 공지 항목 카드 === */
+.notice-item {
+    border-width: 1px;
+    border-color: var(--umx-border-subtle);
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin: 4px 6px 10px 6px;
+    background-color: var(--umx-bg-elevated);
+}
+
+.notice-item:hover {
+    background-color: var(--umx-bg-content);
+}
+
+/* 숨긴(dismiss) 상태 */
+.notice-item--dismissed {
+    opacity: 0.5;
+}
+
+/* --- 헤더 행: [아이콘] [제목] [날짜] --- */
+.notice-item__header {
+    flex-direction: row;
+    align-items: center;
+}
+
+/* 유형 아이콘 */
+.notice-item__icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    flex-shrink: 0;
+    -unity-text-align: middle-center;
+    font-size: 14px;
+}
+
+/* 아이콘 색상 — 유형별 */
+.notice-item__icon--urgent {
+    color: rgb(212, 64, 64);
+}
+
+.notice-item__icon--warning {
+    color: rgb(212, 143, 64);
+}
+
+.notice-item__icon--update {
+    color: rgb(64, 128, 212);
+}
+
+.notice-item__icon--event {
+    color: rgb(212, 191, 64);
+}
+
+.notice-item__icon--info {
+    color: rgb(153, 153, 153);
+}
+
+/* 제목 */
+.notice-item__title {
+    flex-grow: 1;
+    font-size: 16px;
+    color: var(--umx-text-secondary);
+    -unity-font-style: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 읽지 않은 제목 강조 */
+.notice-item__title--unread {
+    -unity-font-style: bold;
+    color: var(--umx-text);
+}
+
+/* 날짜 */
+.notice-item__date {
+    font-size: 12px;
+    color: var(--umx-text-muted);
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
+/* --- 내용 영역 --- */
+.notice-item__body {
+    padding: 6px 0 4px 22px;
+}
+
+/* 내용 텍스트 */
+.notice-item__content {
+    font-size: 14px;
+    color: var(--umx-text-tertiary);
+    white-space: normal;
+    padding: 6px 0 4px 22px;
+}
+
+/* 하이퍼링크 hover 시 커서 전환 */
+.notice-item__content--link-hover {
+    cursor: link;
+}
+
+/* 내용 이미지 */
+.notice-item__image {
+    max-width: 100%;
+    max-height: 200px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 22px;
+    align-self: flex-start;
+}
+
+/* --- 하단 액션 행: [바로가기] ... [Dismiss] --- */
+.notice-item__footer {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top-width: 1px;
+    border-top-color: var(--umx-border);
+}
+
+/* 바로가기 링크 버튼 — 왼쪽 절반 */
+.notice-item__link-btn {
+    width: 48%;
+    -unity-text-align: middle-center;
+    padding: 4px 8px;
+    margin: 0;
+    border-width: 0;
+    background-color: transparent;
+    color: var(--umx-link);
+    font-size: 14px;
+    cursor: link;
+}
+.notice-item__link-btn:hover {
+    background-color: var(--umx-bg-content);
+    border-radius: 3px;
+}
+
+/* dismiss 버튼 — 오른쪽 절반 */
+.notice-item__dismiss-btn {
+    width: 48%;
+    -unity-text-align: middle-center;
+    font-size: 14px;
+    padding: 4px 8px;
+    margin: 0;
+    background-color: var(--umx-bg-content);
+    border-width: 1px;
+    border-color: var(--umx-border-subtle);
+    border-radius: 3px;
+    color: var(--umx-text-secondary);
+}
+.notice-item__dismiss-btn:hover {
+    background-color: var(--umx-bg-hover);
+    color: var(--umx-text);
+}
+
+/* === 중요도별 왼쪽 보더 강조 === */
+.notice-item--urgent {
+    border-left-width: 3px;
+    border-left-color: var(--umx-status-urgent-border);
+}
+
+.notice-item--warning {
+    border-left-width: 3px;
+    border-left-color: var(--umx-status-warn-border);
+}
+
+.notice-item--update {
+    border-left-width: 3px;
+    border-left-color: var(--umx-status-update-border);
+}

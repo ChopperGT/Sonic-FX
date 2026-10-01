@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 608a96489dfd4559a119c03a20c9cab7
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 13804, guid: 0000000000000000e000000000000000, type: 0}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 330215
+  packageName: UModeler X
+  packageVersion: UModeler X Hub 1.0.5
+  assetPath: Assets/UModelerX-Hub/Editor/Resources/Tripolygon/UModelerXMiniHub/Notice/NoticeWindow.uxml
+  uploadId: 997844

@@ -1,0 +1,813 @@
+fileFormatVersion: 2
+guid: e0867b8496f7e3640a9cb48ff8df21fb
+timeCreated: 1509684979
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: BrowA_C
+    100002: BrowA_C_end
+    100004: BrowA_L
+    100006: BrowA_L_end
+    100008: BrowA_R
+    100010: BrowA_R_end
+    100012: Calf_L
+    100014: Calf_R
+    100016: Camera
+    100018: chr_Sonic_HD
+    100020: chr_Sonic_HD.001
+    100022: Ear_L
+    100024: Ear_L_end
+    100026: Ear_R
+    100028: Ear_R_end
+    100030: Elbow_L
+    100032: Elbow_L_end
+    100034: Elbow_R
+    100036: Elbow_R_end
+    100038: eyeL
+    100040: eyeL_end
+    100042: Eyelid_bones
+    100044: EyeLidLow1_L
+    100046: EyeLidLow1_L_end
+    100048: EyeLidLow1_R
+    100050: EyeLidLow1_R_end
+    100052: EyeLidLow_C
+    100054: EyeLidLow_C_end
+    100056: EyeLidUp1_L
+    100058: EyeLidUp1_L_end
+    100060: EyeLidUp1_R
+    100062: EyeLidUp1_R_end
+    100064: EyeLidUp2_L
+    100066: EyeLidUp2_L_end
+    100068: EyeLidUp2_R
+    100070: EyeLidUp2_R_end
+    100072: EyeLidUp_C
+    100074: EyeLidUp_C_end
+    100076: eyeR
+    100078: eyeR_end
+    100080: Foot_L
+    100082: Foot_R
+    100084: ForeArm_L
+    100086: ForeArm_R
+    100088: Hand_L
+    100090: Hand_R
+    100092: Head
+    100094: Hips
+    100096: //RootNode
+    100098: Index1_L
+    100100: Index1_R
+    100102: Index2_L
+    100104: Index2_R
+    100106: Index3_L
+    100108: Index3_L_end
+    100110: Index3_R
+    100112: Index3_R_end
+    100114: Jaw
+    100116: Jaw_L
+    100118: Knee_L
+    100120: Knee_L_end
+    100122: Knee_R
+    100124: Knee_R_end
+    100126: Lamp
+    100128: Lip_C
+    100130: Lip_C_L
+    100132: Lip_L
+    100134: Lip_L_end
+    100136: Lip_L_L
+    100138: Lip_L_L_end
+    100140: Lip_R
+    100142: Lip_R_end
+    100144: Lip_R_L
+    100146: Lip_R_L_end
+    100148: Middle1_L
+    100150: Middle1_R
+    100152: Middle2_L
+    100154: Middle2_R
+    100156: Middle3_L
+    100158: Middle3_L_end
+    100160: Middle3_R
+    100162: Middle3_R_end
+    100164: MouthPosition
+    100166: MouthPosition_L
+    100168: MouthReference
+    100170: MouthReference_L
+    100172: Neck
+    100174: Needle1_B_C
+    100176: Needle1_B_C_end
+    100178: Needle1_B_L
+    100180: Needle1_B_L_end
+    100182: Needle1_B_R
+    100184: Needle1_B_R_end
+    100186: Needle1_U_C
+    100188: Needle1_U_C_end
+    100190: Needle1_U_L
+    100192: Needle1_U_L_end
+    100194: Needle1_U_R
+    100196: Needle1_U_R_end
+    100198: Needle_B_C
+    100200: Needle_B_L
+    100202: Needle_B_R
+    100204: Needle_U_C
+    100206: Needle_U_L
+    100208: Needle_U_R
+    100210: Nose
+    100212: Nose_end
+    100214: Pinky1_L
+    100216: Pinky1_R
+    100218: Pinky2_L
+    100220: Pinky2_R
+    100222: Pinky3_L
+    100224: Pinky3_L_end
+    100226: Pinky3_R
+    100228: Pinky3_R_end
+    100230: Reference
+    100232: Ring1_L
+    100234: Ring1_R
+    100236: Ring2_L
+    100238: Ring2_R
+    100240: Ring3_L
+    100242: Ring3_L_end
+    100244: Ring3_R
+    100246: Ring3_R_end
+    100248: Shoulder_L
+    100250: Shoulder_R
+    100252: Socks_L
+    100254: Socks_L_end
+    100256: Socks_R
+    100258: Socks_R_end
+    100260: Sonic_Body
+    100262: Sonic_Body_end
+    100264: Sonic_Eyelid
+    100266: Sonic_Eyelid_end
+    100268: Sonic_HandFoot
+    100270: Sonic_HandFoot_end
+    100272: Sonic_Mouth
+    100274: Sonic_Mouth_end
+    100276: Sonic_Mouth_L
+    100278: Sonic_Mouth_L_end
+    100280: Spine
+    100282: Spine1
+    100284: Tail
+    100286: Tail_end
+    100288: Teeth_Low
+    100290: Teeth_Low_end
+    100292: Teeth_Low_L
+    100294: Teeth_Low_L_end
+    100296: Teeth_Up
+    100298: Teeth_Up_end
+    100300: Teeth_Up_L
+    100302: Teeth_Up_L_end
+    100304: Thigh_L
+    100306: Thigh_R
+    100308: Thumb1_L
+    100310: Thumb1_R
+    100312: Thumb2_L
+    100314: Thumb2_R
+    100316: Thumb3_L
+    100318: Thumb3_L_end
+    100320: Thumb3_R
+    100322: Thumb3_R_end
+    100324: Toe_L
+    100326: Toe_L_end
+    100328: Toe_R
+    100330: Toe_R_end
+    100332: UpperArm_L
+    100334: UpperArm_R
+    100336: Wing_L
+    100338: Wing_L_end
+    100340: Wing_R
+    100342: Wing_R_end
+    100344: Wrist_L
+    100346: Wrist_L_end
+    100348: Wrist_R
+    100350: Wrist_R_end
+    400000: BrowA_C
+    400002: BrowA_C_end
+    400004: BrowA_L
+    400006: BrowA_L_end
+    400008: BrowA_R
+    400010: BrowA_R_end
+    400012: Calf_L
+    400014: Calf_R
+    400016: Camera
+    400018: chr_Sonic_HD
+    400020: chr_Sonic_HD.001
+    400022: Ear_L
+    400024: Ear_L_end
+    400026: Ear_R
+    400028: Ear_R_end
+    400030: Elbow_L
+    400032: Elbow_L_end
+    400034: Elbow_R
+    400036: Elbow_R_end
+    400038: eyeL
+    400040: eyeL_end
+    400042: Eyelid_bones
+    400044: EyeLidLow1_L
+    400046: EyeLidLow1_L_end
+    400048: EyeLidLow1_R
+    400050: EyeLidLow1_R_end
+    400052: EyeLidLow_C
+    400054: EyeLidLow_C_end
+    400056: EyeLidUp1_L
+    400058: EyeLidUp1_L_end
+    400060: EyeLidUp1_R
+    400062: EyeLidUp1_R_end
+    400064: EyeLidUp2_L
+    400066: EyeLidUp2_L_end
+    400068: EyeLidUp2_R
+    400070: EyeLidUp2_R_end
+    400072: EyeLidUp_C
+    400074: EyeLidUp_C_end
+    400076: eyeR
+    400078: eyeR_end
+    400080: Foot_L
+    400082: Foot_R
+    400084: ForeArm_L
+    400086: ForeArm_R
+    400088: Hand_L
+    400090: Hand_R
+    400092: Head
+    400094: Hips
+    400096: //RootNode
+    400098: Index1_L
+    400100: Index1_R
+    400102: Index2_L
+    400104: Index2_R
+    400106: Index3_L
+    400108: Index3_L_end
+    400110: Index3_R
+    400112: Index3_R_end
+    400114: Jaw
+    400116: Jaw_L
+    400118: Knee_L
+    400120: Knee_L_end
+    400122: Knee_R
+    400124: Knee_R_end
+    400126: Lamp
+    400128: Lip_C
+    400130: Lip_C_L
+    400132: Lip_L
+    400134: Lip_L_end
+    400136: Lip_L_L
+    400138: Lip_L_L_end
+    400140: Lip_R
+    400142: Lip_R_end
+    400144: Lip_R_L
+    400146: Lip_R_L_end
+    400148: Middle1_L
+    400150: Middle1_R
+    400152: Middle2_L
+    400154: Middle2_R
+    400156: Middle3_L
+    400158: Middle3_L_end
+    400160: Middle3_R
+    400162: Middle3_R_end
+    400164: MouthPosition
+    400166: MouthPosition_L
+    400168: MouthReference
+    400170: MouthReference_L
+    400172: Neck
+    400174: Needle1_B_C
+    400176: Needle1_B_C_end
+    400178: Needle1_B_L
+    400180: Needle1_B_L_end
+    400182: Needle1_B_R
+    400184: Needle1_B_R_end
+    400186: Needle1_U_C
+    400188: Needle1_U_C_end
+    400190: Needle1_U_L
+    400192: Needle1_U_L_end
+    400194: Needle1_U_R
+    400196: Needle1_U_R_end
+    400198: Needle_B_C
+    400200: Needle_B_L
+    400202: Needle_B_R
+    400204: Needle_U_C
+    400206: Needle_U_L
+    400208: Needle_U_R
+    400210: Nose
+    400212: Nose_end
+    400214: Pinky1_L
+    400216: Pinky1_R
+    400218: Pinky2_L
+    400220: Pinky2_R
+    400222: Pinky3_L
+    400224: Pinky3_L_end
+    400226: Pinky3_R
+    400228: Pinky3_R_end
+    400230: Reference
+    400232: Ring1_L
+    400234: Ring1_R
+    400236: Ring2_L
+    400238: Ring2_R
+    400240: Ring3_L
+    400242: Ring3_L_end
+    400244: Ring3_R
+    400246: Ring3_R_end
+    400248: Shoulder_L
+    400250: Shoulder_R
+    400252: Socks_L
+    400254: Socks_L_end
+    400256: Socks_R
+    400258: Socks_R_end
+    400260: Sonic_Body
+    400262: Sonic_Body_end
+    400264: Sonic_Eyelid
+    400266: Sonic_Eyelid_end
+    400268: Sonic_HandFoot
+    400270: Sonic_HandFoot_end
+    400272: Sonic_Mouth
+    400274: Sonic_Mouth_end
+    400276: Sonic_Mouth_L
+    400278: Sonic_Mouth_L_end
+    400280: Spine
+    400282: Spine1
+    400284: Tail
+    400286: Tail_end
+    400288: Teeth_Low
+    400290: Teeth_Low_end
+    400292: Teeth_Low_L
+    400294: Teeth_Low_L_end
+    400296: Teeth_Up
+    400298: Teeth_Up_end
+    400300: Teeth_Up_L
+    400302: Teeth_Up_L_end
+    400304: Thigh_L
+    400306: Thigh_R
+    400308: Thumb1_L
+    400310: Thumb1_R
+    400312: Thumb2_L
+    400314: Thumb2_R
+    400316: Thumb3_L
+    400318: Thumb3_L_end
+    400320: Thumb3_R
+    400322: Thumb3_R_end
+    400324: Toe_L
+    400326: Toe_L_end
+    400328: Toe_R
+    400330: Toe_R_end
+    400332: UpperArm_L
+    400334: UpperArm_R
+    400336: Wing_L
+    400338: Wing_L_end
+    400340: Wing_R
+    400342: Wing_R_end
+    400344: Wrist_L
+    400346: Wrist_L_end
+    400348: Wrist_R
+    400350: Wrist_R_end
+    4300000: chr_Sonic_HD.001
+    7400000: Hurt
+    9500000: //RootNode
+    13700000: chr_Sonic_HD.001
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Hurt
+      takeName: chr_Sonic_HD|chr_Sonic_HD||
+      firstFrame: 0
+      lastFrame: 60
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Camera
+        weight: 1
+      - path: chr_Sonic_HD
+        weight: 1
+      - path: chr_Sonic_HD/eyeL
+        weight: 1
+      - path: chr_Sonic_HD/eyeL/eyeL_end
+        weight: 1
+      - path: chr_Sonic_HD/eyeR
+        weight: 1
+      - path: chr_Sonic_HD/eyeR/eyeR_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/BrowA_C
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/BrowA_C/BrowA_C_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/BrowA_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/BrowA_L/BrowA_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/BrowA_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/BrowA_R/BrowA_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Ear_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Ear_L/Ear_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Ear_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Ear_R/Ear_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidLow1_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidLow1_L/EyeLidLow1_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidLow1_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidLow1_R/EyeLidLow1_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidLow_C
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidLow_C/EyeLidLow_C_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidUp1_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidUp1_L/EyeLidUp1_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidUp1_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidUp1_R/EyeLidUp1_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidUp2_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidUp2_L/EyeLidUp2_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidUp2_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidUp2_R/EyeLidUp2_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidUp_C
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/EyeLidUp_C/EyeLidUp_C_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/Sonic_Eyelid
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Eyelid_bones/Sonic_Eyelid/Sonic_Eyelid_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference/MouthPosition
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference/MouthPosition/Jaw
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference/MouthPosition/Jaw/Teeth_Low
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference/MouthPosition/Jaw/Teeth_Low/Teeth_Low_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference/MouthPosition/Lip_C
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference/MouthPosition/Lip_C/Teeth_Up
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference/MouthPosition/Lip_C/Teeth_Up/Teeth_Up_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference/MouthPosition/Lip_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference/MouthPosition/Lip_L/Lip_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference/MouthPosition/Lip_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference/MouthPosition/Lip_R/Lip_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference/Sonic_Mouth
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference/Sonic_Mouth/Sonic_Mouth_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L/MouthPosition_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L/MouthPosition_L/Jaw_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L/MouthPosition_L/Jaw_L/Teeth_Low_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L/MouthPosition_L/Jaw_L/Teeth_Low_L/Teeth_Low_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L/MouthPosition_L/Lip_C_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L/MouthPosition_L/Lip_C_L/Teeth_Up_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L/MouthPosition_L/Lip_C_L/Teeth_Up_L/Teeth_Up_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L/MouthPosition_L/Lip_L_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L/MouthPosition_L/Lip_L_L/Lip_L_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L/MouthPosition_L/Lip_R_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L/MouthPosition_L/Lip_R_L/Lip_R_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L/Sonic_Mouth_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/MouthReference_L/Sonic_Mouth_L/Sonic_Mouth_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_B_C
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_B_C/Needle1_B_C
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_B_C/Needle1_B_C/Needle1_B_C_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_B_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_B_L/Needle1_B_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_B_L/Needle1_B_L/Needle1_B_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_B_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_B_R/Needle1_B_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_B_R/Needle1_B_R/Needle1_B_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_U_C
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_U_C/Needle1_U_C
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_U_C/Needle1_U_C/Needle1_U_C_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_U_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_U_L/Needle1_U_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_U_L/Needle1_U_L/Needle1_U_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_U_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_U_R/Needle1_U_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Needle_U_R/Needle1_U_R/Needle1_U_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Nose
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Neck/Head/Nose/Nose_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Elbow_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Elbow_L/Elbow_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Index1_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Index1_L/Index2_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Index1_L/Index2_L/Index3_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Index1_L/Index2_L/Index3_L/Index3_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Middle1_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Middle1_L/Middle2_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Middle1_L/Middle2_L/Middle3_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Middle1_L/Middle2_L/Middle3_L/Middle3_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Pinky1_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Pinky1_L/Pinky2_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Pinky1_L/Pinky2_L/Pinky3_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Pinky1_L/Pinky2_L/Pinky3_L/Pinky3_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Ring1_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Ring1_L/Ring2_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Ring1_L/Ring2_L/Ring3_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Ring1_L/Ring2_L/Ring3_L/Ring3_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Thumb1_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Thumb1_L/Thumb2_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Thumb1_L/Thumb2_L/Thumb3_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Thumb1_L/Thumb2_L/Thumb3_L/Thumb3_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Wrist_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_L/UpperArm_L/ForeArm_L/Hand_L/Wrist_L/Wrist_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Elbow_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Elbow_R/Elbow_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Index1_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Index1_R/Index2_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Index1_R/Index2_R/Index3_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Index1_R/Index2_R/Index3_R/Index3_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Middle1_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Middle1_R/Middle2_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Middle1_R/Middle2_R/Middle3_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Middle1_R/Middle2_R/Middle3_R/Middle3_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Pinky1_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Pinky1_R/Pinky2_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Pinky1_R/Pinky2_R/Pinky3_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Pinky1_R/Pinky2_R/Pinky3_R/Pinky3_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Ring1_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Ring1_R/Ring2_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Ring1_R/Ring2_R/Ring3_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Ring1_R/Ring2_R/Ring3_R/Ring3_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Thumb1_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Thumb1_R/Thumb2_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Thumb1_R/Thumb2_R/Thumb3_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Thumb1_R/Thumb2_R/Thumb3_R/Thumb3_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Wrist_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Shoulder_R/UpperArm_R/ForeArm_R/Hand_R/Wrist_R/Wrist_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Wing_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Wing_L/Wing_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Wing_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Spine/Spine1/Wing_R/Wing_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Tail
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Tail/Tail_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_L/Calf_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_L/Calf_L/Foot_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_L/Calf_L/Foot_L/Socks_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_L/Calf_L/Foot_L/Socks_L/Socks_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_L/Calf_L/Foot_L/Toe_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_L/Calf_L/Foot_L/Toe_L/Toe_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_L/Calf_L/Knee_L
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_L/Calf_L/Knee_L/Knee_L_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_R/Calf_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_R/Calf_R/Foot_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_R/Calf_R/Foot_R/Socks_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_R/Calf_R/Foot_R/Socks_R/Socks_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_R/Calf_R/Foot_R/Toe_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_R/Calf_R/Foot_R/Toe_R/Toe_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_R/Calf_R/Knee_R
+        weight: 1
+      - path: chr_Sonic_HD/Reference/Hips/Thigh_R/Calf_R/Knee_R/Knee_R_end
+        weight: 1
+      - path: chr_Sonic_HD/Sonic_Body
+        weight: 1
+      - path: chr_Sonic_HD/Sonic_Body/Sonic_Body_end
+        weight: 1
+      - path: chr_Sonic_HD/Sonic_HandFoot
+        weight: 1
+      - path: chr_Sonic_HD/Sonic_HandFoot/Sonic_HandFoot_end
+        weight: 1
+      - path: chr_Sonic_HD.001
+        weight: 1
+      - path: Lamp
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

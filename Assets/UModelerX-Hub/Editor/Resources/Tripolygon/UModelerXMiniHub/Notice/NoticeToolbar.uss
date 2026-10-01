@@ -1,0 +1,86 @@
+/* 씬 툴바 공지 버튼 — UModelerX 본체 UMXSceneToolbar.uss 에서 공지 버튼이 쓰는 클래스만 발췌.
+ * 슬롯(umx-toolbar-notice-group)은 본체가 만들지만 그 안의 버튼 스타일은 허브가 들고 온다.
+ */
+
+.umx-scene-toolbar-btn {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 21px;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    border-left-width: 1px;
+    border-right-width: 0px;
+    border-color: var(--umx-border-strong);
+    background-color: var(--umx-bg-content);
+    flex-shrink: 0;
+    cursor: link;
+    overflow: hidden;
+}
+
+.umx-scene-toolbar-btn:hover {
+    background-color: var(--umx-bg-hover);
+}
+
+/* 단일 버튼 그룹: 양쪽 라운드 */
+.umx-scene-toolbar-btn--single {
+    border-radius: 3px;
+    border-right-width: 1px;
+}
+
+.umx-scene-toolbar-btn__icon {
+    background-size: 50%;
+    -unity-background-image-tint-color: var(--umx-accent);
+}
+
+/* === 공지 버튼 색상 (중요도별) === */
+
+/* 일반 공지 — 노란색 */
+.notice-btn--normal {
+    background-color: var(--umx-status-info-bg);
+    border-color: var(--umx-status-info-border);
+}
+.notice-btn--normal:hover {
+    background-color: var(--umx-status-info-border);
+}
+.notice-btn--normal .umx-scene-toolbar-btn__icon {
+    -unity-background-image-tint-color: var(--umx-status-info-fg);
+}
+
+/* 경고 — 주황색 */
+.notice-btn--warning {
+    background-color: var(--umx-status-warn-bg);
+    border-color: var(--umx-status-warn-border);
+}
+.notice-btn--warning:hover {
+    background-color: var(--umx-status-warn-border);
+}
+.notice-btn--warning .umx-scene-toolbar-btn__icon {
+    -unity-background-image-tint-color: var(--umx-status-warn-fg);
+}
+
+/* 업데이트 — 파란색 */
+.notice-btn--update {
+    background-color: var(--umx-status-update-bg);
+    border-color: var(--umx-status-update-border);
+}
+.notice-btn--update:hover {
+    background-color: var(--umx-status-update-border);
+}
+.notice-btn--update .umx-scene-toolbar-btn__icon {
+    -unity-background-image-tint-color: var(--umx-status-update-fg);
+}
+
+/* 긴급 — 빨간색 */
+.notice-btn--urgent {
+    background-color: var(--umx-status-urgent-bg);
+    border-color: var(--umx-status-urgent-border);
+}
+.notice-btn--urgent:hover {
+    background-color: var(--umx-status-urgent-border);
+}
+.notice-btn--urgent .umx-scene-toolbar-btn__icon {
+    -unity-background-image-tint-color: var(--umx-status-urgent-fg);
+}
