@@ -1,5 +1,25 @@
 # Palmiers Green Hill
 
+## Feuilles reactives
+
+Les trois prefabs possedent un composant `Palm Leaf Reaction`.
+La case **Animer les feuilles au passage de Sonic** active ou desactive l'effet,
+y compris pendant le jeu. Les feuilles reagissent dans le sens du passage ;
+plus Sonic va vite, plus elles bougent. Une chute sur la couronne les pousse
+vers le bas. Les points d'attache restent fixes, puis les feuilles reviennent
+au repos avec une oscillation amortie.
+
+Reglages : **Distance de reaction**, **Vitesse pour l'effet maximum**,
+**Deplacement maximum des feuilles**, **Souplesse du retour** et **Amortissement**.
+Selectionner le palmier affiche en vert sa zone de reaction dans Scene.
+
+Le Mesh Collider utilise uniquement les faces du tronc et des parties boisees.
+Les surfaces des feuilles ne sont plus incluses dans la collision, meme lorsque
+la case d'animation est desactivee. Les palmiers deja poses qui utilisent ces
+prefabs heritent de la mise a jour. Aucun placement de niveau n'est modifie.
+
+Installation manuelle : `Tools > Sonic FX > Decor > Installer les feuilles reactives`.
+
 Les prefabs palm_A, palm_B et palm_C recoivent automatiquement leurs nouvelles textures apres la compilation, hors du mode Play.
 
 - Palmes : vert vif dessus, vert fonce dessous.

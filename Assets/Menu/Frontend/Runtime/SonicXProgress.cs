@@ -1,17 +1,33 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace SonicFX.Menu
 {
-    [Serializable] public class StorySave { public int version=3; public long totalScore; public int lives=3; public string character="sonic"; public string scene; }
+    [Serializable] public class StorySave { public int version=4; public int unlockedAbilities; public long totalScore; public int lives=3; public string character="sonic"; public string scene; }
     public static class SonicXProgress
     {
         public const string FirstLevel="Assets/Level/Sonic 1/Act 1 GreenHiill/act 1-1/act 1-1.unity";
         const string SaveKey="SonicFX.Story.Save.v1";
         static StorySave pending; static bool storySession;
         public static int Lives {get;private set;}=3;
+        public static event Action<int> LivesGained;
         public static long TotalScore {get;private set;}
+        public static SonicAbility UnlockedAbilities {get;private set;}=SonicAbility.None;
+        public static bool UnlockAbility(SonicAbility ability)
+        {
+            if(IsGameOver || ability==SonicAbility.None || (ability&~SonicAbility.All)!=0)return false;
+            var updated=UnlockedAbilities|ability;if(updated==UnlockedAbilities)return false;
+            UnlockedAbilities=updated;
+            if(pending!=null)pending.unlockedAbilities=(int)updated;
+            PersistUnlockedAbilities(SaveKey);
+            return true;
+        }
+        static void PersistUnlockedAbilities(string key)
+        {
+            if(!storySession || !TryParse(PlayerPrefs.GetString(key,""),out var save))return;
+            save.unlockedAbilities=(int)UnlockedAbilities;PlayerPrefs.SetString(key,JsonUtility.ToJson(save));PlayerPrefs.Save();
+        }
         public static bool IsGameOver=>Lives<=0;
         public static bool IsStorySession=>storySession;
         public static string Character { get; private set; }="sonic";
@@ -21,22 +37,22 @@ namespace SonicFX.Menu
         public static bool TryParse(string json,out StorySave data)
         {
             data=null;if(string.IsNullOrEmpty(json))return false;
-            try{var value=JsonUtility.FromJson<StorySave>(json);if(value==null || (value.version!=1 && value.version!=2 && value.version!=3) || string.IsNullOrEmpty(value.scene) || (value.character!="sonic" && value.character!="tails" && value.character!="amy" && value.character!="shadow"))return false;if(value.version==1){value.lives=3;value.version=2;}if(value.version<3){value.totalScore=0;value.version=3;}if(value.lives<=0 || value.totalScore<0)return false;data=value;return true;}catch{return false;}
+            try{var value=JsonUtility.FromJson<StorySave>(json);if(value==null || value.version<1 || value.version>4 || string.IsNullOrEmpty(value.scene) || (value.character!="sonic" && value.character!="tails" && value.character!="amy" && value.character!="shadow"))return false;if(value.version==1){value.lives=3;value.version=2;}if(value.version<3){value.totalScore=0;value.version=3;}if(value.version<4){value.unlockedAbilities=0;value.version=4;}value.unlockedAbilities&=(int)SonicAbility.All;if(value.lives<=0 || value.totalScore<0)return false;data=value;return true;}catch{return false;}
         }
         public static bool CanContinue=>TryRead(out var save) && Application.CanStreamedLevelBeLoaded(save.scene);
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        static void Reset(){pending=null;storySession=false;Lives=3;TotalScore=0;Character="sonic";SceneManager.sceneLoaded-=Loaded;SceneManager.sceneLoaded+=Loaded;}
-        public static AsyncOperation Begin(string character,string scene,int lives=3,long totalScore=0)
+        static void Reset(){LivesGained=null;pending=null;storySession=false;Lives=3;TotalScore=0;UnlockedAbilities=SonicAbility.None;Character="sonic";SceneManager.sceneLoaded-=Loaded;SceneManager.sceneLoaded+=Loaded;}
+        public static AsyncOperation Begin(string character,string scene,int lives=3,long totalScore=0,SonicAbility unlockedAbilities=SonicAbility.None)
         {
             if(lives<=0 || !Application.CanStreamedLevelBeLoaded(scene))return null;
-            Time.timeScale=1;Character=character;Lives=lives;TotalScore=Math.Max(0,totalScore);Objects_Interaction.RingAmount=0;pending=new StorySave{character=character,scene=scene,lives=lives,totalScore=TotalScore};storySession=true;
+            Time.timeScale=1;Character=character;Lives=lives;TotalScore=Math.Max(0,totalScore);UnlockedAbilities=unlockedAbilities&SonicAbility.All;Objects_Interaction.RingAmount=0;pending=new StorySave{character=character,scene=scene,lives=lives,totalScore=TotalScore,unlockedAbilities=(int)UnlockedAbilities};storySession=true;
             try {var op=SceneManager.LoadSceneAsync(scene);if(op==null){pending=null;storySession=false;}return op;}
             catch{pending=null;storySession=false;throw;}
         }
         static void Loaded(Scene scene,LoadSceneMode mode)
         {
             if(mode!=LoadSceneMode.Single)return;
-            if(scene.name=="LogoScreen"){storySession=false;pending=null;return;}
+            if(scene.name=="LogoScreen"){storySession=false;pending=null;UnlockedAbilities=SonicAbility.None;return;}
             if(!storySession)return;
             if(pending!=null && scene.path==pending.scene){SaveLevel(scene.path);pending=null;}
             else if(pending==null && scene.path.StartsWith("Assets/Level/",StringComparison.Ordinal))SaveLevel(scene.path);
@@ -52,18 +68,21 @@ namespace SonicFX.Menu
         public static void GainLives(int amount)
         {
             if(amount<=0 || IsGameOver)return;
+            int previous=Lives;
             Lives=(int)Math.Min(int.MaxValue,(long)Lives+amount);
+            if(Lives==previous)return;
             if(storySession)PersistRemainingLives(SaveKey);
+            LivesGained?.Invoke(Lives-previous);
         }
         static void PersistRemainingLives(string key)
         {
             if(Lives==0)
             {
-                PlayerPrefs.DeleteKey(key);pending=null;storySession=false;
+                PlayerPrefs.DeleteKey(key);pending=null;storySession=false;UnlockedAbilities=SonicAbility.None;
             }
             else if(TryParse(PlayerPrefs.GetString(key,""),out var save))
             {
-                save.lives=Lives;save.totalScore=TotalScore;PlayerPrefs.SetString(key,JsonUtility.ToJson(save));
+                save.lives=Lives;save.totalScore=TotalScore;save.unlockedAbilities=(int)UnlockedAbilities;PlayerPrefs.SetString(key,JsonUtility.ToJson(save));
             }
             PlayerPrefs.Save();
         }
@@ -71,11 +90,11 @@ namespace SonicFX.Menu
         {
             if(result==null || IsGameOver || result.previousTotal!=TotalScore)return;
             TotalScore=result.totalScore;
-            Lives=(int)Math.Min(int.MaxValue,(long)Lives+result.bonusLives);
+            GainLives(result.bonusLives);
             if(!storySession)return;
             if(TryRead(out var save))
             {
-                save.totalScore=TotalScore;save.lives=Lives;
+                save.totalScore=TotalScore;save.lives=Lives;save.unlockedAbilities=(int)UnlockedAbilities;
                 if(!string.IsNullOrEmpty(result.nextScene) && Application.CanStreamedLevelBeLoaded(result.nextScene))save.scene=result.nextScene;
                 PlayerPrefs.SetString(SaveKey,JsonUtility.ToJson(save));PlayerPrefs.Save();
             }
@@ -83,7 +102,7 @@ namespace SonicFX.Menu
         public static void SaveLevel(string scene)
         {
             if(!storySession || IsGameOver || string.IsNullOrEmpty(scene) || !Application.CanStreamedLevelBeLoaded(scene))return;
-            PlayerPrefs.SetString(SaveKey,JsonUtility.ToJson(new StorySave{character=Character,scene=scene,lives=Lives,totalScore=TotalScore}));PlayerPrefs.Save();
+            PlayerPrefs.SetString(SaveKey,JsonUtility.ToJson(new StorySave{character=Character,scene=scene,lives=Lives,totalScore=TotalScore,unlockedAbilities=(int)UnlockedAbilities}));PlayerPrefs.Save();
         }
     }
 }

@@ -96,10 +96,12 @@
     <Compile Include="Assets\Prototyping\PrototypingObjects\Materials\Dash Panel\UVScroll.cs" />
     <Compile Include="Assets\Structure\SonicWater\Cascades\Runtime\SonicWaterfall.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\MouseOrbitImproved.cs" />
+    <Compile Include="Assets\Menu\ExtraLifeAudio\Runtime\SonicExtraLifeSoundSettings.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeB.cs" />
     <Compile Include="Assets\Prototyping\PauseCotrol.cs" />
     <Compile Include="Assets\SplineMesh\Scripts\Bezier\SplineNode.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexJitter.cs" />
+    <Compile Include="Assets\Structure\Tube Slide\SonicTubeEntryZones.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\Action06_Bounce.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\LevelProgressControl.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexZoom.cs" />
@@ -113,6 +115,7 @@
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\EnemySpawner.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\MotobugControl.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\HomingAttackControl.cs" />
+    <Compile Include="Assets\Menu\Frontend\Runtime\SonicTimeRecords.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeA.cs" />
     <Compile Include="Assets\DeferredCustomLights\CustomLight.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\MovingRing.cs" />
@@ -151,12 +154,15 @@
     <Compile Include="Assets\Menu\Score\Runtime\SonicLevelResults.cs" />
     <Compile Include="Assets\Menu\Score\Runtime\SonicLevelScore.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\StageConpleteControl.cs" />
+    <Compile Include="Assets\Menu\Frontend\Runtime\SonicStoryRoute.cs" />
+    <Compile Include="Assets\Structure\ChainSwing\Runtime\SonicSwingPlatform.cs" />
     <Compile Include="Assets\Structure\BlocDestructible\Runtime\SonicBlockDebris.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\EnvMapAnimator.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\LightDashControl.cs" />
     <Compile Include="Assets\Menu\GameplayHUD\Runtime\SonicHudSettings.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_A.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\RotateTowardsPlayer.cs" />
+    <Compile Include="Assets\Structure\MonitorVie\LifeMonitorIcon.cs" />
     <Compile Include="Assets\Structure\VirageReleve\Runtime\SonicBankedTurn.cs" />
     <Compile Include="Assets\Ennemy\Chameleon\Runtime\ChameleonProjectile.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\SkinPosition.cs" />
@@ -169,6 +175,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_ExampleScript_01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMPro_InstructionOverlay.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\RotateRing.cs" />
+    <Compile Include="Assets\Menu\ExtraLifeAudio\Runtime\SonicExtraLifeAudio.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\SpawnCharacter.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\SetFrameRate.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />
@@ -178,7 +185,9 @@
     <Compile Include="Assets\Structure\Block Fall\blockFall.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\Rep.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_B.cs" />
+    <Compile Include="Assets\Structure\décore\Tree\PalmLeafReaction.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\ActionManager.cs" />
+    <Compile Include="Assets\Structure\décore\Tree\PalmLeafMotionData.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\DebugTest.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\CharacterSelect.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\Objects_Interaction.cs" />
@@ -317,6 +326,7 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile SpaceWarp.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Core\_Lux ShaderProperties.txt" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Standard Shaders\Standard Tessellation DynamicWeather MixMapping.shader" />
+    <None Include="Assets\Structure\MonitorVie\CharacterScreen.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Demos\Art\Textures\LASciFiPanel - free from asset store\LASciFiPanel\_ProductFeatures.txt" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Translucent Shaders\AutoLight.cginc" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Standard Shader\LuxStandardMeta.cginc" />

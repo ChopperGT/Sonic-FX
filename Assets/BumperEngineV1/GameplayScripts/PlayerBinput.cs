@@ -16,6 +16,12 @@ public class PlayerBinput : MonoBehaviour {
 
 	private bool PreviousInputWasNull;
 
+    [Header("Direction a grande vitesse")]
+    [Tooltip("Empeche les courbes de vitesse de rendre les commandes presque inactives.")]
+    public bool responsiveSteering = true;
+    [Min(0), Tooltip("Reactivite minimale des commandes par seconde. 10 garde une direction reactive meme a pleine vitesse.")]
+    public float minimumInputResponse = 10;
+
     public AnimationCurve InputLerpingRateOverSpeed;
     public bool UtopiaTurning;
     public AnimationCurve UtopiaInputLerpingRateOverSpeed;
@@ -54,8 +60,9 @@ public class PlayerBinput : MonoBehaviour {
     {
         // Get curve position
 
-        InputLerpSpeed = InputLerpingRateOverSpeed.Evaluate((Player.p_rigidbody.linearVelocity.sqrMagnitude / Player.MaxSpeed) / Player.MaxSpeed);
-        UtopiaLerpingSpeed = UtopiaInputLerpingRateOverSpeed.Evaluate((Player.p_rigidbody.linearVelocity.sqrMagnitude / Player.MaxSpeed) / Player.MaxSpeed);
+        float speedRatio = Player.p_rigidbody.linearVelocity.sqrMagnitude / Mathf.Max(.01f, Player.MaxSpeed * Player.MaxSpeed);
+        InputLerpSpeed = InputLerpingRateOverSpeed.Evaluate(speedRatio);
+        UtopiaLerpingSpeed = UtopiaInputLerpingRateOverSpeed.Evaluate(speedRatio);
 
         // Get the axis and jump input.
 
@@ -83,7 +90,7 @@ public class PlayerBinput : MonoBehaviour {
 					
 
 					Player.RawInput = transformedInput;
-					moveInp = Vector3.Lerp(move, transformedInput, Time.deltaTime * currentInputSpeed);
+					moveInp = SmoothMovementInput(move, transformedInput, currentInputSpeed, Time.deltaTime);
 				}
 				else
 				{
@@ -92,7 +99,7 @@ public class PlayerBinput : MonoBehaviour {
 					transformedInput = transform.InverseTransformDirection(transformedInput);
 					transformedInput.y = 0.0f;
 					Player.RawInput = transformedInput;
-					moveInp = Vector3.Lerp(move, transformedInput, Time.deltaTime * (UtopiaLerpingSpeed*UtopiaIntensity));
+					moveInp = SmoothMovementInput(move, transformedInput, UtopiaLerpingSpeed * UtopiaIntensity, Time.deltaTime);
 				}
 				
 			if (moveInp.x < 0.01 && moveInp.z < 0.01 && moveInp.x > -0.01 && moveInp.z > -0.01) 
@@ -115,6 +122,16 @@ public class PlayerBinput : MonoBehaviour {
     }
 
 
+
+    // Exponential smoothing keeps response identical across rendering frame rates.
+    // The configured curves still apply; only their excessively slow values are floored.
+    Vector3 SmoothMovementInput(Vector3 current, Vector3 desired, float curveRate, float seconds)
+    {
+        float rate = Mathf.Max(0, curveRate);
+        if (responsiveSteering) rate = Mathf.Max(rate, Mathf.Max(0, minimumInputResponse));
+        float blend = 1 - Mathf.Exp(-rate * Mathf.Max(0, seconds));
+        return Vector3.Lerp(current, desired, blend);
+    }
 
     void FixedUpdate()
     {

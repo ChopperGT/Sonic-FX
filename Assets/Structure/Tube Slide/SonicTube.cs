@@ -27,11 +27,14 @@ public class SonicTube : MonoBehaviour
     [Header("Entree")]
     [Tooltip("Cree une barriere physique invisible dans l'ouverture pendant le jeu.")]
     public bool blockStanding = true;
+    [Tooltip("Rayon de la barriere physique. 0 conserve la taille initiale de la detection. Les poignees de detection preservent cette taille pour ne pas agrandir l'obstacle invisible.")]
+    [Min(0f)] public float standingBarrierRadius;
     [Tooltip("Autorise aussi le saut en boule du kit (Action01 avec JumpBall actif).")]
     public bool allowJumpBall = true;
     public bool logEvents = true;
 
     SphereCollider sensor;
+    float initialBarrierRadius;
     GameObject gate;
     BoxCollider gateCollider;
     PlayerBhysics player;
@@ -93,6 +96,7 @@ public class SonicTube : MonoBehaviour
     void OnEnable()
     {
         sensor = GetComponent<SphereCollider>();
+        initialBarrierRadius = sensor.radius;
         if (splineContainer == null) splineContainer = GetComponentInParent<SplineContainer>();
         if (Application.IsPlaying(gameObject)) CreateGate();
     }
@@ -147,7 +151,8 @@ public class SonicTube : MonoBehaviour
     {
         // Solid plate slightly behind the trigger centre. Only the captured rider
         // disables its own collisions; the gate stays solid for other characters.
-        gateCollider.size = new Vector3(sensor.radius * 2f, sensor.radius * 2f, 0.15f);
+        float radius = standingBarrierRadius > 0f ? standingBarrierRadius : initialBarrierRadius;
+        gateCollider.size = new Vector3(radius * 2f, radius * 2f, 0.15f);
         gateCollider.center = sensor.center + Vector3.forward * 0.15f;
         gateCollider.enabled = enabled && blockStanding;
     }

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Monitors_Interactions : MonoBehaviour {
@@ -106,6 +106,14 @@ public class Monitors_Interactions : MonoBehaviour {
                     {
                         GameObject clone = (GameObject)Instantiate(RingGiver, transform.position, transform.rotation);
                         clone.GetComponent<RingGiverControl>().Rings = col.GetComponent<MonitorData>().RingAmount;
+                        col.GetComponent<MonitorData>().DestroyMonitor();
+                        updateTgts = true;
+                    }
+                }
+                else if (col.GetComponent<MonitorData>().Type == MonitorType.Life)
+                {
+                    if (Once == -1)
+                    {
                         col.GetComponent<MonitorData>().DestroyMonitor();
                         updateTgts = true;
                     }

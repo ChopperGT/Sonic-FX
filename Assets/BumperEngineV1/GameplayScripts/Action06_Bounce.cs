@@ -37,6 +37,7 @@ public class Action06_Bounce : MonoBehaviour {
 
     public void InitialEvents()
     {
+        if(!GetComponent<ActionManager>().CanUse(SonicAbility.Bounce))return;
 		
 		////Debug.Log ("BounceDrop");
 		sounds.BounceStartSound();

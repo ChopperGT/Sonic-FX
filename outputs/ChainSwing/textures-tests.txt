@@ -1,0 +1,4 @@
+PASS
+Geometry and bounds unchanged; wood UVs along logs; all 4 material regions assigned; gold anchor and silver chain; swing, horizontal deck, length and player transport still pass.
+Triangles (wood/end/green/rivet): 240 / 240 / 48 / 48
+2026-10-01T15:04:50

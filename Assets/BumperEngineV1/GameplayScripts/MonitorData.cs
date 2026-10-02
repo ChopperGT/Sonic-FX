@@ -1,9 +1,9 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public enum MonitorType
 {
-    Ring, Shield
+    Ring, Shield, Life
 }
 
 public class MonitorData : MonoBehaviour {
@@ -16,14 +16,17 @@ public class MonitorData : MonoBehaviour {
 
     public GameObject MonitorExplosion;
 
-    bool ClaimScore()
+    bool ClaimReward()
     {
         if(destroyed)return false;
-        destroyed=true;SonicFX.Score.SonicLevelScore.AddPoints(ScoreOnDestroy);return true;
+        destroyed=true;
+        SonicFX.Score.SonicLevelScore.AddPoints(ScoreOnDestroy);
+        if(Type==MonitorType.Life)SonicFX.Menu.SonicXProgress.GainLives(1);
+        return true;
     }
     public void DestroyMonitor()
     {
-        if(!ClaimScore())return;
+        if(!ClaimReward())return;
         if(MonitorExplosion != null) GameObject.Instantiate(MonitorExplosion, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }

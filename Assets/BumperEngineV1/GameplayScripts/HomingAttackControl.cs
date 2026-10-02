@@ -48,6 +48,15 @@ public class HomingAttackControl : MonoBehaviour {
 
     void FixedUpdate()
     {
+        if(Actions==null || !Actions.CanUse(SonicAbility.HomingAttack)){
+            HasTarget=false;HomingAvailable=false;TargetObject=null;
+            if(Icon!=null)Icon.localScale=Vector3.zero;
+            // Air Dash uses the same cooldown controller, without auto-lock.
+            if(Actions!=null && Actions.CanUse(SonicAbility.AirDash)){
+                HomingCount=Actions.Action==2?0:HomingCount+1;HomingAvailable=HomingCount>3;
+            }
+            return;
+        }
 
         UpdateHomingTargets();
         //Prevent Homing attack spamming

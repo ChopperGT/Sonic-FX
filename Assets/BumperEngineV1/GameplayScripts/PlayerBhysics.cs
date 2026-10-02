@@ -289,7 +289,7 @@ public class PlayerBhysics : MonoBehaviour
 
             float turnRate = TurnRateOverAngle.Evaluate(deviationFromInput);
             lateralVelocity = Vector3.RotateTowards(lateralVelocity, lateralToInput * lateralVelocity,
-                                                    Mathf.Deg2Rad * TurnSpeed * turnRate * Time.deltaTime, 0.0f);
+                                                    Mathf.Deg2Rad * TurnSpeed * turnRate * Time.fixedDeltaTime, 0.0f);
 
             // Step 3) Further lateral velocity into normal (in the input direction) and tangential
             //         components. Note: normalSpeed is the magnitude of normalVelocity, with the added

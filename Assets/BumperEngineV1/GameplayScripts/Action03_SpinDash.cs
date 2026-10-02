@@ -40,6 +40,7 @@ public class Action03_SpinDash : MonoBehaviour {
 
     public void InitialEvents()
     {
+        if(!GetComponent<ActionManager>().CanUse(SonicAbility.SpinDash))return;
         sounds.SpinDashSound();
         charge = 0;
     }

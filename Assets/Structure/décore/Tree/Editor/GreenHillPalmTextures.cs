@@ -10,7 +10,7 @@ namespace SonicFX.Decor.Editor
     [InitializeOnLoad]
     public static class GreenHillPalmTextures
     {
-        const string Root="Assets/Structure/Tree";
+        const string Root="Assets/Structure/décore/Tree";
         const string Output=Root+"/GreenHill";
         static readonly string Reports=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),"Codex/2026-09-06/referenced-chatgpt-conversation-this-is-an/outputs/GreenHill_Palms");
         static readonly string[] Names={"palm_A","palm_B","palm_C"};

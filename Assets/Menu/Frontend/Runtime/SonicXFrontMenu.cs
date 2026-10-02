@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,11 +19,12 @@ namespace SonicFX.Menu
         [Tooltip("Scenes propres aux personnages, une fois leurs aventures pretes.")]
         public string tailsScene="",amyScene="",shadowScene="";
         public string arcadeScene="Assets/BumperEngineV1/Scenes/StageSelect.unity";
-        public enum Page { Title,Main,Story,Characters,Settings,Overwrite,Loading }
+        public enum Page { Title,Main,Story,Characters,Settings,Overwrite,Loading,Rankings }
         public Page CurrentPage {get;private set;}
         public Canvas MenuCanvas {get;private set;}
         RectTransform panel;Text heading,status;Font font;readonly List<Button> buttons=new List<Button>();
         int changedFrame;bool built;string pendingCharacter;float initialMusicVolume=1;
+        GameObject rankingsContent;string rankedScene;
         static readonly Color Navy=new Color(.018f,.045f,.13f),Gold=new Color(1,.79f,.08f),Blue=new Color(.06f,.20f,.43f);
         void Start()
         {
@@ -60,7 +61,7 @@ namespace SonicFX.Menu
             heading=Label(panel,"",new Vector2(0,263),new Vector2(470,65),29,Color.white);
             Box(panel,"Ligne",new Vector2(0,222),new Vector2(450,3),Gold);
             status=Label(panel,"",new Vector2(0,-264),new Vector2(470,78),17,new Color(.68f,.79f,.95f));
-            Label(root,"ENTRÃ‰E / âœ•  Valider     Ã‰CHAP / â—‹  Retour",new Vector2(0,-342),new Vector2(1200,28),16,new Color(.64f,.73f,.86f));
+            Label(root,"ENTRÉE / X : Valider     ÉCHAP / O : Retour",new Vector2(0,-342),new Vector2(1200,28),16,new Color(.64f,.73f,.86f));
         }
         RectTransform Box(Transform parent,string name,Vector2 pos,Vector2 size,Color color)
         {
@@ -82,20 +83,23 @@ namespace SonicFX.Menu
         {
             Build();CurrentPage=page;changedFrame=Time.frameCount;
             foreach(var b in buttons){b.gameObject.SetActive(false);if(Application.isPlaying)Destroy(b.gameObject);else DestroyImmediate(b.gameObject);}buttons.Clear();status.text="";
+            if(rankingsContent!=null){rankingsContent.SetActive(false);if(Application.isPlaying)Destroy(rankingsContent);else DestroyImmediate(rankingsContent);rankingsContent=null;}
             switch(page)
             {
                 case Page.Title:heading.text="BIENVENUE";Add("Appuie sur START",()=>Show(Page.Main));status.text="Une nouvelle aventure t'attend.";break;
-                case Page.Main:heading.text="MENU PRINCIPAL";Add("Mode Histoire",()=>Show(Page.Story));if(SonicXProgress.IsUnlocked("arcade"))Add("Mode Arcade",()=>LoadArcade());Add("ParamÃ¨tre",()=>Show(Page.Settings));Add("Quitter",Quit);break;
+                case Page.Main:heading.text="MENU PRINCIPAL";Add("Mode Histoire",()=>Show(Page.Story));if(SonicXProgress.IsUnlocked("arcade"))Add("Mode Arcade",()=>LoadArcade());Add("ParamÃ¨tre",()=>Show(Page.Settings));Add("Classement",()=>Show(Page.Rankings));Add("Quitter",Quit);break;
                 case Page.Story:heading.text="MODE HISTOIRE";if(SonicXProgress.CanContinue)Add("Continuer",Continue);Add("Nouvelle partie",()=>Show(Page.Characters));Add("Retour",()=>Show(Page.Main));break;
                 case Page.Characters:heading.text="CHOISIS TON PERSONNAGE";Add("Sonic (jeune)",()=>Choose("sonic"));if(SonicXProgress.IsUnlocked("tails"))Add("Tails",()=>Choose("tails"));if(SonicXProgress.IsUnlocked("amy"))Add("Amy",()=>Choose("amy"));if(SonicXProgress.IsUnlocked("shadow"))Add("Shadow",()=>Choose("shadow"));Add("Retour",()=>Show(Page.Story));break;
                 case Page.Overwrite:heading.text="NOUVELLE PARTIE";status.text="La progression actuelle sera remplacÃ©e.\nTes dÃ©blocages seront conservÃ©s.";Add("Commencer",()=>Launch(pendingCharacter,CharacterScene(pendingCharacter)));Add("Annuler",()=>Show(Page.Characters));break;
                 case Page.Settings:Settings();break;
+                case Page.Rankings:DrawRankings(SonicTimeRecords.ReadAll());break;
                 case Page.Loading:heading.text="CHARGEMENTâ€¦";status.text="PrÃ©pare-toi pour l'aventure !";break;
             }
-            for(int i=0;i<buttons.Count;i++){var nav=buttons[i].navigation;nav.mode=Navigation.Mode.Explicit;nav.selectOnUp=buttons[(i+buttons.Count-1)%buttons.Count];nav.selectOnDown=buttons[(i+1)%buttons.Count];buttons[i].navigation=nav;}
-            if(Application.isPlaying && EventSystem.current!=null && buttons.Count>0)EventSystem.current.SetSelectedGameObject(buttons[0].gameObject);
+            var selectable=buttons.FindAll(button=>button.interactable);
+            for(int i=0;i<selectable.Count;i++){var nav=selectable[i].navigation;nav.mode=Navigation.Mode.Explicit;nav.selectOnUp=selectable[(i+selectable.Count-1)%selectable.Count];nav.selectOnDown=selectable[(i+1)%selectable.Count];if(page==Page.Rankings){nav.selectOnLeft=nav.selectOnUp;nav.selectOnRight=nav.selectOnDown;}selectable[i].navigation=nav;}
+            if(Application.isPlaying && EventSystem.current!=null && selectable.Count>0)EventSystem.current.SetSelectedGameObject(selectable[0].gameObject);
         }
-        void Back(){if(CurrentPage==Page.Main)Show(Page.Title);else if(CurrentPage==Page.Story || CurrentPage==Page.Settings)Show(Page.Main);else if(CurrentPage==Page.Characters)Show(Page.Story);else if(CurrentPage==Page.Overwrite)Show(Page.Characters);}
+        void Back(){if(CurrentPage==Page.Main)Show(Page.Title);else if(CurrentPage==Page.Story || CurrentPage==Page.Settings || CurrentPage==Page.Rankings)Show(Page.Main);else if(CurrentPage==Page.Characters)Show(Page.Story);else if(CurrentPage==Page.Overwrite)Show(Page.Characters);}
         string CharacterScene(string id)=>id=="sonic"?SonicXProgress.FirstLevel:id=="tails"?tailsScene:id=="amy"?amyScene:shadowScene;
         void Choose(string id)
         {
@@ -103,16 +107,16 @@ namespace SonicFX.Menu
             if(!Application.CanStreamedLevelBeLoaded(CharacterScene(id))){status.text="L'aventure de ce personnage n'est pas encore configurÃ©e.";return;}
             pendingCharacter=id;if(SonicXProgress.TryRead(out _))Show(Page.Overwrite);else Launch(id,CharacterScene(id));
         }
-        void Continue(){if(SonicXProgress.TryRead(out var save))Launch(save.character,save.scene,save.lives,save.totalScore);}
-        void Launch(string character,string scene,int lives=3,long totalScore=0)
+        void Continue(){if(SonicXProgress.TryRead(out var save))Launch(save.character,save.scene,save.lives,save.totalScore,(SonicAbility)save.unlockedAbilities);}
+        void Launch(string character,string scene,int lives=3,long totalScore=0,SonicAbility abilities=SonicAbility.None)
         {
             if(!Application.CanStreamedLevelBeLoaded(scene)){status.text="Ce niveau n'est pas disponible.";return;}
-            Show(Page.Loading);StartCoroutine(LoadStory(character,scene,lives,totalScore));
+            Show(Page.Loading);StartCoroutine(LoadStory(character,scene,lives,totalScore,abilities));
         }
-        IEnumerator LoadStory(string character,string scene,int lives,long totalScore)
+        IEnumerator LoadStory(string character,string scene,int lives,long totalScore,SonicAbility abilities)
         {
             yield return null;AsyncOperation operation=null;
-            try{operation=SonicXProgress.Begin(character,scene,lives,totalScore);}catch(Exception e){Debug.LogException(e);}
+            try{operation=SonicXProgress.Begin(character,scene,lives,totalScore,abilities);}catch(Exception e){Debug.LogException(e);}
             if(operation==null){Show(Page.Story);status.text="Impossible de charger le niveau. RÃ©essaie.";}
         }
         void LoadArcade(){if(!SonicXProgress.IsUnlocked("arcade"))return;if(Application.CanStreamedLevelBeLoaded(arcadeScene)){Time.timeScale=1;SceneManager.LoadSceneAsync(arcadeScene);}else status.text="Le mode Arcade n'est pas encore configurÃ©.";}
@@ -120,6 +124,39 @@ namespace SonicFX.Menu
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying=false;
 #endif
+        }
+        void DrawRankings(List<SonicLevelTimeRecords> levels)
+        {
+            heading.text="CLASSEMENT";
+            rankingsContent=new GameObject("Records du niveau",typeof(RectTransform));
+            rankingsContent.transform.SetParent(panel,false);
+            var content=(RectTransform)rankingsContent.transform;
+            content.anchorMin=content.anchorMax=content.pivot=new Vector2(.5f,.5f);
+            content.sizeDelta=panel.sizeDelta;
+            int index=levels.FindIndex(level=>level.scene==rankedScene);
+            if(index<0)index=0;
+            var level=levels.Count>0?levels[index]:null;
+            if(level!=null)rankedScene=level.scene;
+            AddRankingButton("Niveau précédent",()=>{rankedScene=levels[(index+levels.Count-1)%levels.Count].scene;Show(Page.Rankings);},new Vector2(-115,174),new Vector2(220,40),levels.Count>1);
+            AddRankingButton("Niveau suivant",()=>{rankedScene=levels[(index+1)%levels.Count].scene;Show(Page.Rankings);},new Vector2(115,174),new Vector2(220,40),levels.Count>1);
+            var levelLabel=Label(content,level!=null?SonicTimeRecords.LevelName(level.scene):"Aucun niveau terminé",new Vector2(0,117),new Vector2(455,52),23,Gold);
+            levelLabel.resizeTextForBestFit=true;levelLabel.resizeTextMinSize=15;levelLabel.resizeTextMaxSize=23;
+            for(int i=0;i<SonicTimeRecords.RecordsPerLevel;i++)
+            {
+                var row=Box(content,"Record "+(i+1),new Vector2(0,54-i*54),new Vector2(450,45),Blue);
+                Label(row,(i+1).ToString(),new Vector2(-191,0),new Vector2(40,45),24,i==0?Gold:Color.white);
+                var record=level!=null&&i<level.records.Count?level.records[i]:null;
+                Label(row,record!=null?SonicTimeRecords.FormatTime(record.milliseconds):"--'--\"---",new Vector2(-38,0),new Vector2(258,45),27,Color.white);
+                Label(row,record!=null?SonicTimeRecords.CharacterName(record.character):"",new Vector2(155,0),new Vector2(135,45),16,new Color(.68f,.79f,.95f));
+            }
+            AddRankingButton("Retour",()=>Show(Page.Main),new Vector2(0,-222),new Vector2(450,43),true);
+            status.text=level==null?"Termine un niveau pour enregistrer ton premier temps.":"Les 5 meilleurs temps de ce niveau.\nRecords enregistrés sur cet ordinateur.";
+        }
+        void AddRankingButton(string label,Action action,Vector2 position,Vector2 size,bool interactable)
+        {
+            Add(label,action,true);var button=buttons[buttons.Count-1];var rect=(RectTransform)button.transform;
+            rect.anchoredPosition=position;rect.sizeDelta=size;button.interactable=interactable;
+            var text=button.GetComponentInChildren<Text>();text.rectTransform.sizeDelta=size-new Vector2(12,0);text.fontSize=18;
         }
         void Settings()
         {

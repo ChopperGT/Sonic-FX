@@ -17,6 +17,9 @@ namespace SonicFX.HUD
         public Text TimeText {get;private set;}
         public Text RingsText {get;private set;}
         public Text LivesText {get;private set;}
+        public Text SpeedText {get;private set;}
+        public float CurrentSpeed {get;private set;}
+        PlayerBhysics player;float speedIntensity;
         HurtControl hurt;bool gameOverQueued,gameOverVisible,returning;
         GameObject canvasObject;Font font;
         void Start()
@@ -31,6 +34,7 @@ namespace SonicFX.HUD
             if(SonicXProgress.IsGameOver && !gameOverQueued){gameOverQueued=true;StartCoroutine(GameOver());}
             if(gameOverVisible && ((Keyboard.current!=null && Keyboard.current.enterKey.wasPressedThisFrame) || (Gamepad.current!=null && (Gamepad.current.buttonSouth.wasPressedThisFrame || Gamepad.current.startButton.wasPressedThisFrame))))ReturnToMenu();
         }
+        void LateUpdate(){RefreshSpeed(Time.unscaledDeltaTime);}
         public static string FormatTime(float seconds)
         {
             long ms=(long)Math.Floor(Math.Max(0,seconds)*1000);return (ms/60000).ToString("00")+"'"+(ms/1000%60).ToString("00")+"\""+(ms%1000).ToString("000");
@@ -53,6 +57,16 @@ namespace SonicFX.HUD
             RingsText=Number(rows[2],"000",new Vector2(213,-12),new Vector2(103,52),37,TextAnchor.MiddleRight);
             LivesText=Number(rows[3],"3",new Vector2(234,-12),new Vector2(82,52),38,TextAnchor.MiddleRight);
             if(settings!=null){Icon(rows[2],settings.ringIcon,new Vector2(161,-9),new Vector2(48,48));Icon(rows[3],settings.sonicIcon,new Vector2(150,-4),new Vector2(81,54));}
+            var speedRoot=new GameObject("Vitesse - bas gauche",typeof(RectTransform)).GetComponent<RectTransform>();
+            speedRoot.SetParent(canvasObject.transform,false);speedRoot.anchorMin=speedRoot.anchorMax=speedRoot.pivot=Vector2.zero;
+            speedRoot.anchoredPosition=settings!=null?settings.speedMargin:new Vector2(18,24);
+            speedRoot.sizeDelta=new Vector2(260,110);speedRoot.localScale=Vector3.one*(settings!=null?settings.scale:1);
+            Number(speedRoot,"VITESSE",Vector2.zero,new Vector2(200,22),16,TextAnchor.MiddleLeft);
+            SpeedText=Number(speedRoot,"0",Vector2.zero,new Vector2(200,64),44,TextAnchor.MiddleLeft);
+            SpeedText.gameObject.name="Vitesse actuelle";
+            SpeedText.rectTransform.anchorMin=SpeedText.rectTransform.anchorMax=SpeedText.rectTransform.pivot=Vector2.zero;
+            SpeedText.rectTransform.anchoredPosition=Vector2.zero;
+            SpeedText.verticalOverflow=VerticalWrapMode.Overflow;
         }
         Text Number(Transform parent,string text,Vector2 pos,Vector2 size,int fontSize,TextAnchor align)
         {
@@ -69,6 +83,21 @@ namespace SonicFX.HUD
         {
             if(TimeText==null)return;
             ScoreText.text=SonicFX.Score.SonicLevelScore.Current.ToString();TimeText.text=FormatTime(Elapsed);RingsText.text=Mathf.Max(0,Objects_Interaction.RingAmount).ToString("D3");RingsText.color=Objects_Interaction.RingAmount<=0?new Color(1,.08f,.07f):Color.white;LivesText.text=SonicXProgress.Lives.ToString();
+        }
+        void RefreshSpeed(float deltaTime)
+        {
+            if(SpeedText==null)return;
+            if(player==null)player=GetComponent<PlayerBhysics>();
+            // The physics speed also reflects spline travel when the tube suspends the Rigidbody.
+            float speed=player!=null?player.SpeedMagnitude:0f;
+            CurrentSpeed=float.IsNaN(speed)||float.IsInfinity(speed)?0f:Mathf.Max(0f,speed);
+            SpeedText.text=CurrentSpeed.ToString("F0");
+            float redAt=settings!=null?Mathf.Max(1f,settings.speedRedAt):60f;
+            float target=Mathf.Clamp01(CurrentSpeed/redAt);
+            speedIntensity=Mathf.Lerp(speedIntensity,target,1f-Mathf.Exp(-10f*Mathf.Max(0f,deltaTime)));
+            SpeedText.color=Color.Lerp(Color.white,Color.red,speedIntensity);
+            float maximumScale=settings!=null?Mathf.Clamp(settings.speedMaximumScale,1f,1.5f):1.25f;
+            SpeedText.rectTransform.localScale=Vector3.one*Mathf.Lerp(1f,maximumScale,speedIntensity);
         }
         IEnumerator GameOver()
         {

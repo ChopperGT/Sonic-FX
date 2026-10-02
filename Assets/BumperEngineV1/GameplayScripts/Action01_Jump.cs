@@ -80,7 +80,7 @@ public class Action01_Jump : MonoBehaviour {
 		//Do a homing attack
 		if (Actions.Action02 != null) {
 			
-			if (Counter > 0.08f && Input.GetButtonDown ("A") && Actions.Action02Control.HasTarget && Actions.Action02.HomingAvailable) {
+			if (Actions.CanUse(SonicAbility.HomingAttack) && Counter > 0.08f && Input.GetButtonDown ("A") && Actions.Action02Control.HasTarget && Actions.Action02.HomingAvailable) {
 				if (Actions.Action02Control.HomingAvailable) {
 					sounds.HomingAttackSound ();
 					Actions.Action02.IsAirDash = false;
@@ -89,7 +89,7 @@ public class Action01_Jump : MonoBehaviour {
 				}
 			}
 			//If no tgt, do air dash;
-			if (Counter > 0.08f && Input.GetButtonDown ("A") && !Actions.Action02Control.HasTarget && Actions.Action02.HomingAvailable && Actions.Action08 == null) {
+			if (Actions.CanUse(SonicAbility.AirDash) && Counter > 0.08f && Input.GetButtonDown ("A") && !Actions.Action02Control.HasTarget && Actions.Action02.HomingAvailable && (Actions.Action08 == null || !Actions.CanUse(SonicAbility.DropDash))) {
 				if (Actions.Action02Control.HomingAvailable) {
 					sounds.AirDashSound ();
 					Actions.Action02.IsAirDash = true;
@@ -100,14 +100,14 @@ public class Action01_Jump : MonoBehaviour {
 		}
 
 		//Do a Bounce Attack
-		if (Input.GetButtonDown("X") && Actions.Action06.BounceAvailable)
+		if (Actions.CanUse(SonicAbility.Bounce) && Input.GetButtonDown("X") && Actions.Action06.BounceAvailable)
 		{
 			Actions.ChangeAction (6);
 		//	Actions.Action06.ShouldStomp = false;
 			Actions.Action06.InitialEvents ();
 		}
 		//Do a LightDash Attack
-		if (Input.GetButtonDown("Y") && Actions.Action07Control.HasTarget)
+		if (Actions.CanUse(SonicAbility.LightDash) && Input.GetButtonDown("Y") && Actions.Action07Control.HasTarget)
 		{
 			Actions.ChangeAction (7);
 			Actions.Action07.InitialEvents ();
@@ -115,7 +115,7 @@ public class Action01_Jump : MonoBehaviour {
 		//Do a DropDash Attack
 		if (Actions.Action08 != null) 
 		{
-			if (Counter > 0.08f && Input.GetButtonDown ("A") && Actions.Action08.DropDashAvailable && Actions.Action08 != null && !Actions.Action02Control.HasTarget) {
+			if (Actions.CanUse(SonicAbility.DropDash) && Counter > 0.08f && Input.GetButtonDown ("A") && Actions.Action08.DropDashAvailable && Actions.Action08 != null && !Actions.Action02Control.HasTarget) {
 				Actions.ChangeAction (8);
 
 				Actions.Action08.InitialEvents ();

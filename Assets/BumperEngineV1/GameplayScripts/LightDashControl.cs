@@ -44,6 +44,9 @@ public class LightDashControl : MonoBehaviour {
 
     void FixedUpdate()
     {
+        if(Actions==null || !Actions.CanUse(SonicAbility.LightDash)){
+            HasTarget=false;TargetObject=null;if(Icon!=null)Icon.localScale=Vector3.zero;return;
+        }
 
         UpdateHomingTargets();
         //Prevent Homing attack spamming

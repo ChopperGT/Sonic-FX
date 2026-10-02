@@ -1,7 +1,37 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[System.Flags]
+public enum SonicAbility
+{
+    None=0, HomingAttack=1, AirDash=2, SpinDash=4, Bounce=8,
+    LightDash=16, DropDash=32, RailGrinding=64,
+    All=HomingAttack|AirDash|SpinDash|Bounce|LightDash|DropDash|RailGrinding
+}
+
 public class ActionManager : MonoBehaviour {
+
+    [Header("Capacites speciales de depart")]
+    [Tooltip("None : seuls deplacement, saut normal et boule sont disponibles. Les capacites debloquees dans la sauvegarde s'ajoutent a cette liste.")]
+    [SerializeField] SonicAbility startingAbilities=SonicAbility.None;
+
+    public SonicAbility AvailableAbilities=>(startingAbilities|SonicFX.Menu.SonicXProgress.UnlockedAbilities)&SonicAbility.All;
+    public bool CanUse(SonicAbility ability)=>ability!=SonicAbility.None && (ability&~SonicAbility.All)==0 && (AvailableAbilities&ability)==ability;
+    public bool UnlockAbility(SonicAbility ability)=>SonicFX.Menu.SonicXProgress.UnlockAbility(ability);
+    public bool CanChangeAction(int next)
+    {
+        switch(next){
+            // Internal suspension used by tubes and scripted interactions.
+            case -1:case 0:case 1:case 4:return true;
+            case 2:return Action02!=null && CanUse(Action02.IsAirDash?SonicAbility.AirDash:SonicAbility.HomingAttack);
+            case 3:return Action03!=null && CanUse(SonicAbility.SpinDash);
+            case 5:return Action05!=null && CanUse(SonicAbility.RailGrinding);
+            case 6:return Action06!=null && CanUse(SonicAbility.Bounce);
+            case 7:return Action07!=null && CanUse(SonicAbility.LightDash);
+            case 8:return Action08!=null && CanUse(SonicAbility.DropDash);
+            default:return false;
+        }
+    }
 
 
     public int Action { get; set; }
@@ -72,6 +102,7 @@ public class ActionManager : MonoBehaviour {
 
     public void ChangeAction(int ActionToChange)
     {
+		if(!CanChangeAction(ActionToChange))return;
 		PreviousAction = Action;
         Action = ActionToChange;
         DeactivateAllActions();

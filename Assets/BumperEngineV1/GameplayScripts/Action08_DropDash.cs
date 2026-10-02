@@ -41,6 +41,7 @@ public class Action08_DropDash : MonoBehaviour {
 
     public void InitialEvents()
     {
+        if(!GetComponent<ActionManager>().CanUse(SonicAbility.DropDash))return;
 		////Debug.Log ("startDropDash");
 
         sounds.SpinDashSound();

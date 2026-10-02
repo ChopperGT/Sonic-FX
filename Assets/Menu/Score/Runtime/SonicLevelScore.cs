@@ -106,6 +106,10 @@ namespace SonicFX.Score
             LastResult=Calculate(Current,rings,SonicXProgress.TotalScore,nextScene,
                 CalculateTimeBonus(Elapsed,maximumTimeBonus,idealSeconds,limitSeconds),Deaths==0?NoDeathReward:0,Elapsed,Deaths);
             SonicXProgress.ApplyLevelResult(LastResult);
+            // The completion gate above prevents duplicate goal triggers from adding a record twice.
+            // Preview scenes and editor verification never write to the player's rankings.
+            if(Application.isPlaying && !string.IsNullOrEmpty(levelScene.path))
+                SonicTimeRecords.Record(levelScene.path,Elapsed,SonicXProgress.Character);
             return LastResult;
         }
     }

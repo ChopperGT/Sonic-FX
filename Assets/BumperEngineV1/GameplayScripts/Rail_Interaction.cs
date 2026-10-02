@@ -22,6 +22,7 @@ public class Rail_Interaction : MonoBehaviour {
 
     void FixedUpdate()
     {
+        if(!Actions.CanUse(SonicAbility.RailGrinding)){rail=null;return;}
         railActiveCount += 1;
 
         if (rail != null)
@@ -92,6 +93,7 @@ public class Rail_Interaction : MonoBehaviour {
 
     public void OnCollisionEnter(Collision col)
     {
+        if(!Actions.CanUse(SonicAbility.RailGrinding))return;
         if(col.gameObject.tag == "Rail")
         {
             ////Debug.Log("Col");

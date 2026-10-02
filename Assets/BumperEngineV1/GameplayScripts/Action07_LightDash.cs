@@ -29,6 +29,7 @@ public class Action07_LightDash : MonoBehaviour {
 
 	public void InitialEvents()
 	{
+        if(!GetComponent<ActionManager>().CanUse(SonicAbility.LightDash))return;
 		InitialVelocityMagnitude = Player.p_rigidbody.linearVelocity.magnitude;
 		Player.p_rigidbody.linearVelocity = Vector3.zero;
 

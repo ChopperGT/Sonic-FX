@@ -1,0 +1,3 @@
+PASS
+Original model reused; link count and Y length; source geometry unchanged; deck stays horizontal throughout swing and with yaw; pendulum length preserved; solid floor raycast; existing Sonic platform transport; independent instances; zero amplitude / disabled swing; editor preview returns to rest.
+2026-10-01T14:56:04

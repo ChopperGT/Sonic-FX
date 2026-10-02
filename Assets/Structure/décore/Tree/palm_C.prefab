@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8442819324492057039}
   - component: {fileID: 3454188894570537619}
   - component: {fileID: -5448784237948458433}
+  - component: {fileID: 8427817211384423264}
   m_Layer: 0
   m_Name: palm_C
   m_TagString: Untagged
@@ -41,7 +42,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2067918682416740236}
-  m_Mesh: {fileID: 4300000, guid: 115e80d73487d4142b8d098fb3e689ff, type: 2}
+  m_Mesh: {fileID: 4300000, guid: 09b3850c1140bf94282afb0b7b85301a, type: 2}
 --- !u!23 &3454188894570537619
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -112,4 +113,23 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 115e80d73487d4142b8d098fb3e689ff, type: 2}
+  m_Mesh: {fileID: 4300000, guid: 8add234e4c5bce245853c517530992f7, type: 2}
+--- !u!114 &8427817211384423264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2067918682416740236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cda3438c1cac64e4880ff2770fb44a56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SonicFX.Decor.PalmLeafReaction
+  reactToSonic: 1
+  reactionDistance: 3
+  referenceSpeed: 60
+  maximumDisplacement: 1.5
+  springStrength: 45
+  damping: 5
+  motionData: {fileID: 11400000, guid: 892bc37b89112ba43989929eb04fcc0a, type: 2}

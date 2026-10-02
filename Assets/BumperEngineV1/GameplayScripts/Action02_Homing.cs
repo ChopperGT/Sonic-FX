@@ -34,6 +34,7 @@ public class Action02_Homing : MonoBehaviour {
 
     public void InitialEvents()
     {
+        if(!GetComponent<ActionManager>().CanUse(IsAirDash?SonicAbility.AirDash:SonicAbility.HomingAttack))return;
 
 		Action.Action01.JumpBall.SetActive(false);
 		if (HomingTrailContainer.transform.childCount < 1) 

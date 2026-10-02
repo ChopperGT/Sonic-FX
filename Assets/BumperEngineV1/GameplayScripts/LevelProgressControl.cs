@@ -14,7 +14,7 @@ public class LevelProgressControl : MonoBehaviour {
 
     public Material LampDone;
     public int LevelToGoNext = 0;
-    [Tooltip("Chemin de la scene suivante dans le Build. Vide : utilise Level To Go Next, ou retourne au menu.")] public string NextLevelScene;
+    [Tooltip("Chemin de la scene suivante dans le Build. Vide : utilise le parcours Histoire, puis Level To Go Next pour les autres niveaux.")] public string NextLevelScene;
     public string NextLevelNameLeft;
     public string NextLevelNameRight;
     public AudioClip GoalRingTouchingSound;
@@ -129,15 +129,31 @@ public class LevelProgressControl : MonoBehaviour {
         {
             var hurt=GetComponent<HurtControl>();
             if(hurt!=null && hurt.isDead)return;
-            string next=NextLevelScene;
-            if(string.IsNullOrEmpty(next) && LevelToGoNext>0 && LevelToGoNext<SceneManager.sceneCountInBuildSettings)
-                next=SceneUtility.GetScenePathByBuildIndex(LevelToGoNext);
-            if(!string.IsNullOrEmpty(next) && !Application.CanStreamedLevelBeLoaded(next))next=null;
+            string next=ResolveNextLevelScene(gameObject.scene.path);
             if(SonicFX.Score.SonicLevelScore.Complete(Objects_Interaction.RingAmount,next,MaximumTimeBonus,IdealTimeSeconds,TimeBonusLimitSeconds)==null)return;
             readyForNextStage=true;
             if(GoalRingTouchingSound!=null)AudioSource.PlayClipAtPoint(GoalRingTouchingSound,transform.position);
             Monitors_Interactions.HasShield=false;
             SceneManager.LoadScene("StageCompleteScreen");
         }
+    }
+
+    public string ResolveNextLevelScene(string currentScene)
+    {
+        string next=ConfiguredNextLevelScene(currentScene);
+        return !string.IsNullOrEmpty(next)&&Application.CanStreamedLevelBeLoaded(next)?next:null;
+    }
+
+    public string ConfiguredNextLevelScene(string currentScene)
+    {
+        string next=NextLevelScene;
+        if(string.IsNullOrEmpty(next))
+        {
+            // A configured future stage must not fall back to an unrelated build index.
+            bool inStoryRoute=SonicFX.Menu.SonicStoryRoute.TryResolve(SonicFX.Menu.SonicXProgress.Character,currentScene,out next);
+            if(!inStoryRoute && LevelToGoNext>0 && LevelToGoNext<SceneManager.sceneCountInBuildSettings)
+                next=SceneUtility.GetScenePathByBuildIndex(LevelToGoNext);
+        }
+        return next;
     }
 }
