@@ -18,8 +18,9 @@ namespace SonicFX.Menu
         public AudioMixer musicMixer,sfxMixer;
         [Tooltip("Scenes propres aux personnages, une fois leurs aventures pretes.")]
         public string tailsScene="",amyScene="",shadowScene="";
+        public string speedrunCocoScene="Assets/Level/SpeerunMadeByCOCO.unity";
         public string arcadeScene="Assets/BumperEngineV1/Scenes/StageSelect.unity";
-        public enum Page { Title,Main,Story,Characters,Settings,Overwrite,Loading }
+        public enum Page { Title,Main,Story,Characters,Settings,Overwrite,Loading,NewLevels }
         public Page CurrentPage {get;private set;}
         public Canvas MenuCanvas {get;private set;}
         RectTransform panel;Text heading,status;Font font;readonly List<Button> buttons=new List<Button>();
@@ -60,7 +61,7 @@ namespace SonicFX.Menu
             heading=Label(panel,"",new Vector2(0,263),new Vector2(470,65),29,Color.white);
             Box(panel,"Ligne",new Vector2(0,222),new Vector2(450,3),Gold);
             status=Label(panel,"",new Vector2(0,-264),new Vector2(470,78),17,new Color(.68f,.79f,.95f));
-            Label(root,"ENTRÃ‰E / âœ•  Valider     Ã‰CHAP / â—‹  Retour",new Vector2(0,-342),new Vector2(1200,28),16,new Color(.64f,.73f,.86f));
+            Label(root,"ENTRÉE  Valider     ÉCHAP  Retour",new Vector2(0,-342),new Vector2(1200,28),16,new Color(.64f,.73f,.86f));
         }
         RectTransform Box(Transform parent,string name,Vector2 pos,Vector2 size,Color color)
         {
@@ -85,22 +86,23 @@ namespace SonicFX.Menu
             switch(page)
             {
                 case Page.Title:heading.text="BIENVENUE";Add("Appuie sur START",()=>Show(Page.Main));status.text="Une nouvelle aventure t'attend.";break;
-                case Page.Main:heading.text="MENU PRINCIPAL";Add("Mode Histoire",()=>Show(Page.Story));if(SonicXProgress.IsUnlocked("arcade"))Add("Mode Arcade",()=>LoadArcade());Add("ParamÃ¨tre",()=>Show(Page.Settings));Add("Quitter",Quit);break;
+                case Page.Main:heading.text="MENU PRINCIPAL";Add("Mode Histoire",()=>Show(Page.Story));if(SonicXProgress.IsUnlocked("arcade"))Add("Mode Arcade",()=>LoadArcade());Add("New levels",()=>Show(Page.NewLevels));Add("Paramètre",()=>Show(Page.Settings));Add("Quitter",Quit);break;
                 case Page.Story:heading.text="MODE HISTOIRE";if(SonicXProgress.CanContinue)Add("Continuer",Continue);Add("Nouvelle partie",()=>Show(Page.Characters));Add("Retour",()=>Show(Page.Main));break;
                 case Page.Characters:heading.text="CHOISIS TON PERSONNAGE";Add("Sonic (jeune)",()=>Choose("sonic"));if(SonicXProgress.IsUnlocked("tails"))Add("Tails",()=>Choose("tails"));if(SonicXProgress.IsUnlocked("amy"))Add("Amy",()=>Choose("amy"));if(SonicXProgress.IsUnlocked("shadow"))Add("Shadow",()=>Choose("shadow"));Add("Retour",()=>Show(Page.Story));break;
-                case Page.Overwrite:heading.text="NOUVELLE PARTIE";status.text="La progression actuelle sera remplacÃ©e.\nTes dÃ©blocages seront conservÃ©s.";Add("Commencer",()=>Launch(pendingCharacter,CharacterScene(pendingCharacter)));Add("Annuler",()=>Show(Page.Characters));break;
+                case Page.Overwrite:heading.text="NOUVELLE PARTIE";status.text="La progression actuelle sera remplacée.\nTes déblocages seront conservés.";Add("Commencer",()=>Launch(pendingCharacter,CharacterScene(pendingCharacter)));Add("Annuler",()=>Show(Page.Characters));break;
+                case Page.NewLevels:heading.text="NEW LEVELS";Add("BoundArounds",()=>LoadLevel(speedrunCocoScene));Add("Retour",()=>Show(Page.Main));break;
                 case Page.Settings:Settings();break;
-                case Page.Loading:heading.text="CHARGEMENTâ€¦";status.text="PrÃ©pare-toi pour l'aventure !";break;
+                case Page.Loading:heading.text="CHARGEMENT…";status.text="Prépare-toi pour l'aventure !";break;
             }
             for(int i=0;i<buttons.Count;i++){var nav=buttons[i].navigation;nav.mode=Navigation.Mode.Explicit;nav.selectOnUp=buttons[(i+buttons.Count-1)%buttons.Count];nav.selectOnDown=buttons[(i+1)%buttons.Count];buttons[i].navigation=nav;}
             if(Application.isPlaying && EventSystem.current!=null && buttons.Count>0)EventSystem.current.SetSelectedGameObject(buttons[0].gameObject);
         }
-        void Back(){if(CurrentPage==Page.Main)Show(Page.Title);else if(CurrentPage==Page.Story || CurrentPage==Page.Settings)Show(Page.Main);else if(CurrentPage==Page.Characters)Show(Page.Story);else if(CurrentPage==Page.Overwrite)Show(Page.Characters);}
+        void Back(){if(CurrentPage==Page.Main)Show(Page.Title);else if(CurrentPage==Page.Story || CurrentPage==Page.Settings || CurrentPage==Page.NewLevels)Show(Page.Main);else if(CurrentPage==Page.Characters)Show(Page.Story);else if(CurrentPage==Page.Overwrite)Show(Page.Characters);}
         string CharacterScene(string id)=>id=="sonic"?SonicXProgress.FirstLevel:id=="tails"?tailsScene:id=="amy"?amyScene:shadowScene;
         void Choose(string id)
         {
             if(!SonicXProgress.IsUnlocked(id))return;
-            if(!Application.CanStreamedLevelBeLoaded(CharacterScene(id))){status.text="L'aventure de ce personnage n'est pas encore configurÃ©e.";return;}
+            if(!Application.CanStreamedLevelBeLoaded(CharacterScene(id))){status.text="L'aventure de ce personnage n'est pas encore configurée.";return;}
             pendingCharacter=id;if(SonicXProgress.TryRead(out _))Show(Page.Overwrite);else Launch(id,CharacterScene(id));
         }
         void Continue(){if(SonicXProgress.TryRead(out var save))Launch(save.character,save.scene,save.lives,save.totalScore);}
@@ -113,9 +115,10 @@ namespace SonicFX.Menu
         {
             yield return null;AsyncOperation operation=null;
             try{operation=SonicXProgress.Begin(character,scene,lives,totalScore);}catch(Exception e){Debug.LogException(e);}
-            if(operation==null){Show(Page.Story);status.text="Impossible de charger le niveau. RÃ©essaie.";}
+            if(operation==null){Show(Page.Story);status.text="Impossible de charger le niveau. Réessaie.";}
         }
-        void LoadArcade(){if(!SonicXProgress.IsUnlocked("arcade"))return;if(Application.CanStreamedLevelBeLoaded(arcadeScene)){Time.timeScale=1;SceneManager.LoadSceneAsync(arcadeScene);}else status.text="Le mode Arcade n'est pas encore configurÃ©.";}
+        void LoadLevel(string scene){if(Application.CanStreamedLevelBeLoaded(scene)){Time.timeScale=1;SceneManager.LoadSceneAsync(scene);}else status.text="Ce niveau n'est pas disponible.";}
+        void LoadArcade(){if(!SonicXProgress.IsUnlocked("arcade"))return;if(Application.CanStreamedLevelBeLoaded(arcadeScene)){Time.timeScale=1;SceneManager.LoadSceneAsync(arcadeScene);}else status.text="Le mode Arcade n'est pas encore configuré.";}
         void Quit(){PlayerPrefs.Save();Application.Quit();
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying=false;
@@ -123,15 +126,15 @@ namespace SonicFX.Menu
         }
         void Settings()
         {
-            heading.text="PARAMÃˆTRE";
+            heading.text="PARAMÈTRE";
             Add("Musique : "+VolumePercent("MUSIC_VOL")+" %",()=>CycleVolume("MUSIC_VOL"),true);
             Add("Effets sonores : "+VolumePercent("SFX_VOL")+" %",()=>CycleVolume("SFX_VOL"),true);
-            Add("SensibilitÃ© X : "+PlayerPrefs.GetFloat("X_SENS",1).ToString("0.0"),()=>CycleSensitivity("X_SENS"),true);
-            Add("SensibilitÃ© Y : "+PlayerPrefs.GetFloat("Y_SENS",1).ToString("0.0"),()=>CycleSensitivity("Y_SENS"),true);
+            Add("Sensibilité X : "+PlayerPrefs.GetFloat("X_SENS",1).ToString("0.0"),()=>CycleSensitivity("X_SENS"),true);
+            Add("Sensibilité Y : "+PlayerPrefs.GetFloat("Y_SENS",1).ToString("0.0"),()=>CycleSensitivity("Y_SENS"),true);
             Add("Inverser X : "+(PlayerPrefs.GetInt("X_INV",0)==1?"Oui":"Non"),()=>Toggle("X_INV"),true);
             Add("Inverser Y : "+(PlayerPrefs.GetInt("Y_INV",0)==1?"Oui":"Non"),()=>Toggle("Y_INV"),true);
-            Add("CamÃ©ra du tube : "+SonicTubeCameraSettings.Mode,()=>{SonicTubeCameraSettings.Mode=SonicTubeCameraSettings.Mode==SonicTubeCameraMode.FPS?SonicTubeCameraMode.Proche:SonicTubeCameraMode.FPS;RefreshSettings(6);},true);
-            Add("Retour",()=>Show(Page.Main),true);status.text="Valider une ligne pour changer sa valeur.\nRÃ©glages enregistrÃ©s automatiquement.";
+            Add("Caméra du tube : "+SonicTubeCameraSettings.Mode,()=>{SonicTubeCameraSettings.Mode=SonicTubeCameraSettings.Mode==SonicTubeCameraMode.FPS?SonicTubeCameraMode.Proche:SonicTubeCameraMode.FPS;RefreshSettings(6);},true);
+            Add("Retour",()=>Show(Page.Main),true);status.text="Valider une ligne pour changer sa valeur.\nRéglages enregistrés automatiquement.";
         }
         static int VolumePercent(string key){float db=PlayerPrefs.GetFloat(key,1);return db<=-49?0:Mathf.RoundToInt(Mathf.Pow(10,(db-1)/20)*100);}
         void CycleVolume(string key){int p=VolumePercent(key);p=p<=0?100:Mathf.Max(0,Mathf.RoundToInt(p/10f)*10-10);PlayerPrefs.SetFloat(key,p==0?-50:1+20*Mathf.Log10(p/100f));PlayerPrefs.Save();ApplyAudio();RefreshSettings(key=="MUSIC_VOL"?0:1);}

@@ -73,7 +73,7 @@ public class Action08_DropDash : MonoBehaviour {
 
        // Player.rigidbody.velocity /= SpinDashStillForce;
 
-		if(!Input.GetButton("A")) 
+		if(!PadInput.GetButton("A")) 
 		{
 			if (DropEffect.isPlaying == true) {
 				DropEffect.Stop ();

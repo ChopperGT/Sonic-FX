@@ -23,6 +23,8 @@ public class LevelProgressControl : MonoBehaviour {
     [Min(0), InspectorName("Bonus temps maximum")] public int MaximumTimeBonus = 10000;
     [Min(0), InspectorName("Temps ideal (secondes)")] public float IdealTimeSeconds = 120;
     [Min(.01f), InspectorName("Limite du bonus (secondes)")] public float TimeBonusLimitSeconds = 300;
+    [Tooltip("Temps cibles en secondes : Arc-en-ciel, Diamant, Or, Argent. Vide : derive du temps ideal (x0.8, x0.9, x1, x1.25).")]
+    public float[] MedalTimesSeconds = new float[0];
     HurtControl scoreHurt;
 
     void OnValidate()
@@ -45,6 +47,7 @@ public class LevelProgressControl : MonoBehaviour {
         Cam = GetComponent<CameraControl>();
         Actions = GetComponent<ActionManager>();
         Player = GetComponent<PlayerBhysics>();
+        if(GetComponent<SonicFX.Score.SonicGhost>()==null)gameObject.AddComponent<SonicFX.Score.SonicGhost>();
 
     }
 
@@ -133,11 +136,19 @@ public class LevelProgressControl : MonoBehaviour {
             if(string.IsNullOrEmpty(next) && LevelToGoNext>0 && LevelToGoNext<SceneManager.sceneCountInBuildSettings)
                 next=SceneUtility.GetScenePathByBuildIndex(LevelToGoNext);
             if(!string.IsNullOrEmpty(next) && !Application.CanStreamedLevelBeLoaded(next))next=null;
-            if(SonicFX.Score.SonicLevelScore.Complete(Objects_Interaction.RingAmount,next,MaximumTimeBonus,IdealTimeSeconds,TimeBonusLimitSeconds)==null)return;
+            var levelResult=SonicFX.Score.SonicLevelScore.Complete(Objects_Interaction.RingAmount,next,MaximumTimeBonus,IdealTimeSeconds,TimeBonusLimitSeconds,MedalTimesSeconds);
+            if(levelResult==null)return;
+            if(levelResult.newRecord)GetComponent<SonicFX.Score.SonicGhost>()?.SaveAsBest();
             readyForNextStage=true;
             if(GoalRingTouchingSound!=null)AudioSource.PlayClipAtPoint(GoalRingTouchingSound,transform.position);
             Monitors_Interactions.HasShield=false;
-            SceneManager.LoadScene("StageCompleteScreen");
+            StartCoroutine(CaptureThenShowResults());
         }
+    }
+
+    IEnumerator CaptureThenShowResults()
+    {
+        yield return SonicFX.Score.SonicLevelScore.CaptureSnapshot();
+        SceneManager.LoadScene("StageCompleteScreen");
     }
 }

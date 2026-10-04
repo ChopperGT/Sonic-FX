@@ -10,6 +10,32 @@ namespace SonicFX.Score
         public int rings, bonusLives, timeBonus, noDeathBonus, deaths;
         public float elapsedSeconds;
         public string nextScene;
+        public string levelKey;
+        public bool newRecord;
+        public float[] medalTimes; // cibles : arc-en-ciel, diamant, or, argent
+    }
+
+    // 3 meilleurs temps par niveau, cle = chemin de la scene.
+    public static class SonicRecords
+    {
+        const int Count=3;
+        static string Key(string level)=>"SonicBestTimes_"+level;
+        public static float[] Top(string level)
+        {
+            string raw=PlayerPrefs.GetString(Key(level),"");
+            if(raw.Length==0)return new float[0];
+            return Array.ConvertAll(raw.Split(';'),s=>float.Parse(s,System.Globalization.CultureInfo.InvariantCulture));
+        }
+        // Retourne true si le temps devient le nouveau meilleur temps.
+        public static bool Add(string level,float seconds)
+        {
+            var list=new System.Collections.Generic.List<float>(Top(level)){seconds};
+            list.Sort();
+            if(list.Count>Count)list.RemoveRange(Count,list.Count-Count);
+            PlayerPrefs.SetString(Key(level),string.Join(";",list.ConvertAll(t=>t.ToString("R",System.Globalization.CultureInfo.InvariantCulture))));
+            PlayerPrefs.Save();
+            return list[0]==seconds;
+        }
     }
 
     public static class SonicLevelScore
@@ -99,12 +125,31 @@ namespace SonicFX.Score
             };
         }
 
-        public static LevelScoreResult Complete(int rings,string nextScene=null,int maximumTimeBonus=10000,float idealSeconds=120,float limitSeconds=300)
+        // Temps cibles arc-en-ciel, diamant, or, argent ; sans reglage : derives du temps ideal.
+        public static float[] MedalTimes(float[] custom,float idealSeconds)=>custom!=null && custom.Length==4?custom:
+            new[]{idealSeconds*.8f,idealSeconds*.9f,idealSeconds,idealSeconds*1.25f};
+
+        // Capture basse resolution du dernier frame du niveau : sert de fond flou a l'ecran de fin.
+        public static RenderTexture Snapshot { get; private set; }
+        public static System.Collections.IEnumerator CaptureSnapshot()
+        {
+            yield return new WaitForEndOfFrame();
+            var shot=ScreenCapture.CaptureScreenshotAsTexture();
+            // RGB565 : pas de canal alpha, sinon l'image peut s'afficher transparente.
+            if(Snapshot==null)Snapshot=new RenderTexture(192,108,0,RenderTextureFormat.RGB565){filterMode=FilterMode.Bilinear};
+            Graphics.Blit(shot,Snapshot);
+            UnityEngine.Object.Destroy(shot);
+        }
+
+        public static LevelScoreResult Complete(int rings,string nextScene=null,int maximumTimeBonus=10000,float idealSeconds=120,float limitSeconds=300,float[] medalTimes=null)
         {
             if(!IsRunning || SonicXProgress.IsGameOver)return LastResult;
             IsRunning=false;
             LastResult=Calculate(Current,rings,SonicXProgress.TotalScore,nextScene,
                 CalculateTimeBonus(Elapsed,maximumTimeBonus,idealSeconds,limitSeconds),Deaths==0?NoDeathReward:0,Elapsed,Deaths);
+            LastResult.levelKey=levelScene.path;
+            LastResult.newRecord=SonicRecords.Add(levelScene.path,Elapsed);
+            LastResult.medalTimes=MedalTimes(medalTimes,idealSeconds);
             SonicXProgress.ApplyLevelResult(LastResult);
             return LastResult;
         }

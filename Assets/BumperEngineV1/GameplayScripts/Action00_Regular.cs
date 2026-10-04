@@ -81,7 +81,7 @@ public class Action00_Regular : MonoBehaviour {
     void Update()
     {
 
-		if (Input.GetButtonDown("A") && Player.Grounded)
+		if (PadInput.GetButtonDown("A") && Player.Grounded)
 		{
 			JumpAction.InitialEvents();
 			Actions.ChangeAction(1);
@@ -92,12 +92,12 @@ public class Action00_Regular : MonoBehaviour {
         CharacterAnimator.SetFloat("YSpeed", Player.p_rigidbody.linearVelocity.y);
 		CharacterAnimator.SetFloat("XZSpeed", Mathf.Abs((Player.p_rigidbody.linearVelocity.x+Player.p_rigidbody.linearVelocity.z)/2));
         CharacterAnimator.SetFloat("GroundSpeed", Player.p_rigidbody.linearVelocity.magnitude);
-		CharacterAnimator.SetFloat("HorizontalInput", Input.GetAxis("Horizontal")*Player.p_rigidbody.linearVelocity.magnitude);
+		CharacterAnimator.SetFloat("HorizontalInput", PadInput.GetAxis("Horizontal")*Player.p_rigidbody.linearVelocity.magnitude);
         CharacterAnimator.SetBool("Grounded", Player.Grounded);
         CharacterAnimator.SetFloat("NormalSpeed", Player.b_normalSpeed + SkiddingStartPoint);
 
 		//Set Camera to back
-		if (Input.GetButton ("RightStickIn")) 
+		if (PadInput.GetButton("RightStickIn")) 
 		{
 			//Lock camera on behind
 			Cam.Cam.FollowDirection(6, 14f, -10,0);
@@ -105,14 +105,14 @@ public class Action00_Regular : MonoBehaviour {
 		}
 
         //Do Spindash
-		if (Input.GetButton("B") && Player.Grounded && Player.GroundNormal.y > MaximumSlope && Player.p_rigidbody.linearVelocity.sqrMagnitude < MaximumSpeed) { Actions.ChangeAction(3); Actions.Action03.InitialEvents(); }
+		if (PadInput.GetButton("B") && Player.Grounded && Player.GroundNormal.y > MaximumSlope && Player.p_rigidbody.linearVelocity.sqrMagnitude < MaximumSpeed) { Actions.ChangeAction(3); Actions.Action03.InitialEvents(); }
 
         //Check if rolling
         if (Player.Grounded && Player.isRolling) { CharacterAnimator.SetInteger("Action", 1); }
         CharacterAnimator.SetBool("isRolling", Player.isRolling);
 
         //Play Rolling Sound
-		if (Input.GetButtonDown("R1") && Player.Grounded && (GetComponent<Rigidbody>().linearVelocity.sqrMagnitude > Player.RollingStartSpeed)) 
+		if (PadInput.GetButtonDown("R1") && Player.Grounded && (GetComponent<Rigidbody>().linearVelocity.sqrMagnitude > Player.RollingStartSpeed)) 
 		{
 			sounds.SpinningSound(); 
 		}
@@ -146,7 +146,7 @@ public class Action00_Regular : MonoBehaviour {
 		if (Actions.Action02 != null) {
 			
 			//Do a homing attack
-			if (!Player.Grounded && Input.GetButtonDown ("A") && Actions.Action02Control.HasTarget && Actions.Action02.HomingAvailable) {
+			if (!Player.Grounded && PadInput.GetButtonDown("A") && Actions.Action02Control.HasTarget && Actions.Action02.HomingAvailable) {
 				if (Actions.Action02Control.HomingAvailable) {
 					sounds.HomingAttackSound ();
 					Actions.Action02.IsAirDash = false;
@@ -155,7 +155,7 @@ public class Action00_Regular : MonoBehaviour {
 				}
 			}
 			//If no tgt, do air dash;
-			if (!Player.Grounded && Input.GetButtonDown ("A") && !Actions.Action02Control.HasTarget && Actions.Action02.HomingAvailable && CanDashDuringFall && Actions.Action08 == null) {
+			if (!Player.Grounded && PadInput.GetButtonDown("A") && !Actions.Action02Control.HasTarget && Actions.Action02.HomingAvailable && CanDashDuringFall && Actions.Action08 == null) {
 				if (Actions.Action02Control.HomingAvailable) {
 					sounds.AirDashSound ();
 					Actions.Action02.IsAirDash = true;
@@ -166,7 +166,7 @@ public class Action00_Regular : MonoBehaviour {
 
 		}
 		//Do a Bounce Attack
-		if (!Player.Grounded && Input.GetButtonDown("X"))
+		if (!Player.Grounded && PadInput.GetButtonDown("X"))
 		{
 			Actions.ChangeAction (6);
 			//Actions.Action06.ShouldStomp = false;
@@ -176,7 +176,7 @@ public class Action00_Regular : MonoBehaviour {
 		//Do a DropDash Attack
 		if (Actions.Action08 != null) {
 
-			if (!Player.Grounded && Input.GetButtonDown ("A") && Actions.Action08 != null && !Actions.Action02Control.HasTarget) {
+			if (!Player.Grounded && PadInput.GetButtonDown("A") && Actions.Action08 != null && !Actions.Action02Control.HasTarget) {
 				Actions.Action08.DropDashAvailable = false;
 				Actions.ChangeAction (8);
 				Actions.Action08.InitialEvents ();
@@ -189,7 +189,7 @@ public class Action00_Regular : MonoBehaviour {
 		}
 
 		//Do a LightDash Attack
-		if (Input.GetButtonDown("Y") && Actions.Action07Control.HasTarget)
+		if (PadInput.GetButtonDown("Y") && Actions.Action07Control.HasTarget)
 		{
 			Actions.ChangeAction (7);
 			Actions.Action07.InitialEvents ();

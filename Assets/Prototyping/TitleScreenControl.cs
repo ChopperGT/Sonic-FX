@@ -44,7 +44,7 @@ public class TitleScreenControl : MonoBehaviour {
 
         }
 
-        if(Input.GetButtonDown("Start") || Input.GetButtonDown("A"))
+        if(PadInput.GetButtonDown("Start") || PadInput.GetButtonDown("A"))
         {
             if (!End)
             {

@@ -33,7 +33,7 @@ namespace SonicFX.HUD
         }
         public static string FormatTime(float seconds)
         {
-            long ms=(long)Math.Floor(Math.Max(0,seconds)*1000);return (ms/60000).ToString("00")+"'"+(ms/1000%60).ToString("00")+"\""+(ms%1000).ToString("000");
+            long ms=(long)Math.Round(Math.Max(0,(double)seconds)*1000);return (ms/60000).ToString("00")+"'"+(ms/1000%60).ToString("00")+"\""+(ms%1000).ToString("000");
         }
         public void Build()
         {
@@ -53,6 +53,10 @@ namespace SonicFX.HUD
             RingsText=Number(rows[2],"000",new Vector2(213,-12),new Vector2(103,52),37,TextAnchor.MiddleRight);
             LivesText=Number(rows[3],"3",new Vector2(234,-12),new Vector2(82,52),38,TextAnchor.MiddleRight);
             if(settings!=null){Icon(rows[2],settings.ringIcon,new Vector2(161,-9),new Vector2(48,48));Icon(rows[3],settings.sonicIcon,new Vector2(150,-4),new Vector2(81,54));}
+            var records=GetComponent<SonicRecordsHud>();if(records==null)records=gameObject.AddComponent<SonicRecordsHud>();
+            records.Build(HudCanvas);
+            var pauseMenu=GetComponent<SonicPauseMenu>();if(pauseMenu==null)pauseMenu=gameObject.AddComponent<SonicPauseMenu>();
+            pauseMenu.Build(HudCanvas);
         }
         Text Number(Transform parent,string text,Vector2 pos,Vector2 size,int fontSize,TextAnchor align)
         {

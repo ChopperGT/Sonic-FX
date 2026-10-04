@@ -39,8 +39,8 @@ public class DebugUI : MonoBehaviour {
             " tangentVelocity: " + tangentVelocity + "\n" +
             " TangentMod: " + modTangent + "\n" +
             " action: " + action.Action + "\n" +
-            " Input A: " + Input.GetButton("A") + "\n" +
-            " Input APress: " + Input.GetButtonDown("A") + "\n" +
+            " Input A: " + PadInput.GetButton("A") + "\n" +
+            " Input APress: " + PadInput.GetButtonDown("A") + "\n" +
             " Normal: " + phys.GroundNormal;
 
         gameObject.GetComponent<Text>().text = debug;

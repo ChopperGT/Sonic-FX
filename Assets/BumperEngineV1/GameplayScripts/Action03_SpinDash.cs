@@ -67,7 +67,7 @@ public class Action03_SpinDash : MonoBehaviour {
 
         Player.p_rigidbody.linearVelocity /= SpinDashStillForce;
 
-        if(!Input.GetButton("B")) { Release(); }
+        if(!PadInput.GetButton("B")) { Release(); }
 
         if (charge > MaximunCharge)
         {
