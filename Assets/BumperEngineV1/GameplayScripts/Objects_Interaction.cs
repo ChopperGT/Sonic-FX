@@ -462,6 +462,13 @@ public class Objects_Interaction : MonoBehaviour {
 
         if (col.gameObject.tag == "MovingPlatform")
         {
+            var swing = col.GetComponentInParent<SonicFX.Structures.SonicSwingPlatform>();
+            if (swing != null && swing.isActiveAndEnabled && col.transform == swing.Platform)
+            {
+                swing.RegisterRider(Player);
+                Platform = null;
+                return;
+            }
             Platform = col.gameObject.GetComponent<MovingPlatformControl>();
         }
         else
@@ -474,7 +481,7 @@ public class Objects_Interaction : MonoBehaviour {
     {
         if (!Actions.Action04Control.IsHurt && Actions.Action != 4)
         {
-
+            SonicFX.Score.SonicLevelScore.ResetRingLifeProgress();
             if (!Monitors_Interactions.HasShield)
             {
                 if (RingAmount > 0)

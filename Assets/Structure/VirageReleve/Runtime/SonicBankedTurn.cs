@@ -21,6 +21,11 @@ namespace SonicFX.Structures
         [InspectorName("Largeur de la pente"),Min(1)] public float rampWidth=10;
         [InspectorName("Hauteur du mur"),Min(1)] public float wallHeight=10;
         [InspectorName("Epaisseur du socle"),Min(.1f)] public float baseDepth=2;
+        [Header("Sol exterieur en hauteur")]
+        [InspectorName("Ajouter le sol exterieur")]
+        [Tooltip("Prolonge le sommet du mur vers l'exterieur par un plateau. Partage le materiau et la collision du virage.")]
+        public bool outerFloor;
+        [InspectorName("Largeur du sol exterieur"),Min(.1f)] public float outerFloorWidth=6;
         [Header("Raccord interieur")]
         [InspectorName("Combler le trou interieur")]
         [Tooltip("Prolonge le sol plat jusqu'au centre du virage et retire la paroi du trou. Le remplissage partage la collision du virage.")]
@@ -38,6 +43,7 @@ namespace SonicFX.Structures
         bool dirty=true;
         public float Sign => direction==TurnDirection.Droite?1:-1;
         public float OuterRadius=>innerRadius+flatWidth+rampWidth;
+        public float SurfaceOuterRadius=>OuterRadius+(outerFloor?outerFloorWidth:0);
         public Vector3 EntryPosition=>Point(0,innerRadius+flatWidth*.5f,0)-Vector3.forward*entryLength;
         public Vector3 ExitPosition=>Point(angle*Mathf.Deg2Rad,innerRadius+flatWidth*.5f,0)+ExitForward*exitLength;
         public Vector3 ExitForward=>new Vector3(Sign*Mathf.Sin(angle*Mathf.Deg2Rad),0,Mathf.Cos(angle*Mathf.Deg2Rad));
@@ -72,6 +78,7 @@ namespace SonicFX.Structures
             segmentLength=Mathf.Clamp(segmentLength,.2f,2);rampSegments=Mathf.Clamp(rampSegments,16,64);uvSize=Mathf.Max(.1f,uvSize);
             sideSmoothing=Mathf.Clamp(sideSmoothing,.1f,.5f);
             entryLength=Mathf.Clamp(entryLength,0,1000);exitLength=Mathf.Clamp(exitLength,0,1000);
+            outerFloorWidth=Mathf.Clamp(outerFloorWidth,.1f,1000);
         }
         public Vector3 Point(float theta,float radius,float y)
         {
@@ -102,9 +109,19 @@ namespace SonicFX.Structures
             position=Point(theta,radius,y);
             normal=(-outward*(dy*radius)+Vector3.up*(dr*radius)+tangent*(dy*rt-dr*yt)).normalized;
         }
-        Vector3 ProfilePoint(float theta,int index,int flatSegments)
+        public void EvaluateOuterFloor(float theta,float progress,out Vector3 position,out Vector3 normal)
+        {
+            float radius=OuterRadius+outerFloorWidth*Mathf.Clamp01(progress);
+            float blend=SideBlend(theta,out float derivative);
+            position=Point(theta,radius,wallHeight*blend);
+            Vector3 tangent=new Vector3(Sign*Mathf.Sin(theta),0,Mathf.Cos(theta));
+            // Across the plateau it is flat. Along smoothed entrances/exits it follows the wall.
+            normal=(Vector3.up*radius-tangent*(wallHeight*derivative)).normalized;
+        }
+        Vector3 ProfilePoint(float theta,int index,int flatSegments,int outerSegments=0)
         {
             if(index<=flatSegments)return Point(theta,innerRadius+flatWidth*index/flatSegments,0);
+            if(index>flatSegments+rampSegments){EvaluateOuterFloor(theta,(float)(index-flatSegments-rampSegments)/outerSegments,out var outer,out _);return outer;}
             EvaluateRamp(theta,(float)(index-flatSegments)/rampSegments,out var point,out _);return point;
         }
         struct Row
@@ -130,8 +147,9 @@ namespace SonicFX.Structures
         public Mesh CreateMesh()
         {
             ClampParameters();
-            int turns=Mathf.Clamp(Mathf.CeilToInt(OuterRadius*angle*Mathf.Deg2Rad/segmentLength),8,512);
-            const int flatSegments=8;int across=flatSegments+rampSegments;
+            int turns=Mathf.Clamp(Mathf.CeilToInt(SurfaceOuterRadius*angle*Mathf.Deg2Rad/segmentLength),8,512);
+            int outerSegments=outerFloor?Mathf.Clamp(Mathf.CeilToInt(outerFloorWidth/segmentLength),1,128):0;
+            const int flatSegments=8;int across=flatSegments+rampSegments+outerSegments;
             var rows=new List<Row>();
             int entrySteps=entryLength>0?Mathf.Clamp(Mathf.CeilToInt(entryLength/segmentLength),1,512):0;
             int exitSteps=exitLength>0?Mathf.Clamp(Mathf.CeilToInt(exitLength/segmentLength),1,512):0;
@@ -147,6 +165,7 @@ namespace SonicFX.Structures
                 {
                     Vector3 point,normal;
                     if(j<=flatSegments){point=ProfilePoint(theta,j,flatSegments);normal=Vector3.up;}
+                    else if(j>flatSegments+rampSegments)EvaluateOuterFloor(theta,(float)(j-flatSegments-rampSegments)/outerSegments,out point,out normal);
                     else EvaluateRamp(theta,(float)(j-flatSegments)/rampSegments,out point,out normal);
                     if(j>0)distance+=Vector3.Distance(point,previous);previous=point;
                     float radius=new Vector2(point.x-Sign*innerRadius,point.z).magnitude;
@@ -164,7 +183,7 @@ namespace SonicFX.Structures
             {
                 Row r0=rows[i],r1=rows[i+1];float t0=r0.theta,t1=r1.theta,mid=(t0+t1)*.5f;
                 Vector3 outward=new Vector3(-Sign*Mathf.Cos(mid),0,Mathf.Sin(mid));
-                Quad(vertices,normals,uv,indices,At(r0,innerRadius,-baseDepth),At(r1,innerRadius,-baseDepth),At(r1,OuterRadius,-baseDepth),At(r0,OuterRadius,-baseDepth),Vector3.down,uvSize);
+                Quad(vertices,normals,uv,indices,At(r0,innerRadius,-baseDepth),At(r1,innerRadius,-baseDepth),At(r1,SurfaceOuterRadius,-baseDepth),At(r0,SurfaceOuterRadius,-baseDepth),Vector3.down,uvSize);
                 if(!fillInterior)
                     Quad(vertices,normals,uv,indices,At(r0,innerRadius,0),At(r1,innerRadius,0),At(r1,innerRadius,-baseDepth),At(r0,innerRadius,-baseDepth),-outward,uvSize);
                 else
@@ -180,7 +199,7 @@ namespace SonicFX.Structures
                         FillExtensionWall(vertices,normals,uv,indices,r0,r1,-outward);
                     }
                 }
-                Quad(vertices,normals,uv,indices,At(r0,OuterRadius,wallHeight*SideBlend(t0,out _)),At(r1,OuterRadius,wallHeight*SideBlend(t1,out _)),At(r1,OuterRadius,-baseDepth),At(r0,OuterRadius,-baseDepth),outward,uvSize);
+                Quad(vertices,normals,uv,indices,At(r0,SurfaceOuterRadius,wallHeight*SideBlend(t0,out _)),At(r1,SurfaceOuterRadius,wallHeight*SideBlend(t1,out _)),At(r1,SurfaceOuterRadius,-baseDepth),At(r0,SurfaceOuterRadius,-baseDepth),outward,uvSize);
             }
             for(int end=0;end<2;end++)
             {
@@ -189,7 +208,7 @@ namespace SonicFX.Structures
                     Quad(vertices,normals,uv,indices,At(row,0,0),At(row,innerRadius,0),At(row,innerRadius,-baseDepth),At(row,0,-baseDepth),n,uvSize);
                 for(int j=0;j<across;j++)
                 {
-                    Vector3 a=ProfilePoint(theta,j,flatSegments)+row.Shift(Sign),b=ProfilePoint(theta,j+1,flatSegments)+row.Shift(Sign),c=b,d=a;c.y=d.y=-baseDepth;
+                    Vector3 a=ProfilePoint(theta,j,flatSegments,outerSegments)+row.Shift(Sign),b=ProfilePoint(theta,j+1,flatSegments,outerSegments)+row.Shift(Sign),c=b,d=a;c.y=d.y=-baseDepth;
                     Quad(vertices,normals,uv,indices,a,b,c,d,n,uvSize);
                 }
             }

@@ -39,6 +39,7 @@ namespace SonicFX.Structures.Editor
             var block = (SonicTurnBlock)target;
             CleanSelection(block);
             EditorGUILayout.HelpBox("Maj + clic (ou Ctrl + clic) ajoute/retire des points de la selection. Deplace ensuite les fleches jaunes pour bouger tout le groupe. Les poignees roses sur les arrondis modifient directement leur forme.", MessageType.Info);
+            SonicStructurePointHandles.DrawSizeSetting();
             serializedObject.Update();
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(serializedObject.FindProperty("roundCorners"));
@@ -126,7 +127,7 @@ namespace SonicFX.Structures.Editor
                 }
                 for (int i = 0; i < block.corners.Count; i++) {
                     Vector3 p = Point(block.corners[i].position);
-                    float size = HandleUtility.GetHandleSize(p) * .075f;
+                    float size = HandleUtility.GetHandleSize(p) * .075f * SonicStructurePointHandles.SizeMultiplier;
                     Handles.color = selected.Contains(i) ? Color.yellow : new Color(1, .5f, .1f);
                     bool toggle = Event.current.shift || Event.current.control || Event.current.command;
                     if (Handles.Button(p, Quaternion.identity, size, size * 1.4f, Handles.SphereHandleCap)) SelectPoint(i, toggle);
@@ -146,7 +147,7 @@ namespace SonicFX.Structures.Editor
                     if (!block.GetCornerCurve(i, out var a, out var control, out var end)) continue;
                     Vector3 mid = Point(.25f * a + .5f * control + .25f * end);
                     Handles.color = new Color(1, .3f, .75f);
-                    float size = HandleUtility.GetHandleSize(mid) * .09f;
+                    float size = HandleUtility.GetHandleSize(mid) * .09f * SonicStructurePointHandles.SizeMultiplier;
                     Handles.Label(mid + Vector3.up * size * 2, "Courbe " + (i + 1));
                     EditorGUI.BeginChangeCheck();
                     Vector3 dragged = Handles.Slider2D(mid, Vector3.up, Vector3.right, Vector3.forward, size, Handles.RectangleHandleCap, Vector2.zero);

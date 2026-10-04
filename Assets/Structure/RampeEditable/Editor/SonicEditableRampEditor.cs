@@ -3,14 +3,16 @@ using UnityEditor;
 using UnityEngine;
 namespace SonicFX.Structures.Editor
 {
-    [CustomEditor(typeof(SonicEditableRamp))]
+    [CustomEditor(typeof(SonicEditableRamp),true)]
     public sealed class SonicEditableRampEditor : UnityEditor.Editor
     {
         readonly HashSet<int> selected=new HashSet<int>();
         bool showPoints=true;
+        int insertionAxis;
+        float insertionPosition=.5f;
         void OnEnable(){Undo.undoRedoPerformed+=OnUndo;}
         void OnDisable(){Undo.undoRedoPerformed-=OnUndo;}
-        void OnUndo(){if(target!=null){((SonicEditableRamp)target).Rebuild();Repaint();SceneView.RepaintAll();}}
+        void OnUndo(){if(target!=null){selected.Clear();((SonicEditableRamp)target).Rebuild();Repaint();SceneView.RepaintAll();}}
         static void Changed(SonicEditableRamp r)
         {
             r.Rebuild();EditorUtility.SetDirty(r);
@@ -20,51 +22,89 @@ namespace SonicFX.Structures.Editor
         Vector3 Center(SonicEditableRamp r){var p=Vector3.zero;foreach(int i in selected)p+=r.Points[i];return selected.Count==0?p:p/selected.Count;}
         void SelectLayer(int axis,int layer)
         {
-            selected.Clear();for(int z=0;z<3;z++)for(int y=0;y<3;y++)for(int x=0;x<3;x++)
-                if((axis==0?x:axis==1?y:z)==layer)selected.Add(SonicEditableRamp.Index(x,y,z));
+            var r=(SonicEditableRamp)target;var counts=r.PointCounts;
+            selected.Clear();for(int z=0;z<counts.z;z++)for(int y=0;y<counts.y;y++)for(int x=0;x<counts.x;x++)
+                if((axis==0?x:axis==1?y:z)==layer)selected.Add(r.PointIndex(x,y,z));
             SceneView.RepaintAll();
+        }
+        void CleanSelection(SonicEditableRamp r){selected.RemoveWhere(i=>i<0 || r.Points==null || i>=r.Points.Length);}
+        void SuggestPosition(SonicEditableRamp r,bool nearSelection=false)
+        {
+            int first=-1;foreach(int i in selected)if(first<0 || i<first)first=i;
+            insertionPosition=r.SuggestedInsertion(insertionAxis,nearSelection?first:-1);
         }
         public override void OnInspectorGUI()
         {
             var r=(SonicEditableRamp)target;
-            if(r.SourceMesh==null){EditorGUILayout.HelpBox("Utilise Tools > Sonic FX > Structures > Installer et verifier ramp_C editable.",MessageType.Warning);return;}
-            EditorGUILayout.HelpBox("Clique un point orange puis deplace les fleches X / Y / Z. Maj + clic ou Ctrl + clic selectionne plusieurs points. La grille deforme progressivement la rampe, ses materiaux et ses collisions.",MessageType.Info);
+            if(r.SourceMesh==null){EditorGUILayout.HelpBox("Utilise Tools > Sonic FX > Structures > Installer et verifier "+(r.StructureName=="Cube"?"Cube":"ramp_C")+" editable.",MessageType.Warning);return;}
+            CleanSelection(r);var counts=r.PointCounts;
+            EditorGUILayout.LabelField(r.StructureName+" editable",EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Clique un point orange puis deplace les fleches X / Y / Z. Maj + clic ou Ctrl + clic selectionne plusieurs points. La grille deforme progressivement la structure, ses materiaux et ses collisions.",MessageType.Info);
             showPoints=EditorGUILayout.Toggle("Afficher les points",showPoints);
+            SonicStructurePointHandles.DrawSizeSetting();
+            EditorGUILayout.Space();EditorGUILayout.LabelField("Fluidite de la surface",EditorStyles.boldLabel);
+            EditorGUI.BeginChangeCheck();
+            int subdivisions=EditorGUILayout.IntSlider("Subdivisions des polygones",r.meshSubdivisions,0,4);
+            if(EditorGUI.EndChangeCheck()){Undo.RecordObject(r,"Lisser les polygones");r.meshSubdivisions=subdivisions;Changed(r);}
+            EditorGUILayout.LabelField("Surface et collisions",r.TriangleCount.ToString("N0")+" triangles");
+            EditorGUILayout.HelpBox("2 : lissage normal. 3 ou 4 : courbes plus precises pour une pente raide. 0 : polygones d'origine. Les collisions utilisent la meme surface. Les points de controle restent identiques.",MessageType.None);
+            EditorGUILayout.Space();EditorGUILayout.LabelField("Ajouter des points",EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Grille : "+counts.x+" x "+counts.y+" x "+counts.z+" ("+r.Points.Length+" points)");
+            EditorGUI.BeginChangeCheck();
+            insertionAxis=EditorGUILayout.Popup("Axe de la nouvelle rangee",insertionAxis,new[]{"X","Y","Z"});
+            if(EditorGUI.EndChangeCheck())SuggestPosition(r);
+            insertionPosition=EditorGUILayout.Slider("Position dans la structure (%)",insertionPosition*100,1,99)/100;
+            using(new EditorGUI.DisabledScope(!r.CanInsertPoints(insertionAxis,insertionPosition))){
+                if(GUILayout.Button("Ajouter une rangee de points")){
+                    Undo.RecordObject(r,"Ajouter des points a la structure");
+                    if(r.InsertPoints(insertionAxis,insertionPosition,out int layer)){
+                        SelectLayer(insertionAxis,layer);showPoints=true;Changed(r);SuggestPosition(r);counts=r.PointCounts;
+                    }
+                }
+            }
+            if(GUILayout.Button("Placer l'ajout pres de la selection"))SuggestPosition(r,true);
+            if(counts[insertionAxis]>=SonicEditableRamp.MaxPointsPerAxis)
+                EditorGUILayout.HelpBox("Limite de 16 rangees atteinte sur cet axe. Tu peux encore ajouter sur les autres axes.",MessageType.None);
+            else if(!r.CanInsertPoints(insertionAxis,insertionPosition))
+                EditorGUILayout.HelpBox("Une rangee existe deja a cette position. Choisis une position voisine ou utilise le bouton de placement automatique.",MessageType.None);
+            EditorGUILayout.HelpBox("Apres chaque ajout, la position suivante est proposee dans la zone la moins dense pour repartir les points. Tu peux choisir le pourcentage ou placer l'ajout pres de la selection. La forme actuelle est conservee. X / Y / Z sont les axes locaux.",MessageType.None);
+            EditorGUILayout.Space();
             EditorGUI.BeginChangeCheck();
             float verticalScale=r.transform.TransformVector(Vector3.up).magnitude;
             float depth=Mathf.Max(0,EditorGUILayout.FloatField("Profondeur du mur (metres)",r.wallDepth*verticalScale));
-            if(EditorGUI.EndChangeCheck() && verticalScale>.00001f){Undo.RecordObject(r,"Profondeur du mur de rampe");r.wallDepth=depth/verticalScale;Changed(r);}
-            EditorGUILayout.HelpBox("La profondeur ajoute un mur sous la rampe jusqu'a une base plate, sans changer la piste. La poignee bleue permet de tirer le mur vers le bas. Zero restaure le dessous d'origine.",MessageType.None);
+            if(EditorGUI.EndChangeCheck() && verticalScale>.00001f){Undo.RecordObject(r,"Profondeur du mur");r.wallDepth=depth/verticalScale;Changed(r);}
+            EditorGUILayout.HelpBox("La profondeur prolonge le dessous jusqu'a une base plate, sans changer le dessus. La poignee bleue permet de tirer le mur vers le bas. Zero restaure le dessous d'origine.",MessageType.None);
             EditorGUI.BeginChangeCheck();
             var scale=r.transform.lossyScale;scale=new Vector3(Mathf.Abs(scale.x),Mathf.Abs(scale.y),Mathf.Abs(scale.z));
             var size=Vector3.Scale(r.ControlBounds.size,scale);
             size=EditorGUILayout.Vector3Field("Dimensions locales (metres)",size);
             if(EditorGUI.EndChangeCheck() && Mathf.Min(scale.x,Mathf.Min(scale.y,scale.z))>.00001f){
-                Undo.RecordObject(r,"Redimensionner la rampe");r.Resize(new Vector3(size.x/scale.x,size.y/scale.y,size.z/scale.z));Changed(r);
+                Undo.RecordObject(r,"Redimensionner la structure");r.Resize(new Vector3(size.x/scale.x,size.y/scale.y,size.z/scale.z));Changed(r);
             }
             EditorGUILayout.LabelField("Selection rapide",EditorStyles.boldLabel);
             for(int axis=0;axis<3;axis++){
                 EditorGUILayout.BeginHorizontal();string a=axis==0?"X":axis==1?"Y":"Z";
-                for(int layer=0;layer<3;layer++)if(GUILayout.Button(a+(layer==0?" -":layer==1?" milieu":" +")))SelectLayer(axis,layer);
+                for(int layer=0;layer<3;layer++)if(GUILayout.Button(a+(layer==0?" -":layer==1?" milieu":" +")))SelectLayer(axis,layer==0?0:layer==1?counts[axis]/2:counts[axis]-1);
                 EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.BeginHorizontal();
-            if(GUILayout.Button("Tout selectionner")){selected.Clear();for(int i=0;i<27;i++)selected.Add(i);SceneView.RepaintAll();}
+            if(GUILayout.Button("Tout selectionner")){selected.Clear();for(int i=0;i<r.Points.Length;i++)selected.Add(i);SceneView.RepaintAll();}
             if(GUILayout.Button("Deselectionner")){selected.Clear();SceneView.RepaintAll();}
             EditorGUILayout.EndHorizontal();
             if(selected.Count>0){
                 EditorGUILayout.LabelField(selected.Count+" point(s) selectionne(s)",EditorStyles.boldLabel);
                 Vector3 center=Center(r);EditorGUI.BeginChangeCheck();
                 Vector3 moved=EditorGUILayout.Vector3Field("Centre local du groupe",center);
-                if(EditorGUI.EndChangeCheck()){Undo.RecordObject(r,"Deplacer les points de rampe");r.MovePoints(selected,moved-center);Changed(r);}
+                if(EditorGUI.EndChangeCheck()){Undo.RecordObject(r,"Deplacer les points");r.MovePoints(selected,moved-center);Changed(r);}
             }
-            if(GUILayout.Button("Retrouver la forme originale")){Undo.RecordObject(r,"Reinitialiser la rampe");r.ResetShape();Changed(r);}
+            if(GUILayout.Button("Retrouver la forme originale")){Undo.RecordObject(r,"Reinitialiser la structure");r.ResetShape();selected.Clear();insertionPosition=.5f;Changed(r);}
             if(!string.IsNullOrEmpty(r.LastError))EditorGUILayout.HelpBox(r.LastError,MessageType.Warning);
-            EditorGUILayout.HelpBox("Y + : haut de la rampe. Les tranches X / Z permettent d'etirer une extremite ou de courber les cotes. Ctrl + Z annule. Chaque exemplaire garde sa propre forme.",MessageType.None);
+            EditorGUILayout.HelpBox("Y + selectionne le haut. Les tranches X / Z permettent d'etirer une extremite ou de courber les cotes. Ctrl + Z annule. Chaque exemplaire garde sa propre forme.",MessageType.None);
         }
         void OnSceneGUI()
         {
-            var r=(SonicEditableRamp)target;if(!showPoints || r.Points==null || r.Points.Length!=27)return;
+            var r=(SonicEditableRamp)target;if(!showPoints || r.Points==null)return;
+            CleanSelection(r);var counts=r.PointCounts;
             Transform t=r.transform;Handles.color=new Color(0,1,1,.35f);
             var bounds=r.ControlBounds;
             Vector3 baseLocal=new Vector3(bounds.center.x,r.OriginalBottomY-r.wallDepth,bounds.center.z);
@@ -73,28 +113,28 @@ namespace SonicFX.Structures.Editor
             EditorGUI.BeginChangeCheck();
             Vector3 dragged=Handles.Slider(baseWorld,-t.up,HandleUtility.GetHandleSize(baseWorld)*.18f,Handles.CubeHandleCap,0);
             if(EditorGUI.EndChangeCheck()){
-                Undo.RecordObject(r,"Etirer le mur sous la rampe");r.wallDepth=Mathf.Max(0,r.OriginalBottomY-t.InverseTransformPoint(dragged).y);Changed(r);
+                Undo.RecordObject(r,"Etirer le mur");r.wallDepth=Mathf.Max(0,r.OriginalBottomY-t.InverseTransformPoint(dragged).y);Changed(r);
             }
             Handles.color=new Color(0,1,1,.35f);
-            for(int z=0;z<3;z++)for(int y=0;y<3;y++)for(int x=0;x<3;x++){
-                Vector3 p=t.TransformPoint(r.Points[SonicEditableRamp.Index(x,y,z)]);
-                if(x<2)Handles.DrawLine(p,t.TransformPoint(r.Points[SonicEditableRamp.Index(x+1,y,z)]));
-                if(y<2)Handles.DrawLine(p,t.TransformPoint(r.Points[SonicEditableRamp.Index(x,y+1,z)]));
-                if(z<2)Handles.DrawLine(p,t.TransformPoint(r.Points[SonicEditableRamp.Index(x,y,z+1)]));
+            for(int z=0;z<counts.z;z++)for(int y=0;y<counts.y;y++)for(int x=0;x<counts.x;x++){
+                Vector3 p=t.TransformPoint(r.Points[r.PointIndex(x,y,z)]);
+                if(x<counts.x-1)Handles.DrawLine(p,t.TransformPoint(r.Points[r.PointIndex(x+1,y,z)]));
+                if(y<counts.y-1)Handles.DrawLine(p,t.TransformPoint(r.Points[r.PointIndex(x,y+1,z)]));
+                if(z<counts.z-1)Handles.DrawLine(p,t.TransformPoint(r.Points[r.PointIndex(x,y,z+1)]));
             }
-            for(int i=0;i<27;i++){
-                var p=t.TransformPoint(r.Points[i]);float s=HandleUtility.GetHandleSize(p)*.06f;
+            for(int i=0;i<r.Points.Length;i++){
+                var p=t.TransformPoint(r.Points[i]);float s=HandleUtility.GetHandleSize(p)*.06f*SonicStructurePointHandles.SizeMultiplier;
                 Handles.color=selected.Contains(i)?Color.yellow:new Color(1,.5f,.1f);
                 bool toggle=Event.current.shift || Event.current.control || Event.current.command;
                 if(Handles.Button(p,Quaternion.identity,s,s*1.3f,Handles.SphereHandleCap)){
-                    if(!toggle)selected.Clear();if(!selected.Add(i))selected.Remove(i);Repaint();
+                    if(!toggle)selected.Clear();if(!selected.Add(i))selected.Remove(i);SuggestPosition(r);Repaint();
                 }
             }
             if(selected.Count==0)return;
             Vector3 center=Center(r),world=t.TransformPoint(center);
             EditorGUI.BeginChangeCheck();Vector3 moved=Handles.PositionHandle(world,Tools.pivotRotation==PivotRotation.Local?t.rotation:Quaternion.identity);
             if(EditorGUI.EndChangeCheck()){
-                Undo.RecordObject(r,"Deplacer les points de rampe");r.MovePoints(selected,t.InverseTransformPoint(moved)-center);Changed(r);
+                Undo.RecordObject(r,"Deplacer les points");r.MovePoints(selected,t.InverseTransformPoint(moved)-center);Changed(r);
             }
         }
     }

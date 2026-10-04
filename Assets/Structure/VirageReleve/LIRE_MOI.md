@@ -63,3 +63,13 @@ Dans le composant Sonic Banked Turn, modifier **Longueur de l'entree** et **Long
 Dans Scene, tirer le cube vert a l'entree ou le cube jaune a la sortie. Le virage lui-meme ne se deplace pas. Ctrl + Z annule une modification.
 
 Les prolongements sont droits, dans la direction de la piste, avec le meme profil. Si Lisser les cotes est coche, ils sont plats ; sinon ils conservent la pente et le mur. Combler le trou interieur prolonge aussi le sol interieur. Le maillage et le Mesh Collider sont reconstruits ensemble, sans paroi cachee aux raccords.
+
+## Ajouter un sol a l'exterieur, en haut du mur
+
+Dans Sonic Banked Turn → Sol exterieur en hauteur, coche **Ajouter le sol exterieur**.
+
+- **Largeur du sol exterieur** etend le plateau vers l'exterieur. La poignee orange dans Scene regle aussi cette largeur.
+- **Hauteur du mur** regle son altitude : le plateau reste relie au sommet du mur.
+- **Longueur de l'entree / de la sortie** prolongent aussi ce plateau.
+
+Le sol partage le materiau Green Hill et le Mesh Collider du virage. Si **Lisser les cotes** est actif, il redescend progressivement aux extremites avec le mur. La case est decochee par defaut pour conserver la forme des virages deja places. Ctrl + Z annule les modifications.

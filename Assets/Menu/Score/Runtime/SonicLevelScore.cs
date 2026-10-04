@@ -17,6 +17,7 @@ namespace SonicFX.Score
         public const int PointsPerRing = 10;
         public const int RingsPerLife = 100;
         public static long RingsCollected { get; private set; }
+        public static int RingsTowardLife { get; private set; }
         public const int PointsPerLife = 50000;
         public const int NoDeathReward = 1000;
         public static float Elapsed { get; private set; }
@@ -28,12 +29,13 @@ namespace SonicFX.Score
         static bool hasLevel;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        static void Reset() { Current=0; RingsCollected=0; Elapsed=0; Deaths=0; IsRunning=false; LastResult=null; hasLevel=false; }
+        static void Reset() { Current=0; RingsCollected=0; RingsTowardLife=0; Elapsed=0; Deaths=0; IsRunning=false; LastResult=null; hasLevel=false; }
 
         public static void BeginLevel(UnityEngine.SceneManagement.Scene scene)
         {
             if(hasLevel && levelScene==scene)return;
-            levelScene=scene; hasLevel=true; Current=0; RingsCollected=0; Elapsed=0; Deaths=0; LastResult=null; IsRunning=true;
+            levelScene=scene; hasLevel=true; Current=0; RingsCollected=0; RingsTowardLife=0; Elapsed=0; Deaths=0; LastResult=null; IsRunning=true;
+            SonicXProgress.BeginRedRingLevel();
         }
 
         // Receives scaled gameplay delta time: pausing contributes zero seconds.
@@ -44,7 +46,14 @@ namespace SonicFX.Score
 
         public static void RecordDeath()
         {
+            ResetRingLifeProgress();
             if(IsRunning && Deaths<int.MaxValue)Deaths++;
+        }
+
+        // Only accepted damage resets the streak, not contacts during invincibility.
+        public static void ResetRingLifeProgress()
+        {
+            RingsTowardLife=0;
         }
 
         public static int CalculateTimeBonus(float elapsedSeconds,int maximum,float idealSeconds,float limitSeconds)
@@ -75,10 +84,11 @@ namespace SonicFX.Score
             if(!IsRunning || count<=0 || SonicXProgress.IsGameOver)return;
             Objects_Interaction.RingAmount=(int)Math.Min(int.MaxValue,(long)Math.Max(0,Objects_Interaction.RingAmount)+count);
             AddPoints((int)Math.Min(int.MaxValue,(long)count*PointsPerRing));
-            // This total survives damage and checkpoint respawns; held rings may fall to zero.
-            long previous=RingsCollected;
+            // Keep the level statistics, but award lives only for rings since the last hit.
             RingsCollected+=Math.Min(long.MaxValue-RingsCollected,count);
-            int lives=(int)(RingsCollected/RingsPerLife-previous/RingsPerLife);
+            long progress=(long)RingsTowardLife+count;
+            int lives=(int)(progress/RingsPerLife);
+            RingsTowardLife=(int)(progress%RingsPerLife);
             SonicXProgress.GainLives(lives);
         }
 
@@ -105,6 +115,7 @@ namespace SonicFX.Score
             IsRunning=false;
             LastResult=Calculate(Current,rings,SonicXProgress.TotalScore,nextScene,
                 CalculateTimeBonus(Elapsed,maximumTimeBonus,idealSeconds,limitSeconds),Deaths==0?NoDeathReward:0,Elapsed,Deaths);
+            SonicXProgress.CommitRedRingReward(levelScene.path);
             SonicXProgress.ApplyLevelResult(LastResult);
             // The completion gate above prevents duplicate goal triggers from adding a record twice.
             // Preview scenes and editor verification never write to the player's rankings.

@@ -74,8 +74,10 @@
     <Compile Include="Assets\Ennemy\Chameleon\Editor\ChameleonCamouflageVerification.cs" />
     <Compile Include="Assets\Ennemy\Chameleon\Editor\ChameleonRotationVerification.cs" />
     <Compile Include="Assets\Ennemy\crab\Crab_Combat\Editor\CrabCombatBuilder.cs" />
+    <Compile Include="Assets\Object\RedRings\Editor\RedRingVerification.cs" />
     <Compile Include="Assets\Editor\SonicSteeringVerification.cs" />
     <Compile Include="Assets\Structure\RampeEditable\Editor\SonicEditableRampBuilder.cs" />
+    <Compile Include="Assets\Object\RedRings\Editor\RedRingBuilder.cs" />
     <Compile Include="Assets\Structure\ChainSwing\Editor\SonicSwingPlatformBuilder.cs" />
     <Compile Include="Assets\Structure\Tube Slide\Editor\SonicTubeEntryZonesEditor.cs" />
     <Compile Include="Assets\Lux 2.02 Personal\Lux Scripts\Editor\ReadOnlyRangeAttributeDrawer.cs" />
@@ -84,9 +86,15 @@
     <Compile Include="Assets\Structure\SonicWater\Editor\SonicUnderwaterVerification.cs" />
     <Compile Include="Assets\Structure\décore\Tree\Editor\PalmLeafInstaller.cs" />
     <Compile Include="Assets\Lux 2.02 Personal\Lux Scripts\Editor\FloatToggleDrawer.cs" />
+    <Compile Include="Assets\Structure\CubeEditable\Editor\SonicEditableCubeBuilder.cs" />
     <Compile Include="Assets\Ennemy\Chameleon\Editor\ChameleonDiagnostics.cs" />
     <Compile Include="Assets\Lux 2.02 Personal\Lux Scripts\Editor\HelpDrawer.cs" />
     <Compile Include="Assets\Lux 2.02 Personal\Lux Scripts\Editor\SnowAccumulationDrawer.cs" />
+    <Compile Include="Assets\Structure\RampeEditable\Editor\SonicStructurePointHandles.cs" />
+    <Compile Include="Assets\Object\RedRings\Editor\RedRingRouteEditor.cs" />
+    <Compile Include="Assets\Structure\RampeEditable\Editor\SonicEditableRampPointsVerification.cs" />
+    <Compile Include="Assets\Structure\VirageReleve\Editor\SonicBankedTurnOuterFloorVerification.cs" />
+    <Compile Include="Assets\Editor\SonicFallSpeedVerification.cs" />
     <Compile Include="Assets\Structure\décore\Tree\Editor\GreenHillPalmTextures.cs" />
     <Compile Include="Assets\Structure\Block Fall\Editor\BlockFallVerification.cs" />
     <Compile Include="Assets\Lux 2.02 Personal\Lux Scripts\Editor\TextureTilingDrawer.cs" />
@@ -113,6 +121,7 @@
     <Compile Include="Assets\Ennemy\Chameleon\Editor\ChameleonBuilder.cs" />
     <Compile Include="Assets\SplineMesh\Scripts\Editor\SplineEditor.cs" />
     <Compile Include="Assets\Structure\SonicWater\Cascades\Editor\SonicWaterfallBuilder.cs" />
+    <Compile Include="Assets\Object\RedRings\Editor\RedRingEditingVerification.cs" />
     <Compile Include="Assets\Structure\VirageReleve\Editor\SonicBankedTurnBuilder.cs" />
     <Compile Include="Assets\Menu\GameplayHUD\Editor\SonicHudRuntimeCheck.cs" />
     <Compile Include="Assets\Lux 2.02 Personal\Lux Scripts\Editor\RangeCustomLabelDrawer.cs" />
@@ -124,13 +133,17 @@
     <Compile Include="Assets\Structure\ChainSwing\Editor\SonicSwingPlatformTextures.cs" />
     <Compile Include="Assets\Structure\RampeEditable\Editor\SonicEditableRampEditor.cs" />
     <Compile Include="Assets\Structure\SonicWater\Editor\SonicWaterVerification.cs" />
+    <Compile Include="Assets\Structure\CubeEditable\Editor\SonicEditableCubeVerification.cs" />
     <Compile Include="Assets\Menu\Frontend\Editor\SonicXMenuRuntimeCheck.cs" />
     <Compile Include="Assets\Menu\ExtraLifeAudio\Editor\SonicLifeMusicRuntimeVerification.cs" />
     <Compile Include="Assets\Structure\décore\Tree\Editor\PalmLeafVerification.cs" />
+    <Compile Include="Assets\Structure\ChainSwing\Editor\SonicSwingTransportVerification.cs" />
     <Compile Include="Assets\Structure\SonicWater\Editor\SonicWaterRuntimeDiagnostic.cs" />
+    <Compile Include="Assets\Structure\RampeEditable\Editor\SonicEditableRampSubdivisionVerification.cs" />
     <Compile Include="Assets\Menu\Score\Editor\SonicScoreVerification.cs" />
     <Compile Include="Assets\Menu\ExtraLifeAudio\Editor\SonicExtraLifeSoundVerification.cs" />
     <Compile Include="Assets\Structure\ChainSwing\Editor\SonicSwingPlatformEditor.cs" />
+    <Compile Include="Assets\Menu\Score\Editor\SonicRingDamageVerification.cs" />
     <Compile Include="Assets\Menu\GameplayHUD\Editor\SonicSpeedHudVerification.cs" />
     <Compile Include="Assets\Lux 2.02 Personal\Lux Scripts\Editor\VectorSliderDrawer.cs" />
   </ItemGroup>

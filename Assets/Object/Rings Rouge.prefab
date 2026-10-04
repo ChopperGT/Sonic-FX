@@ -76,11 +76,64 @@ PrefabInstance:
     - target: {fileID: 8771091787928289351, guid: 8e1a814ce4bfdbc40b5d16172aa58b23,
         type: 3}
       propertyPath: m_Name
-      value: scene 21
+      value: Rings Rouge
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8771091787928289351, guid: 8e1a814ce4bfdbc40b5d16172aa58b23,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4990320446482162121}
+    - targetCorrespondingSourceObject: {fileID: 8771091787928289351, guid: 8e1a814ce4bfdbc40b5d16172aa58b23,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1989581582527410527}
   m_SourcePrefab: {fileID: -4161369568681901532, guid: 8e1a814ce4bfdbc40b5d16172aa58b23,
     type: 3}
+--- !u!1 &5408292900419348372 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8771091787928289351, guid: 8e1a814ce4bfdbc40b5d16172aa58b23,
+    type: 3}
+  m_PrefabInstance: {fileID: 3654442672276170707}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4990320446482162121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5408292900419348372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaa54a71cdd364444bdb0b6e8f58cb70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SonicFX.RedRings.RedStarRing
+  order: 0
+  rotationSpeed: 150
+  pickupRadius: 2.2262836
+  autoTimeLimit: 60
+  autoSuccessSound: {fileID: 0}
+  guidePoints: []
+--- !u!135 &1989581582527410527
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5408292900419348372}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.36323625
+  m_Center: {x: 0, y: 0.32019436, z: 0}

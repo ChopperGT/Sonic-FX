@@ -172,8 +172,20 @@ namespace SonicFX.Structures.Editor
     {
         public override void OnInspectorGUI()
         {
-            EditorGUI.BeginChangeCheck();DrawDefaultInspector();var turn=(SonicBankedTurn)target;
-            if(EditorGUI.EndChangeCheck())turn.Rebuild();
+            serializedObject.Update();EditorGUI.BeginChangeCheck();
+            var property=serializedObject.GetIterator();bool enterChildren=true;
+            while(property.NextVisible(enterChildren)){
+                enterChildren=false;
+                if(property.name=="outerFloor")EditorGUILayout.PropertyField(property,new GUIContent("Ajouter le sol exterieur"));
+                else if(property.name=="outerFloorWidth"){
+                    using(new EditorGUI.DisabledScope(!serializedObject.FindProperty("outerFloor").boolValue))
+                        EditorGUILayout.PropertyField(property,new GUIContent("Largeur du sol exterieur"));
+                }
+                else using(new EditorGUI.DisabledScope(property.name=="m_Script"))EditorGUILayout.PropertyField(property,true);
+            }
+            bool changed=EditorGUI.EndChangeCheck();serializedObject.ApplyModifiedProperties();var turn=(SonicBankedTurn)target;
+            if(changed)turn.Rebuild();
+            if(turn.outerFloor)EditorGUILayout.HelpBox("Le sol exterieur prolonge le haut du mur. Largeur du sol exterieur regle son etendue ; Hauteur du mur regle son altitude. Il suit les prolongements d'entree/sortie et le lissage des cotes. La poignee orange regle sa largeur dans Scene.",MessageType.Info);
             if(turn.smoothSides)EditorGUILayout.HelpBox("L'entree et la sortie redescendent au niveau du sol, sans cassure de pente. Etendue du lissage = portion de chaque cote utilisee pour la transition (0.3 = 30 %). Le mur conserve sa hauteur au centre. La collision suit cette forme.",MessageType.Info);
             if(!turn.fillInterior && GUILayout.Button("Combler l'interieur sans rebord"))
             {
@@ -197,6 +209,12 @@ namespace SonicFX.Structures.Editor
                 Vector3 foot=turn.Point(mid,turn.OuterRadius,0),outward=new Vector3(-turn.Sign*Mathf.Cos(mid),0,Mathf.Sin(mid));Handles.color=Color.cyan;
                 EditorGUI.BeginChangeCheck();Vector3 widened=Handles.Slider(foot,outward);
                 if(EditorGUI.EndChangeCheck()){Undo.RecordObject(turn,"Largeur de la pente");turn.rampWidth=Mathf.Max(1,turn.rampWidth+Vector3.Dot(widened-foot,outward));Changed(turn);}
+                if(turn.outerFloor){
+                    Vector3 edge=turn.Point(mid,turn.SurfaceOuterRadius,turn.wallHeight);
+                    Handles.color=new Color(1,.55f,.1f);Handles.DrawLine(top,edge);Handles.Label(edge+Vector3.up,"Sol exterieur");
+                    EditorGUI.BeginChangeCheck();Vector3 extended=Handles.Slider(edge,outward);
+                    if(EditorGUI.EndChangeCheck()){Undo.RecordObject(turn,"Largeur du sol exterieur");turn.outerFloorWidth=Mathf.Max(.1f,turn.outerFloorWidth+Vector3.Dot(extended-edge,outward));Changed(turn);}
+                }
             }
         }
         static void ExtensionHandle(SonicBankedTurn turn,bool exit)

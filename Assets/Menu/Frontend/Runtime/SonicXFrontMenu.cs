@@ -107,16 +107,16 @@ namespace SonicFX.Menu
             if(!Application.CanStreamedLevelBeLoaded(CharacterScene(id))){status.text="L'aventure de ce personnage n'est pas encore configurÃ©e.";return;}
             pendingCharacter=id;if(SonicXProgress.TryRead(out _))Show(Page.Overwrite);else Launch(id,CharacterScene(id));
         }
-        void Continue(){if(SonicXProgress.TryRead(out var save))Launch(save.character,save.scene,save.lives,save.totalScore,(SonicAbility)save.unlockedAbilities);}
-        void Launch(string character,string scene,int lives=3,long totalScore=0,SonicAbility abilities=SonicAbility.None)
+        void Continue(){if(SonicXProgress.TryRead(out var save))Launch(save.character,save.scene,save.lives,save.totalScore,(SonicAbility)save.unlockedAbilities,save.redRingLevels);}
+        void Launch(string character,string scene,int lives=3,long totalScore=0,SonicAbility abilities=SonicAbility.None,string[] redRingLevels=null)
         {
             if(!Application.CanStreamedLevelBeLoaded(scene)){status.text="Ce niveau n'est pas disponible.";return;}
-            Show(Page.Loading);StartCoroutine(LoadStory(character,scene,lives,totalScore,abilities));
+            Show(Page.Loading);StartCoroutine(LoadStory(character,scene,lives,totalScore,abilities,redRingLevels));
         }
-        IEnumerator LoadStory(string character,string scene,int lives,long totalScore,SonicAbility abilities)
+        IEnumerator LoadStory(string character,string scene,int lives,long totalScore,SonicAbility abilities,string[] redRingLevels)
         {
             yield return null;AsyncOperation operation=null;
-            try{operation=SonicXProgress.Begin(character,scene,lives,totalScore,abilities);}catch(Exception e){Debug.LogException(e);}
+            try{operation=SonicXProgress.Begin(character,scene,lives,totalScore,abilities,redRingLevels);}catch(Exception e){Debug.LogException(e);}
             if(operation==null){Show(Page.Story);status.text="Impossible de charger le niveau. RÃ©essaie.";}
         }
         void LoadArcade(){if(!SonicXProgress.IsUnlocked("arcade"))return;if(Application.CanStreamedLevelBeLoaded(arcadeScene)){Time.timeScale=1;SceneManager.LoadSceneAsync(arcadeScene);}else status.text="Le mode Arcade n'est pas encore configurÃ©.";}

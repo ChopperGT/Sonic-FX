@@ -180,11 +180,13 @@ namespace SonicFX.Structures.Editor
                 p.phase=0;Check(Mathf.Abs(p.AngleAt(p.period*.25f)-25)<.001f,"Period reaches full amplitude at quarter cycle");
                 p.direction=90;Check(Vector3.Dot(p.SwingDirection,go.transform.forward)>.999f,"Direction follows local Z and object yaw");
                 player=new GameObject("Sonic transport verification");SceneManager.MoveGameObjectToScene(player,scene);
-                var physics=player.AddComponent<PlayerBhysics>();physics.Grounded=true;var interaction=player.AddComponent<Objects_Interaction>();interaction.Player=physics;
+                var body=player.AddComponent<Rigidbody>();body.useGravity=false;
+                var physics=player.AddComponent<PlayerBhysics>();physics.Grounded=true;physics.Playermask=~0;var interaction=player.AddComponent<Objects_Interaction>();interaction.Player=physics;
                 var trigger=Array.Find(p.Platform.GetComponents<BoxCollider>(),c=>c.isTrigger);Check(trigger!=null && p.Platform.CompareTag("MovingPlatform") && !p.Movement.enabled,"Existing platform transport adapter installed");
-                interaction.OnTriggerStay(trigger);var before=player.transform.position;var old=p.Platform.position;p.PlaceAtAngle(10,false);var delta=p.Platform.position-old;
+                body.position=box.bounds.center+Vector3.up*(box.bounds.extents.y+.5f);Physics.SyncTransforms();
+                interaction.OnTriggerStay(trigger);var before=body.position;var old=p.Platform.position;p.PlaceAtAngle(10,true);var delta=p.Platform.position-old;
                 typeof(Objects_Interaction).GetMethod("FixedUpdate",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(interaction,null);
-                Check(Vector3.Distance(player.transform.position-before,delta)<.001f,"Sonic follows deck displacement using existing interaction script");
+                Check(Vector3.Distance(body.position-before,delta)<.001f,"Sonic follows deck displacement once, without legacy double transport");
                 p.carryPlayer=false;p.Rebuild();Check(!trigger.enabled,"Player carry can be disabled");
                 p.carryPlayer=true;p.Rebuild();p.PlaceAtAngle(0,false);Check(Vector3.Distance(p.Platform.position,p.RestPosition())<.001f,"Preview returns to rest");
             }

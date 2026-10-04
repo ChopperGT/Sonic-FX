@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 namespace SonicFX.Structures
 {
@@ -35,6 +37,50 @@ namespace SonicFX.Structures
         int builtCount=-1;
         double startedAt;
         bool dirty=true;
+        readonly List<Rider> riders=new List<Rider>();
+        PhysicsMaterial deckMaterial;
+        readonly Dictionary<Collider,PhysicsMaterial> originalMaterials=new Dictionary<Collider,PhysicsMaterial>();
+        sealed class Rider
+        {
+            public PlayerBhysics player;
+            public Rigidbody body;
+            public ActionManager actions;
+        }
+
+        // The trigger only registers candidates. Support is checked again before every move:
+        // overlapping the side/underside, jumping or standing on another object must not carry Sonic.
+        public void RegisterRider(PlayerBhysics player)
+        {
+            if(player==null || !carryPlayer)return;
+            foreach(var rider in riders)if(rider.player==player)return;
+            var body=player.GetComponent<Rigidbody>();
+            if(body!=null)riders.Add(new Rider{player=player,body=body,actions=player.GetComponent<ActionManager>()});
+        }
+        bool IsSupported(Rider rider)
+        {
+            if(rider.player==null || rider.body==null || !rider.player.gameObject.activeInHierarchy ||
+                rider.body.isKinematic || !rider.player.Grounded)return false;
+            if(rider.actions!=null && rider.actions.Action!=0 && rider.actions.Action!=3)return false;
+            // An upward impulse belongs to Sonic, not the pendulum. Never drag a jumping player down.
+            if(rider.body.linearVelocity.y>1f)return false;
+            var scene=gameObject.scene.GetPhysicsScene();
+            return scene.Raycast(rider.body.position+Vector3.up*2,Vector3.down,out var hit,
+                2+Mathf.Max(.1f,rider.player.RayToGroundDistance)+.05f,
+                rider.player.Playermask,QueryTriggerInteraction.Ignore) &&
+                hit.collider.attachedRigidbody==platformBody && hit.normal.y>.9f;
+        }
+        void ConfigureDeckContacts()
+        {
+            if(platform==null)return;
+            if(deckMaterial==null)deckMaterial=new PhysicsMaterial("ChainSwing : appui sans rebond"){
+                hideFlags=HideFlags.DontSave,staticFriction=0,dynamicFriction=0,bounciness=0,
+                frictionCombine=PhysicsMaterialCombine.Minimum,bounceCombine=PhysicsMaterialCombine.Minimum};
+            foreach(var collider in platform.GetComponents<Collider>()){
+                if(collider.isTrigger || !collider.enabled)continue;
+                if(!originalMaterials.ContainsKey(collider))originalMaterials.Add(collider,collider.sharedMaterial);
+                collider.sharedMaterial=deckMaterial;
+            }
+        }
         public Transform Platform=>platform;
         public Transform Links=>links;
         public Rigidbody PlatformBody=>platformBody;
@@ -146,6 +192,7 @@ namespace SonicFX.Structures
                 generated.RecalculateBounds();links.GetComponent<MeshFilter>().sharedMesh=generated;builtCount=count;
             }
             if(platformBody!=null){platformBody.isKinematic=true;platformBody.useGravity=false;}
+            if(Application.IsPlaying(gameObject))ConfigureDeckContacts();
             if(movement!=null)movement.enabled=false; // Publish offsets without running its independent sine movement.
             if(carryTrigger!=null)carryTrigger.enabled=carryPlayer;
             if(!Application.IsPlaying(gameObject))PlaceAtAngle(0,false);
@@ -156,8 +203,22 @@ namespace SonicFX.Structures
             if(platform==null)return;
             var target=PositionAtAngle(angle);
             var previous=platformBody!=null?platformBody.position:platform.position;
-            if(movement!=null){movement.Moving=target;movement.TranslateVector=carryPlayer?previous-target:Vector3.zero;}
-            if(usePhysics && platformBody!=null){platformBody.MovePosition(target);platformBody.MoveRotation(FlatRotation);}
+            // Do not publish a second offset to Objects_Interaction. Move the collision deck and
+            // supported riders together before PlayerBhysics performs its ground raycasts.
+            if(movement!=null){movement.Moving=target;movement.TranslateVector=Vector3.zero;}
+            if(usePhysics && platformBody!=null){
+                ConfigureDeckContacts();
+                var displacement=target-previous;
+                for(int i=riders.Count-1;i>=0;i--){
+                    var rider=riders[i];
+                    if(!carryPlayer || !IsSupported(rider)){riders.RemoveAt(i);continue;}
+                    rider.body.position+=displacement;
+                }
+                // MovePosition gives the solver a vertical platform velocity, which used to launch
+                // Sonic after the manual carry. This pose update keeps his own velocity unchanged.
+                platformBody.position=target;platformBody.rotation=FlatRotation;
+                Physics.SyncTransforms();
+            }
             else {platform.SetPositionAndRotation(target,FlatRotation);if(platformBody!=null){platformBody.position=target;platformBody.rotation=FlatRotation;}}
             UpdateChainRotation(target-RestPosition());
         }
@@ -167,7 +228,14 @@ namespace SonicFX.Structures
             var end=Vector3.down*WorldLength+displacement;
             links.rotation=Quaternion.FromToRotation(Vector3.down,end.normalized)*FlatRotation;
         }
-        void OnDisable(){if(movement!=null)movement.TranslateVector=Vector3.zero;if(!Application.IsPlaying(gameObject))PlaceAtAngle(0,false);ReleaseMesh();dirty=true;}
+        void OnDisable(){
+            riders.Clear();
+            foreach(var pair in originalMaterials)if(pair.Key!=null)pair.Key.sharedMaterial=pair.Value;
+            originalMaterials.Clear();
+            if(deckMaterial!=null){if(Application.IsPlaying(gameObject))Destroy(deckMaterial);else DestroyImmediate(deckMaterial);deckMaterial=null;}
+            if(movement!=null)movement.TranslateVector=Vector3.zero;
+            if(!Application.IsPlaying(gameObject))PlaceAtAngle(0,false);ReleaseMesh();dirty=true;
+        }
         void OnDestroy(){ReleaseMesh();}
         void ReleaseMesh()
         {

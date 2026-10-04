@@ -79,6 +79,7 @@
     <Compile Include="Assets\Structure\SonicWater\SonicWaterSplash.cs" />
     <Compile Include="Assets\Ennemy\crab\Crab_Combat\CrabBallistics.cs" />
     <Compile Include="Assets\SplineMesh\Scripts\MeshBender.cs" />
+    <Compile Include="Assets\Structure\RampeEditable\Runtime\SonicRampMeshSubdivision.cs" />
     <Compile Include="Assets\Ennemy\crab\Crab_Combat\CrabCombatController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\Action08_DropDash.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\LevelProgressControl.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexZoom.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\SetPosition.cs" />
+    <Compile Include="Assets\Structure\CubeEditable\Runtime\SonicEditableCube.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\SkewTextExample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\WarpTextExample.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\DebugLoadStage.cs" />
@@ -126,6 +128,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ChatController.cs" />
     <Compile Include="Assets\Structure\SonicWater\SonicWaterPlayer.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_FrameRateCounter.cs" />
+    <Compile Include="Assets\Object\RedRings\Runtime\RedStarRing.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\AutoDestroyParticle.cs" />
     <Compile Include="Assets\Structure\Tube Slide\SonicTubeCameraOption.cs" />
     <Compile Include="Assets\SplineMesh\Scripts\Bezier\Spline.cs" />
@@ -162,6 +165,7 @@
     <Compile Include="Assets\Menu\GameplayHUD\Runtime\SonicHudSettings.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_A.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\RotateTowardsPlayer.cs" />
+    <Compile Include="Assets\Object\RedRings\Runtime\RedRingChallenge.cs" />
     <Compile Include="Assets\Structure\MonitorVie\LifeMonitorIcon.cs" />
     <Compile Include="Assets\Structure\VirageReleve\Runtime\SonicBankedTurn.cs" />
     <Compile Include="Assets\Ennemy\Chameleon\Runtime\ChameleonProjectile.cs" />
@@ -169,6 +173,7 @@
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\AngleTest.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\SpeedPadData.cs" />
     <Compile Include="Assets\Structure\BlocDestructible\Runtime\SonicBlockContactProbe.cs" />
+    <Compile Include="Assets\Object\RedRings\Runtime\RedRingStarGuide.cs" />
     <Compile Include="Assets\Prototyping\SelectAtTheStartSlider.cs" />
     <Compile Include="Assets\Prototyping\LandingSound.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\Switch_Properties.cs" />

@@ -86,14 +86,14 @@ namespace SonicFX.Score.Editor
                 SonicLevelScore.AddRings(99);Check(SonicXProgress.Lives==3 && SonicLevelScore.RingsCollected==99,"No life before 100");
                 var hundredth=Create("100th ring");Check(SonicLevelScore.CollectRing(hundredth) && SonicXProgress.Lives==4,"100th pickup immediately grants one life");
                 Check(!SonicLevelScore.CollectRing(hundredth) && SonicXProgress.Lives==4,"Repeated collision cannot grant duplicate life");
-                Objects_Interaction.RingAmount=0;SonicLevelScore.AddRings(99);Check(SonicXProgress.Lives==4,"Damage does not reset collected total or repeat 100 reward");
+                SonicLevelScore.ResetRingLifeProgress();Objects_Interaction.RingAmount=0;SonicLevelScore.AddRings(99);Check(SonicXProgress.Lives==4 && SonicLevelScore.RingsTowardLife==99,"After damage, 99 new rings do not grant a life");
                 SonicLevelScore.AddRings(1);Check(SonicXProgress.Lives==5 && SonicLevelScore.RingsCollected==200,"200 collected rings grant second life");
                 SonicLevelScore.AddRings(250);Check(SonicXProgress.Lives==7 && SonicLevelScore.RingsCollected==450,"Multi-threshold ring reward");
                 SonicLevelScore.AddRings(0);SonicLevelScore.AddRings(-10);Check(SonicXProgress.Lives==7 && SonicLevelScore.RingsCollected==450,"Invalid ring increments ignored");
                 SonicLevelScore.BeginLevel(scene);Check(SonicLevelScore.RingsCollected==450,"Same-level initialization keeps ring progress");
-                SonicXProgress.LoseLife();SonicLevelScore.RecordDeath();SonicLevelScore.BeginLevel(scene);Check(SonicLevelScore.RingsCollected==450 && SonicLevelScore.Deaths==1,"Death/checkpoint keeps collected progress");
-                SonicLevelScore.AddRings(45);Check(SonicXProgress.Lives==6,"Before monitor threshold");
-                SonicLevelScore.AddRings(10);Check(SonicXProgress.Lives==7 && SonicLevelScore.RingsCollected==505,"Monitor rings cross threshold");
+                SonicXProgress.LoseLife();SonicLevelScore.RecordDeath();SonicLevelScore.BeginLevel(scene);Check(SonicLevelScore.RingsCollected==450 && SonicLevelScore.RingsTowardLife==0 && SonicLevelScore.Deaths==1,"Death/checkpoint resets life progress and preserves statistics");
+                SonicLevelScore.AddRings(99);Check(SonicXProgress.Lives==6,"Before monitor threshold");
+                SonicLevelScore.AddRings(10);Check(SonicXProgress.Lives==7 && SonicLevelScore.RingsCollected==559 && SonicLevelScore.RingsTowardLife==9,"Monitor rings cross new threshold after death");
                 Check(SonicLevelScore.Deaths==1,"Ring life does not erase death for no-death bonus");
                 string testKey="SonicFX.Tests.RingLives."+Guid.NewGuid().ToString("N");
                 try {
@@ -101,7 +101,7 @@ namespace SonicFX.Score.Editor
                     typeof(SonicXProgress).GetMethod("PersistRemainingLives",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,new object[]{testKey});
                     Check(SonicXProgress.TryParse(PlayerPrefs.GetString(testKey),out var lifeSave) && lifeSave.lives==7 && lifeSave.totalScore==1234,"Life persistence preserves score and writes increased lives");
                 }finally{PlayerPrefs.DeleteKey(testKey);PlayerPrefs.Save();}
-                SonicLevelScore.Complete(0);int completedLives=SonicXProgress.Lives;SonicLevelScore.AddRings(100);Check(SonicXProgress.Lives==completedLives && SonicLevelScore.RingsCollected==505,"No ring life after completion");
+                SonicLevelScore.Complete(0);int completedLives=SonicXProgress.Lives;SonicLevelScore.AddRings(100);Check(SonicXProgress.Lives==completedLives && SonicLevelScore.RingsCollected==559,"No ring life after completion");
                 SonicLevelScore.BeginLevel(next);Check(SonicLevelScore.RingsCollected==0,"New level resets ring progress");
                 SonicLevelScore.AddRings(100);Check(SonicXProgress.Lives==completedLives+1,"New level can earn a new 100-ring life");
                 Set("Lives",0);SonicXProgress.GainLives(1);SonicLevelScore.AddRings(100);Check(SonicXProgress.Lives==0 && SonicLevelScore.RingsCollected==100,"Game over cannot be revived by pending ring rewards");

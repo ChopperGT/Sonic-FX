@@ -20,7 +20,9 @@ public class PlayerBhysics : MonoBehaviour
     public AnimationCurve TangDragOverSpeed;
     public float TopSpeed = 15;
     public float MaxSpeed = 30;
-    public float MaxFallingSpeed = 30;
+    public const float FallingSpeedLimit = 360f;
+    [Tooltip("Vitesse verticale minimale (negative). Initialise a -360 au chargement ; les zones d'eau peuvent la reduire temporairement.")]
+    public float MaxFallingSpeed = -FallingSpeedLimit;
     public float m_JumpPower = 2;
     public float GroundStickingDistance = 1;
     public float GroundStickingPower = -1;
@@ -128,8 +130,16 @@ public class PlayerBhysics : MonoBehaviour
 
 
 
+    private void Awake()
+    {
+        // Existing prefabs/scenes still serialize their old fall limit. Apply the new rule
+        // before water can temporarily override this value and cache it for restoration.
+        MaxFallingSpeed = -FallingSpeedLimit;
+    }
+
     private void Start()
     {
+        SonicFX.Menu.SonicXProgress.ApplyRedRingSpeedBonus(this);
         p_rigidbody = GetComponent<Rigidbody>();
         PreviousInput = transform.forward;
         Action = GetComponent<ActionManager>();
@@ -185,31 +195,6 @@ public class PlayerBhysics : MonoBehaviour
         curvePosTang = Mathf.Lerp(curvePosTang, TangDragOverSpeed.Evaluate((p_rigidbody.linearVelocity.sqrMagnitude / MaxSpeed) / MaxSpeed), Time.fixedDeltaTime * TangentialDragShiftSpeed);
         curvePosSlope = Mathf.Lerp(curvePosSlope, SlopePowerOverSpeed.Evaluate((p_rigidbody.linearVelocity.sqrMagnitude / MaxSpeed) / MaxSpeed), Time.fixedDeltaTime * SlopePowerShiftSpeed);
 
-        // Apply Max Speed Limit
-        XZmag = new Vector3(p_rigidbody.linearVelocity.x, 0, p_rigidbody.linearVelocity.z).magnitude;
-
-        // Do it for X and Z
-        if (XZmag > MaxSpeed)
-        {
-            Vector3 ReducedSpeed = p_rigidbody.linearVelocity;
-            float keepY = p_rigidbody.linearVelocity.y;
-            ReducedSpeed = Vector3.ClampMagnitude(ReducedSpeed, MaxSpeed);
-            ReducedSpeed.y = keepY;
-            p_rigidbody.linearVelocity = ReducedSpeed;
-        }
-
-        //Do it for Y
-        if (Mathf.Abs(p_rigidbody.linearVelocity.y) > MaxFallingSpeed)
-        {
-            Vector3 ReducedSpeed = p_rigidbody.linearVelocity;
-            float keepX = p_rigidbody.linearVelocity.x;
-            float keepZ = p_rigidbody.linearVelocity.z;
-            ReducedSpeed = Vector3.ClampMagnitude(ReducedSpeed, MaxSpeed);
-            ReducedSpeed.x = keepX;
-            ReducedSpeed.z = keepZ;
-            p_rigidbody.linearVelocity = ReducedSpeed;
-        }
-
         //Rotate Colliders     
         if (EnableDebug)
         {
@@ -251,6 +236,31 @@ public class PlayerBhysics : MonoBehaviour
             }
         }
         CheckForGround();
+        // Use this tick's ground state and include gravity/acceleration in the limit.
+        ApplySpeedLimits();
+    }
+
+    void ApplySpeedLimits()
+    {
+        Vector3 velocity = p_rigidbody.linearVelocity;
+        if (!Grounded && velocity.y < 0)
+        {
+            // In free fall MaxSpeed does not apply, including to horizontal momentum.
+            // Clamp the entire fall vector so the HUD's total speed cannot exceed 360.
+            velocity = Vector3.ClampMagnitude(velocity, FallingSpeedLimit);
+        }
+        else
+        {
+            // Running/jump ascent: limit horizontal speed without scaling the vertical component.
+            Vector3 horizontal = Vector3.ClampMagnitude(new Vector3(velocity.x, 0, velocity.z), Mathf.Max(0, MaxSpeed));
+            velocity.x = horizontal.x; velocity.z = horizontal.z;
+        }
+        // Water retains its independent, lower sinking limit. Positive old values are
+        // interpreted as a speed magnitude rather than turning a fall into an upward impulse.
+        float fallLimit = Mathf.Clamp(Mathf.Abs(MaxFallingSpeed), 0, FallingSpeedLimit);
+        velocity.y = Mathf.Max(velocity.y, -fallLimit);
+        p_rigidbody.linearVelocity = velocity;
+        XZmag = new Vector3(velocity.x, 0, velocity.z).magnitude;
     }
 
     void HandleGroundControl(float deltaTime, Vector3 input)
@@ -627,12 +637,6 @@ public class PlayerBhysics : MonoBehaviour
         if (b_normalSpeed < 0 && !Grounded)
         {
             HandleGroundControl(1, (MoveInput * AirSkiddingForce) * MoveAccell);
-        }
-
-        //Max Falling Speed
-        if (p_rigidbody.linearVelocity.y < MaxFallingSpeed)
-        {
-            p_rigidbody.linearVelocity = new Vector3(p_rigidbody.linearVelocity.x, MaxFallingSpeed, p_rigidbody.linearVelocity.z);
         }
 
     }

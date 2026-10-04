@@ -57,7 +57,7 @@ namespace SonicFX.Structures.Editor
             catch(Exception e){File.WriteAllText(Path.Combine(Reports,"unity-tests.txt"),"FAIL\n"+e);Debug.LogException(e);}
             finally{if(root!=null)PrefabUtility.UnloadPrefabContents(root);}
         }
-        static Mesh CopyReadable(Mesh original)
+        public static Mesh CopyReadable(Mesh original)
         {
             // Editor access also supports FBX meshes whose Read/Write flag is disabled.
             using(var array=MeshUtility.AcquireReadOnlyMeshData(original)){
@@ -79,11 +79,11 @@ namespace SonicFX.Structures.Editor
         static void Check(bool value,string message){if(!value)throw new Exception(message);}
         static void Verify(Mesh source)
         {
-            var previous=SceneManager.GetActiveScene();var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Additive);
+            var scene=EditorSceneManager.NewPreviewScene();
             GameObject go=null,other=null;
             try {
                 go=new GameObject("Rampe de verification");SceneManager.MoveGameObjectToScene(go,scene);
-                var r=go.AddComponent<SonicEditableRamp>();r.Initialize(source);Check(r.Rebuild(),"Initial build: "+r.LastError);
+                var r=go.AddComponent<SonicEditableRamp>();r.meshSubdivisions=0;r.Initialize(source);Check(r.Rebuild(),"Initial build: "+r.LastError);
                 var filter=go.GetComponent<MeshFilter>();var collider=go.GetComponent<MeshCollider>();var original=source.vertices;var vertices=filter.sharedMesh.vertices;
                 float tolerance=source.bounds.size.magnitude*.00001f;
                 for(int i=0;i<vertices.Length;i++)Check(Vector3.Distance(original[i],vertices[i])<tolerance,"Original shape retained");
@@ -104,7 +104,7 @@ namespace SonicFX.Structures.Editor
                 }
                 Check(hit,"Modified ramp has physical collision");
                 other=new GameObject("Autre rampe");SceneManager.MoveGameObjectToScene(other,scene);
-                var independent=other.AddComponent<SonicEditableRamp>();independent.Initialize(source);Check(independent.Rebuild(),"Second instance builds");
+                var independent=other.AddComponent<SonicEditableRamp>();independent.meshSubdivisions=0;independent.Initialize(source);Check(independent.Rebuild(),"Second instance builds");
                 Check(Mathf.Abs(other.GetComponent<MeshFilter>().sharedMesh.bounds.max.y-source.bounds.max.y)<tolerance,"Instances remain independent");
                 var valid=collider.sharedMesh;for(int i=0;i<27;i++)r.Points[i]=Vector3.zero;
                 Check(!r.Rebuild() && collider.sharedMesh==valid,"Collapsed cage retains last valid collision");
@@ -131,7 +131,7 @@ namespace SonicFX.Structures.Editor
             }
             finally{
                 if(go!=null)Object.DestroyImmediate(go);if(other!=null)Object.DestroyImmediate(other);
-                if(previous.IsValid() && previous.isLoaded)SceneManager.SetActiveScene(previous);EditorSceneManager.CloseScene(scene,true);
+                EditorSceneManager.ClosePreviewScene(scene);
             }
         }
         static void Render(GameObject prefab,bool withWall=false)
