@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &1000010871362460
 GameObject:
@@ -23,12 +23,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1000010871362460}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0, z: -0.43}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4000012962809556}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1000012928222408
 GameObject:
@@ -59,14 +60,15 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1000012928222408}
+  serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 11.664056, y: 70.22, z: 435.4921}
   m_LocalScale: {x: 1.7903236, y: 1.7903264, z: 1.7903264}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4000013347229750}
   - {fileID: 4526605631349980}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!33 &33000013679693244
 MeshFilter:
@@ -87,10 +89,17 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -113,9 +122,12 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!135 &135000010603503504
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -124,9 +136,17 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1000012928222408}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 1
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
   m_Radius: 2.26
   m_Center: {x: -2.628564e-10, y: -0.0044099987, z: -0.64658904}
 --- !u!114 &114000012247251488
@@ -158,9 +178,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Type: 0
   RingAmount: 10
-  MonitorExplosion: {fileID: 1000010580347422, guid: 6d13175cda48aec4bba91a834c36ef4f,
-    type: 3}
   ScoreOnDestroy: 500
+  MonitorExplosion: {fileID: 1000010580347422, guid: 6d13175cda48aec4bba91a834c36ef4f, type: 3}
 --- !u!205 &205000010652899798
 LODGroup:
   m_ObjectHideFlags: 0
@@ -168,7 +187,7 @@ LODGroup:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1000012928222408}
-  serializedVersion: 2
+  serializedVersion: 3
   m_LocalReferencePoint: {x: 0, y: -0.0044100285, z: -0.64658904}
   m_Size: 2.569136
   m_FadeMode: 0
@@ -180,6 +199,7 @@ LODGroup:
     renderers:
     - renderer: {fileID: 23000011479903264}
   m_Enabled: 1
+  m_GlobalIlluminationLOD: 0
 --- !u!1 &1756406377393120
 GameObject:
   m_ObjectHideFlags: 0
@@ -205,12 +225,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1756406377393120}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.457}
   m_LocalScale: {x: 1.75, y: 1.75, z: 2.3547156}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4000012962809556}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &33096175877591564
 MeshFilter:
@@ -228,8 +249,16 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1756406377393120}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}

@@ -68,7 +68,7 @@ public class PauseCotrol : MonoBehaviour {
 
     void Update()
     {
-        if (Input.GetButtonDown("Start"))
+        if (PadInput.GetButtonDown("Start"))
         {
             OptionsMenu.SetActive(false);
             PauseToggle();

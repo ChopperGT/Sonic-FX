@@ -34,8 +34,8 @@ public class MouseOrbitImproved : MonoBehaviour
         if (target)
         {
 
-            x += Input.GetAxis("Horizontal_right") * xSpeed * 0.01f;
-            y -= Input.GetAxis("Vertical_right") * ySpeed * 0.005f;
+            x += PadInput.GetAxis("Horizontal_right") * xSpeed * 0.01f;
+            y -= PadInput.GetAxis("Vertical_right") * ySpeed * 0.005f;
             z = 0;
 
             y = ClampAngle(y, yMinLimit, yMaxLimit);

@@ -162,11 +162,11 @@ public class PlayerBhysics : MonoBehaviour
     void InputChecks()
     {
         //Rolling
-        if (Input.GetButton("R1") && p_rigidbody.linearVelocity.sqrMagnitude > RollingStartSpeed)
+        if (PadInput.GetButton("R1") && p_rigidbody.linearVelocity.sqrMagnitude > RollingStartSpeed)
         {
             isRolling = true;
         }
-        if (Input.GetButtonUp("R1"))
+        if (PadInput.GetButtonUp("R1"))
         {
             isRolling = false;
         }
@@ -502,7 +502,7 @@ public class PlayerBhysics : MonoBehaviour
 		float StickingSpeedFactor = (p_rigidbody.velocity.magnitude * 0.075f);
 
         CollisionPoint.LookAt(transform.position);
-		if (Physics.Raycast(CollisionPoint.position, -Colliders.up, out hit, GroundStickingDistance*StickingSpeedFactor) && !Input.GetButton("A"))
+		if (Physics.Raycast(CollisionPoint.position, -Colliders.up, out hit, GroundStickingDistance*StickingSpeedFactor) && !PadInput.GetButton("A"))
         {
 			Vector3 force = hit.normal * StickingPower * StickingSpeedFactor;
             AddVelocity(force);
