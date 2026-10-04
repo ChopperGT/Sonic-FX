@@ -408,7 +408,7 @@ public class SonicTube : MonoBehaviour
             player.GroundNormal = completed ? Vector3.up : savedNormal;
             player.WasOnAir = completed;
             // Releasing R1 inside the tube must not leave a stuck roll afterwards.
-            player.isRolling = savedRolling && Input.GetButton("R1");
+            player.isRolling = savedRolling && PadInput.GetButton("R1");
             if (body != null) player.SpeedMagnitude = body.linearVelocity.magnitude;
         }
         foreach (var component in paused) if (component != null) component.enabled = true;

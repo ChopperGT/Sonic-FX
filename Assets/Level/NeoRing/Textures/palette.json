@@ -1,0 +1,15 @@
+{
+  "background": "#0b0f1a",
+  "metal": [
+    "#1a2030",
+    "#232a3d",
+    "#2e3650"
+  ],
+  "dark": "#070912",
+  "neon": {
+    "cyan": "#19e3ff",
+    "magenta": "#ff2bd6",
+    "yellow": "#ffd60a",
+    "violet": "#7b5cff"
+  }
+}

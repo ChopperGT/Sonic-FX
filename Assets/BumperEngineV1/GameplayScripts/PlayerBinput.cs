@@ -66,8 +66,8 @@ public class PlayerBinput : MonoBehaviour {
 
         // Get the axis and jump input.
 
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
+        float h = PadInput.GetAxis("Horizontal");
+        float v = PadInput.GetAxis("Vertical");
 
 		// calculate move direction
 		if (cam != null)

@@ -49,7 +49,7 @@ public class Rail_Interaction : MonoBehaviour {
     {
         if (rail != null)
         {
-            if (Input.GetButton("A") && railActiveCount > 10)
+            if (PadInput.GetButton("A") && railActiveCount > 10)
             {
                 Actions.Action01.InitialEvents();
                 Actions.ChangeAction(1);

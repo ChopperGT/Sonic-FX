@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &1000010485938830
 GameObject:
@@ -128,8 +128,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Anim: {fileID: 95609786943518618}
-  DustParticles: {fileID: 198354426736845012, guid: 49976471488d8d1428ff59b7b9753dcf,
-    type: 3}
+  DustParticles: {fileID: 198354426736845012, guid: 49976471488d8d1428ff59b7b9753dcf, type: 3}
   WanderDistance: 3
   WanterStillAmmount: 200
   WanderMoveAmmount: 200
@@ -151,8 +150,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxHealth: 1
-  Explosion: {fileID: 1000011741142878, guid: 7b04b14b78656c348b97275c1f85db9a, type: 3}
   ScoreOnDefeat: 50
+  Explosion: {fileID: 1000011741142878, guid: 7b04b14b78656c348b97275c1f85db9a, type: 3}
 --- !u!1 &1000011191701952
 GameObject:
   m_ObjectHideFlags: 0

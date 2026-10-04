@@ -37,7 +37,7 @@ namespace SonicFX.HUD
         void LateUpdate(){RefreshSpeed(Time.unscaledDeltaTime);}
         public static string FormatTime(float seconds)
         {
-            long ms=(long)Math.Floor(Math.Max(0,seconds)*1000);return (ms/60000).ToString("00")+"'"+(ms/1000%60).ToString("00")+"\""+(ms%1000).ToString("000");
+            long ms=(long)Math.Round(Math.Max(0,(double)seconds)*1000);return (ms/60000).ToString("00")+"'"+(ms/1000%60).ToString("00")+"\""+(ms%1000).ToString("000");
         }
         public void Build()
         {
@@ -67,6 +67,10 @@ namespace SonicFX.HUD
             SpeedText.rectTransform.anchorMin=SpeedText.rectTransform.anchorMax=SpeedText.rectTransform.pivot=Vector2.zero;
             SpeedText.rectTransform.anchoredPosition=Vector2.zero;
             SpeedText.verticalOverflow=VerticalWrapMode.Overflow;
+            var records=GetComponent<SonicRecordsHud>();if(records==null)records=gameObject.AddComponent<SonicRecordsHud>();
+            records.Build(HudCanvas);
+            var pauseMenu=GetComponent<SonicPauseMenu>();if(pauseMenu==null)pauseMenu=gameObject.AddComponent<SonicPauseMenu>();
+            pauseMenu.Build(HudCanvas);
         }
         Text Number(Transform parent,string text,Vector2 pos,Vector2 size,int fontSize,TextAnchor align)
         {

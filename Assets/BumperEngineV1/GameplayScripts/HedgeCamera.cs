@@ -113,7 +113,7 @@ public class HedgeCamera : MonoBehaviour
             return new Vector2(stick.x, -stick.y);
         }
 #endif
-        return new Vector2(Input.GetAxis("Horizontal_right"), Input.GetAxis("Vertical_right"));
+        return new Vector2(PadInput.GetAxis("Horizontal_right"), PadInput.GetAxis("Vertical_right"));
     }
 
     void Start()
@@ -165,8 +165,8 @@ public class HedgeCamera : MonoBehaviour
             Vector2 cameraStick = ReadCameraStick();
             x += (cameraStick.x * ((InputXSpeed) * SensiX) * InvertedX) * Time.deltaTime;
             y -= (cameraStick.y * ((InputYSpeed) * SensiY) * InvertedY) * Time.deltaTime;
-            x += (Input.GetAxis("Mouse X") * ((InputXSpeed) * SensiX) * InvertedX) * Time.deltaTime;
-            y -= (Input.GetAxis("Mouse Y") * ((InputYSpeed) * SensiY) * InvertedY) * Time.deltaTime;
+            x += (PadInput.GetAxis("Mouse X") * ((InputXSpeed) * SensiX) * InvertedX) * Time.deltaTime;
+            y -= (PadInput.GetAxis("Mouse Y") * ((InputYSpeed) * SensiY) * InvertedY) * Time.deltaTime;
         }
         else
         {
@@ -185,7 +185,7 @@ public class HedgeCamera : MonoBehaviour
             if (!UseCurve)
             {
                 float NormalMod = Mathf.Abs(Player.b_normalSpeed - Player.MaxSpeed);
-                x += (((Input.GetAxis("Horizontal")) * NormalMod) * AutoXRotationSpeed) * Time.deltaTime;
+                x += (((PadInput.GetAxis("Horizontal")) * NormalMod) * AutoXRotationSpeed) * Time.deltaTime;
                 ;
                 y -= 0;
             }
@@ -194,7 +194,7 @@ public class HedgeCamera : MonoBehaviour
 
                 CurveX = AutoXRotationCurve.Evaluate((Player.p_rigidbody.linearVelocity.sqrMagnitude / Player.MaxSpeed) / Player.MaxSpeed);
                 CurveX = CurveX * 100;
-                x += (((Input.GetAxis("Horizontal")) * CurveX) * AutoXRotationSpeed) * Time.deltaTime;
+                x += (((PadInput.GetAxis("Horizontal")) * CurveX) * AutoXRotationSpeed) * Time.deltaTime;
                 ;
                 y -= 0;
             }
