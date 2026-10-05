@@ -26878,6 +26878,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 795317e0a409ba3499067f99a8f5ed0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startingAbilities: 127
   Action00: {fileID: 114743684318168390}
   Action01: {fileID: 114383336772470124}
   Action02: {fileID: 114548034384044588}

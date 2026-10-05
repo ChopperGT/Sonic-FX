@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 [System.Flags]
@@ -15,8 +15,11 @@ public class ActionManager : MonoBehaviour {
     [Tooltip("None : seuls deplacement, saut normal et boule sont disponibles. Les capacites debloquees dans la sauvegarde s'ajoutent a cette liste.")]
     [SerializeField] SonicAbility startingAbilities=SonicAbility.None;
 
+    public void RestorePackAbilities(){startingAbilities=SonicAbility.All;}
+
     public SonicAbility AvailableAbilities=>(startingAbilities|SonicFX.Menu.SonicXProgress.UnlockedAbilities)&SonicAbility.All;
-    public bool CanUse(SonicAbility ability)=>ability!=SonicAbility.None && (ability&~SonicAbility.All)==0 && (AvailableAbilities&ability)==ability;
+    public bool BallBlocked => SonicFX.Bat.SonicBatAttachment.BlocksBall(this);
+    public bool CanUse(SonicAbility ability)=>ability!=SonicAbility.None && (ability&~SonicAbility.All)==0 && (AvailableAbilities&ability)==ability && (!BallBlocked || (ability & (SonicAbility.HomingAttack|SonicAbility.AirDash|SonicAbility.SpinDash|SonicAbility.Bounce|SonicAbility.DropDash))==0);
     public bool UnlockAbility(SonicAbility ability)=>SonicFX.Menu.SonicXProgress.UnlockAbility(ability);
     public bool CanChangeAction(int next)
     {

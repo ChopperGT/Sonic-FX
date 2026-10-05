@@ -10819,6 +10819,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 795317e0a409ba3499067f99a8f5ed0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startingAbilities: 127
   Action00: {fileID: 114882844095533966}
   Action01: {fileID: 114399868579052004}
   Action02: {fileID: 114343362060875462}

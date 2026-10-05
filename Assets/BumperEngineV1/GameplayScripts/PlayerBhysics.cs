@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class PlayerBhysics : MonoBehaviour
@@ -20,6 +20,10 @@ public class PlayerBhysics : MonoBehaviour
     public AnimationCurve TangDragOverSpeed;
     public float TopSpeed = 15;
     public float MaxSpeed = 30;
+    // Temporary parasite effects never change serialized speed or save upgrades.
+    public bool BallBlocked => SonicFX.Bat.SonicBatAttachment.BlocksBall(this);
+    public float EffectiveTopSpeed => Mathf.Max(0, TopSpeed - SonicFX.Bat.SonicBatAttachment.Penalty(this));
+    public float EffectiveMaxSpeed => Mathf.Max(1, MaxSpeed - SonicFX.Bat.SonicBatAttachment.Penalty(this));
     public const float FallingSpeedLimit = 360f;
     [Tooltip("Vitesse verticale minimale (negative). Initialise a -360 au chargement ; les zones d'eau peuvent la reduire temporairement.")]
     public float MaxFallingSpeed = -FallingSpeedLimit;
@@ -161,6 +165,7 @@ public class PlayerBhysics : MonoBehaviour
 
     void InputChecks()
     {
+        if (BallBlocked) { isRolling = false; return; }
         //Rolling
         if (PadInput.GetButton("R1") && p_rigidbody.linearVelocity.sqrMagnitude > RollingStartSpeed)
         {
@@ -190,10 +195,11 @@ public class PlayerBhysics : MonoBehaviour
             PreviousRawInput = RawInput;
         }
 
+        float effectiveMax = EffectiveMaxSpeed;
         //Set Curve thingies
-        curvePosAcell = Mathf.Lerp(curvePosAcell, AccellOverSpeed.Evaluate((p_rigidbody.linearVelocity.sqrMagnitude / MaxSpeed) / MaxSpeed), Time.fixedDeltaTime * AccellShiftOverSpeed);
-        curvePosTang = Mathf.Lerp(curvePosTang, TangDragOverSpeed.Evaluate((p_rigidbody.linearVelocity.sqrMagnitude / MaxSpeed) / MaxSpeed), Time.fixedDeltaTime * TangentialDragShiftSpeed);
-        curvePosSlope = Mathf.Lerp(curvePosSlope, SlopePowerOverSpeed.Evaluate((p_rigidbody.linearVelocity.sqrMagnitude / MaxSpeed) / MaxSpeed), Time.fixedDeltaTime * SlopePowerShiftSpeed);
+        curvePosAcell = Mathf.Lerp(curvePosAcell, AccellOverSpeed.Evaluate((p_rigidbody.linearVelocity.sqrMagnitude / effectiveMax) / effectiveMax), Time.fixedDeltaTime * AccellShiftOverSpeed);
+        curvePosTang = Mathf.Lerp(curvePosTang, TangDragOverSpeed.Evaluate((p_rigidbody.linearVelocity.sqrMagnitude / effectiveMax) / effectiveMax), Time.fixedDeltaTime * TangentialDragShiftSpeed);
+        curvePosSlope = Mathf.Lerp(curvePosSlope, SlopePowerOverSpeed.Evaluate((p_rigidbody.linearVelocity.sqrMagnitude / effectiveMax) / effectiveMax), Time.fixedDeltaTime * SlopePowerShiftSpeed);
 
         //Rotate Colliders     
         if (EnableDebug)
@@ -247,12 +253,12 @@ public class PlayerBhysics : MonoBehaviour
         {
             // In free fall MaxSpeed does not apply, including to horizontal momentum.
             // Clamp the entire fall vector so the HUD's total speed cannot exceed 360.
-            velocity = Vector3.ClampMagnitude(velocity, FallingSpeedLimit);
+            velocity = Vector3.ClampMagnitude(velocity, Mathf.Max(1, FallingSpeedLimit - SonicFX.Bat.SonicBatAttachment.Penalty(this)));
         }
         else
         {
             // Running/jump ascent: limit horizontal speed without scaling the vertical component.
-            Vector3 horizontal = Vector3.ClampMagnitude(new Vector3(velocity.x, 0, velocity.z), Mathf.Max(0, MaxSpeed));
+            Vector3 horizontal = Vector3.ClampMagnitude(new Vector3(velocity.x, 0, velocity.z), Mathf.Max(0, EffectiveMaxSpeed));
             velocity.x = horizontal.x; velocity.z = horizontal.z;
         }
         // Water retains its independent, lower sinking limit. Positive old values are
@@ -320,12 +326,12 @@ public class PlayerBhysics : MonoBehaviour
 
             // Step 4) Apply user control in this direction.
 
-            if (normalSpeed < TopSpeed)
+            if (normalSpeed < EffectiveTopSpeed)
             {
                 // Accelerate towards the input direction.
                 normalSpeed += (isRolling ? 0 : MoveAccell) * deltaTime * inputMagnitude;
 
-                normalSpeed = Mathf.Min(normalSpeed, TopSpeed);
+                normalSpeed = Mathf.Min(normalSpeed, EffectiveTopSpeed);
 
                 // Rebuild back the normal velocity with the correct modulus.
 
@@ -335,7 +341,7 @@ public class PlayerBhysics : MonoBehaviour
             // Step 5) Dampen tangential components.
 
             float dragRate = TangDragOverAngle.Evaluate(deviationFromInput)
-                           * TangDragOverSpeed.Evaluate((tangentSpeed * tangentSpeed) / (MaxSpeed * MaxSpeed));
+                           * TangDragOverSpeed.Evaluate((tangentSpeed * tangentSpeed) / (EffectiveMaxSpeed * EffectiveMaxSpeed));
 
             tangentVelocity = Vector3.MoveTowards(tangentVelocity, Vector3.zero,
                                                   TangentialDrag * dragRate * deltaTime);

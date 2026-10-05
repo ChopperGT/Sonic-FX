@@ -12,7 +12,8 @@ namespace SonicFX.Score
         public string nextScene;
         public string levelKey;
         public bool newRecord;
-        public float[] medalTimes; // cibles : arc-en-ciel, diamant, or, argent
+        public bool isNewLevel;
+        public float[] medalTimes; // cibles : arc-en-ciel, diamant, or, argent, bronze
     }
 
     // 3 meilleurs temps par niveau, cle = chemin de la scene.
@@ -135,9 +136,21 @@ namespace SonicFX.Score
             };
         }
 
-        // Temps cibles arc-en-ciel, diamant, or, argent ; sans reglage : derives du temps ideal.
-        public static float[] MedalTimes(float[] custom,float idealSeconds)=>custom!=null && custom.Length==4?custom:
-            new[]{idealSeconds*.8f,idealSeconds*.9f,idealSeconds,idealSeconds*1.25f};
+        // Preserve older maps' four targets and add an easier bronze target.
+        public static float[] MedalTimes(float[] custom,float idealSeconds)
+        {
+            if(custom!=null && custom.Length==5)return custom;
+            if(custom!=null && custom.Length==4)return new[]{custom[0],custom[1],custom[2],custom[3],custom[3]*1.25f};
+            return new[]{idealSeconds*.8f,idealSeconds*.9f,idealSeconds,idealSeconds*1.25f,idealSeconds*1.5625f};
+        }
+
+        // Scene settings take precedence over character-specific legacy values.
+        // Look only in the player's level, so additively loaded maps stay independent.
+        public static float[] MedalTimes(UnityEngine.SceneManagement.Scene scene,float[] custom,float idealSeconds)
+        {
+            var settings=SonicLevelMedals.FindInScene(scene);
+            return settings!=null?settings.GetTimes():MedalTimes(custom,idealSeconds);
+        }
 
         // Capture basse resolution du dernier frame du niveau : sert de fond flou a l'ecran de fin.
         public static RenderTexture Snapshot { get; private set; }
@@ -159,12 +172,13 @@ namespace SonicFX.Score
                 CalculateTimeBonus(Elapsed,maximumTimeBonus,idealSeconds,limitSeconds),Deaths==0?NoDeathReward:0,Elapsed,Deaths);
             SonicXProgress.CommitRedRingReward(levelScene.path);
             LastResult.levelKey=levelScene.path;
-            LastResult.medalTimes=MedalTimes(medalTimes,idealSeconds);
+            LastResult.isNewLevel=SonicGhost.Allowed;
+            LastResult.medalTimes=MedalTimes(levelScene,medalTimes,idealSeconds);
             // The completion gate above prevents duplicate goal triggers from adding a record twice.
             // Preview scenes and editor verification never write to the player's rankings or best times.
             if(Application.isPlaying && !string.IsNullOrEmpty(levelScene.path))
             {
-                LastResult.newRecord=SonicRecords.Add(levelScene.path,Elapsed);
+                if(LastResult.isNewLevel)LastResult.newRecord=SonicRecords.Add(levelScene.path,Elapsed);
                 SonicTimeRecords.Record(levelScene.path,Elapsed,SonicXProgress.Character);
             }
             SonicXProgress.ApplyLevelResult(LastResult);

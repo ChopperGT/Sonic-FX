@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using SonicFX.Menu;
 
 namespace SonicFX.Score
 {
@@ -19,7 +20,9 @@ namespace SonicFX.Score
         GameObject ghost; Animator ghostAnimator; int cursor;
 
         static string PathFor(string level)=>Path.Combine(Application.persistentDataPath,"ghost_"+level.Replace('/','_').Replace('\\','_')+".bytes");
-        public static bool Enabled { get=>PlayerPrefs.GetInt(EnabledKey,1)==1; set{PlayerPrefs.SetInt(EnabledKey,value?1:0);} }
+        public static bool Allowed=>SonicNewLevelSession.IsActive && !SonicXProgress.IsStorySession;
+        // Keep the free-play preference while forcing ghosts off in Story mode.
+        public static bool Enabled { get=>Allowed && PlayerPrefs.GetInt(EnabledKey,1)==1; set{if(Allowed)PlayerPrefs.SetInt(EnabledKey,value?1:0);} }
         public static string RecordDate(string level)=>PlayerPrefs.GetString("SonicGhostDate_"+level,"");
 
         public bool HasGhost=>ghost!=null;
@@ -29,6 +32,7 @@ namespace SonicFX.Score
 
         void Start()
         {
+            if(!Allowed){enabled=false;return;}
             var actions=GetComponent<ActionManager>();
             model=actions!=null && actions.Action00!=null?actions.Action00.CharacterAnimator:GetComponentInChildren<Animator>();
             if(model==null){enabled=false;return;}
@@ -41,6 +45,7 @@ namespace SonicFX.Score
 
         void Update()
         {
+            if(!Allowed){if(ghost!=null)ghost.SetActive(false);Delta=float.NaN;return;}
             if((Keyboard.current!=null && Keyboard.current.gKey.wasPressedThisFrame) || (Gamepad.current!=null && Gamepad.current.selectButton.wasPressedThisFrame))Enabled=!Enabled;
             float t=SonicLevelScore.Elapsed;
             if(SonicLevelScore.IsRunning && (recording.Count==0 || t-recording[recording.Count-1].t>=Rate))
@@ -75,6 +80,7 @@ namespace SonicFX.Score
         // Appele par LevelProgressControl quand le run est un nouveau record.
         public void SaveAsBest()
         {
+            if(!Allowed || recording.Count<2)return;
             PlayerPrefs.SetString("SonicGhostDate_"+gameObject.scene.path,System.DateTime.Now.ToString("d MMM yyyy",new System.Globalization.CultureInfo("fr-FR")));
             using(var w=new BinaryWriter(File.Create(PathFor(gameObject.scene.path))))
             {

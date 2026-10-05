@@ -72,8 +72,8 @@ namespace SonicFX.Menu
             }
             clean.levels.Sort((a,b)=>StringComparer.Ordinal.Compare(a.scene,b.scene));return clean;
         }
-        static string NormalizeCharacter(string value)=>value=="tails"||value=="amy"||value=="shadow"?value:"sonic";
-        public static string CharacterName(string value)=>value=="tails"?"Tails":value=="amy"?"Amy":value=="shadow"?"Shadow":"Sonic (jeune)";
+        static string NormalizeCharacter(string value)=>value=="tails"||value=="amy"||value=="shadow"||SonicNewLevelCatalog.Load()?.Find(value)!=null?value:"sonic";
+        public static string CharacterName(string value)=>SonicNewLevelCatalog.Load()?.Find(value)?.displayName??(value=="tails"?"Tails":value=="amy"?"Amy":value=="shadow"?"Shadow":"Sonic (jeune)");
         public static string FormatTime(long milliseconds)
         {
             milliseconds=Math.Max(0,milliseconds);

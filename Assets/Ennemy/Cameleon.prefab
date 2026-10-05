@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &40014691268078439
 GameObject:
@@ -3564,8 +3564,7 @@ MonoBehaviour:
   pauseDuration: 1
   turnSpeed: 240
   maximumDrop: 0.65
-  projectilePrefab: {fileID: 448178806471907563, guid: fec6859f3cb52514b8037dad1fc63b36,
-    type: 3}
+  projectilePrefab: {fileID: 448178806471907563, guid: fec6859f3cb52514b8037dad1fc63b36, type: 3}
   attackCooldown: 2
   windup: 0.35
   projectileSpeed: 16
@@ -3749,9 +3748,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
   MaxHealth: 1
-  Explosion: {fileID: 1729806016327358459, guid: 30a07f9db41c142469ff7b6ee49eb363,
-    type: 3}
   ScoreOnDefeat: 200
+  Explosion: {fileID: 1729806016327358459, guid: 30a07f9db41c142469ff7b6ee49eb363, type: 3}
 --- !u!1 &3771009251243944248
 GameObject:
   m_ObjectHideFlags: 0

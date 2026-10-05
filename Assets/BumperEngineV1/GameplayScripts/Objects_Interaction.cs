@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
@@ -177,6 +177,14 @@ public class Objects_Interaction : MonoBehaviour {
         //Enemies
         if (col.tag == "Enemy")
         {
+            var bat = col.GetComponentInParent<SonicFX.Bat.BatController>();
+            if (bat != null && !Player.isRolling && Actions.Action != 3 && Actions.Action00.CharacterAnimator.GetInteger("Action") != 1)
+            {
+                bat.Attach(Player);
+                return;
+            }
+            var attachedBats = GetComponent<SonicFX.Bat.SonicBatAttachment>();
+            if (attachedBats != null && bat == null) attachedBats.EnemyImpact(col);
             HedgeCamera.Shakeforce = EnemyHitShakeAmmount;
             //If 1, destroy, if not, take damage.
             if (Actions.Action == 3)
