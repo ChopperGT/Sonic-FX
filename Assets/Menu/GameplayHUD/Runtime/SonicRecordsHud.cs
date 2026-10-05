@@ -5,11 +5,9 @@ using SonicFX.Score;
 namespace SonicFX.HUD
 {
     // Maquette "Tableaux de score Sonic" (01 HUD) : meilleurs temps, prochain palier, ecart avec le fantome
-    // et compteur de vitesse (variante 2a, barre segmentee). Le menu pause est dans SonicPauseMenu. Cotes de la maquette 1920x1080, mises a l'echelle du HUD.
+    // et compteur de vitesse en m/s sans unite affichee (variante 2a, barre segmentee). Le menu pause est dans SonicPauseMenu. Cotes de la maquette 1920x1080, mises a l'echelle du HUD.
     [DisallowMultipleComponent] public sealed class SonicRecordsHud : MonoBehaviour
     {
-        const float KmhPerUnit=3.6f; // ponytail: suppose 1 unite Unity = 1 m ; a ajuster si le compteur parait faux
-        const float SpeedMax=400;
         static readonly Vector2 TopRight=new Vector2(1,1),BottomRight=new Vector2(1,0),TopLeft=new Vector2(0,1),Mid=new Vector2(.5f,.5f);
         static readonly Color Navy=new Color(.04f,.12f,.2f,1);
 
@@ -88,7 +86,6 @@ namespace SonicFX.HUD
                 segments[i]=SonicUi.Skew(root,"Cran "+(i+1),BottomRight,new Vector2(-(segments.Length-1-i)*29,0),new Vector2(24,12),Color.white,Color.white,Color.clear,0,0);
             var box=SonicUi.Rect(root,"Vitesse",BottomRight,new Vector2(0,18),new Vector2(343,60));
             speedText=SonicUi.Fill(box,"000",font,56,Color.white,TextAnchor.MiddleRight,0,74);SonicUi.Drop(speedText);
-            SonicUi.Fill(box,"KM/H",font,14,SonicUi.Hex("9fe3f5"),TextAnchor.MiddleRight,0,4);
         }
 
         void Update()
@@ -98,7 +95,8 @@ namespace SonicFX.HUD
 
             if(speedText!=null && player.p_rigidbody!=null)
             {
-                float speed=Mathf.Clamp(player.p_rigidbody.linearVelocity.magnitude*KmhPerUnit,0,SpeedMax),ratio=speed/SpeedMax;
+                // Vitesse brute du Rigidbody (m/s, sans unite affichee). Jauge graduee sur le plafond reel du joueur (MaxSpeed), chiffre jamais ecrete.
+                float speed=player.p_rigidbody.linearVelocity.magnitude,ratio=Mathf.Clamp01(speed/Mathf.Max(1f,player.MaxSpeed));
                 speedText.text=Mathf.RoundToInt(speed).ToString("000");
                 int lit=Mathf.CeilToInt(ratio*segments.Length);
                 for(int i=0;i<segments.Length;i++)
