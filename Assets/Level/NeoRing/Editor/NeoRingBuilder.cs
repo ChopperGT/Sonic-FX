@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using System.Linq;
+using UnityEngine.Splines;
 using static NeoRingKit;
 
 // Construction du niveau "Neo Ring Zone - Secteur 07" : menu Tools/Neo Ring, une entree par etape.
@@ -374,11 +375,161 @@ public static class NeoRingBuilder
 
         // Zone B : relance
         Enemy("Neo_Rouleur", L(0, 0, 130), rot, s); Enemy("Neo_CrabeSentinelle", L(-6, 0, 138), rot * Quaternion.Euler(0, 180, 0), s);
-        RingLine(L(4, 1.6f, 124), L(4, 1.6f, 136), 6, s);
-        BoostPad(L(0, 0, 142), rot, s);
+        RingLine(L(4, 1.6f, 124), L(4, 1.6f, 136), 6, s); // pas de pad : la section 5 est un puits vertical
 
         S4End(out var e, out _);
         Debug.Log("NeoRing : section 4 construite, fin " + e);
+        EditorSceneManager.MarkSceneDirty(s.gameObject.scene); EditorSceneManager.SaveScene(s.gameObject.scene);
+    }
+
+    // ---------------------------------------------------------------- Section 5 : montee verticale n 2
+    // Puits de 14 m x 16 m entre deux tours, 40 m de haut. Corniches alternees gauche/droite tous les 10 m ;
+    // sur chacune un lanceur (Spring ou DashRing) vise la corniche opposee. Balistique calee sur la gravite du joueur (S5G).
+    // Raccourci : LightDashSpline en diagonale du bas vers la sortie.
+    const float S5H = 40, S5D = 16, S5W = 14;
+    // PlayerBhysics ajoute Gravity (0,-1.5,0) a la vitesse a chaque FixedUpdate : g effectif = 1.5 / pas fixe (mesure en Play : ~150 m/s2 a 100 Hz).
+    static float S5G => 1.5f / Time.fixedDeltaTime;
+    public static void S5End(out Vector3 pos, out Quaternion rot) { S4End(out pos, out rot); pos += rot * new Vector3(0, S5H, S5D); }
+
+    // Vitesse de saut (vx lateral, vy) pour passer a dx a l'horizontale et dy+2.5 en hauteur (marge pour le corps) en t secondes.
+    static Vector2 Hop(float dx, float dy, float t = .5f) => new Vector2(dx / t, (dy + 2.5f + .5f * S5G * t * t) / t);
+
+    [MenuItem("Tools/Neo Ring/6 - Section 5 : Montee")]
+    public static void Section5()
+    {
+        var s = Section("S5_Montee");
+        S4End(out var pos, out var rot);
+        Vector3 L(float x, float y, float z) => pos + rot * new Vector3(x, y, z);
+
+        Box("ShaftFloor", L(0, -1, S5D / 2), new Vector3(S5W, 2, S5D), rot, Mat("M_FloorPanels"), s);
+        foreach (float side in new[] { -1f, 1f })
+            Box("Tower", L(side * (S5W / 2 + 4), (S5H + 30 - 2) / 2, S5D / 2), new Vector3(8, S5H + 30, S5D), rot, Mat("M_WallCircuit"), s);
+        Box("BackWall", L(0, (S5H - 2) / 2, S5D + .5f), new Vector3(S5W + 16, S5H + 2, 1), rot, Mat("M_WallCircuit"), s); // sommet = niveau de sortie
+        Neon("FloorNeon", L(0, .1f, S5D - .3f), new Vector3(S5W, .16f, .16f), "Cyan", s, rot);
+
+        // Corniches : k=1 droite (y=10), k=2 gauche (y=20), k=3 droite (y=30) ; sortie a gauche (y=40) sur la section 6.
+        float zc = S5D / 2, ledgeW = 7;
+        float xLedge(int k) => (k % 2 == 1 ? 1 : -1) * (S5W / 2 - ledgeW / 2);
+        for (int k = 1; k <= 3; k++)
+        {
+            float y = 10 * k;
+            Box("Ledge", L(xLedge(k), y - .5f, zc), new Vector3(ledgeW, 1, 6), rot, Mat("M_FloorPanels"), s);
+            Box("LedgeStripes", L(xLedge(k) - Mathf.Sign(xLedge(k)) * (ledgeW / 2 - .5f), y + .005f, zc), new Vector3(1, .01f, 6), rot, Mat("M_Hazard"), s, false);
+            Neon("LedgeNeon", L(xLedge(k) - Mathf.Sign(xLedge(k)) * (ledgeW / 2), y + .1f, zc), new Vector3(.16f, .16f, 6), "Yellow", s, rot);
+        }
+        // Corniche de sortie (gauche, y=40) prolongee jusqu'au mur du fond : la section 6 commence dessus.
+        Box("ExitLedge", L(-S5W / 4, S5H - .5f, (zc - 3 + S5D + 1) / 2), new Vector3(ledgeW, 1, S5D + 1 - (zc - 3)), rot, Mat("M_FloorPanels"), s);
+        Neon("ExitNeon", L(-S5W / 4 + ledgeW / 2, S5H + .1f, (zc - 3 + S5D + 1) / 2), new Vector3(.16f, .16f, S5D + 1 - (zc - 3)), "Yellow", s, rot);
+        // Lanceurs : sol -> corniche 1, corniche k -> corniche k+1, corniche 3 -> sortie (x=-4.5, y=40)
+        // Lanceur a l'oppose de sa cible (cote mur de sa propre corniche) : la parabole doit passer au-dessus du bord
+        // interieur de la corniche visee, sinon le joueur se cogne dessous et retombe dans l'anneau (boucle infinie, vu en Play).
+        float[] fromX = { -3f, xLedge(1) + 2, xLedge(2) - 2, xLedge(3) + 2 }, fromY = { 0, 10, 20, 30 };
+        float[] toX = { xLedge(1), xLedge(2), xLedge(3), -S5W / 4 }, toY = { 10, 20, 30, S5H };
+        for (int i = 0; i < 4; i++)
+        {
+            Vector2 v = Hop(toX[i] - fromX[i], toY[i] - fromY[i]);
+            Vector3 dirLocal = new Vector3(v.x, v.y, 0).normalized; float speed = v.magnitude;
+            Vector3 at = L(fromX[i], fromY[i], i == 0 ? 10 : zc);
+            // Spring seulement sur la corniche 2 (le joueur y arrive en l'air). Au sol, un joueur lance est recolle au sol par
+            // PlayerBhysics (rayon de sol allonge par la vitesse) : le lanceur du bas est donc un DashRing, teste en Play.
+            if (i == 2)
+            {
+                // Spring : lance selon transform.up
+                var sp = Prefab(Prefabs + "Spring.prefab", at, rot * Quaternion.FromToRotation(Vector3.up, dirLocal), s);
+                sp.GetComponent<Spring_Proprieties>().SpringForce = speed;
+            }
+            else
+            {
+                // DashRing : lance selon transform.forward, anneau debout (son plan contient la direction)
+                var dr = Prefab(Prefabs + "DashRing.prefab", at + rot * new Vector3(0, 2.5f, 0), rot * Quaternion.LookRotation(dirLocal, Vector3.forward), s);
+                dr.GetComponentInChildren<SpeedPadData>().Speed = speed;
+            }
+        }
+        // Anneaux : 3 par bond, le long de la parabole
+        for (int i = 0; i < 4; i++)
+        {
+            Vector2 v = Hop(toX[i] - fromX[i], toY[i] - fromY[i]);
+            for (int j = 1; j <= 3; j++) { float t = .5f * j / 4; Ring(L(fromX[i] + v.x * t, fromY[i] + 1.5f + v.y * t - .5f * S5G * t * t, zc), s); }
+        }
+
+        // Raccourci : light dash en diagonale (anneaux tous les 3 m)
+        var ld = Prefab(Prefabs + "LightDashSpline.prefab", L(0, 0, 0), rot, s);
+        var spline = ld.GetComponent<Spline>();
+        spline.nodes[0].SetPosition(new Vector3(0, 2, 2)); spline.nodes[0].SetDirection(new Vector3(0, 12, 6));
+        spline.nodes[1].SetPosition(new Vector3(0, S5H + 2, S5D + 3)); spline.nodes[1].SetDirection(new Vector3(0, S5H + 12, S5D + 9));
+        var sower = ld.GetComponent<SplineSower>(); sower.spacing = 3; sower.Sow();
+
+        // Panneaux holo qui scintillent dans le puits
+        foreach (float y in new[] { 6f, 24f, 36f })
+            Holo(L((y == 24 ? 1 : -1) * (S5W / 2 - .1f), y, zc), rot * Quaternion.Euler(0, y == 24 ? 90 : -90, 0), new Vector2(8, 4), s);
+
+        S5End(out var e, out _);
+        Debug.Log("NeoRing : section 5 construite, fin " + e);
+        EditorSceneManager.MarkSceneDirty(s.gameObject.scene); EditorSceneManager.SaveScene(s.gameObject.scene);
+    }
+
+    // ---------------------------------------------------------------- Section 6 : tube final + grand saut
+    // Plateforme de depart (CheckPoint), tube SonicTube qui plonge et vire a droite, plateforme de sortie, rampe,
+    // DashRing au sommet qui propulse au-dessus de la ville jusqu'au sprint final (section 7, 15 m plus bas).
+    const float S6Jump = 161, S6Drop = 15;
+    public static void S6End(out Vector3 pos, out Quaternion rot) { S5End(out pos, out rot); pos += rot * new Vector3(0, -S6Drop, S6Jump); }
+
+    [MenuItem("Tools/Neo Ring/7 - Section 6 : Tube")]
+    public static void Section6()
+    {
+        var s = Section("S6_Tube");
+        S5End(out var pos, out var rot);
+        Vector3 L(float x, float y, float z) => pos + rot * new Vector3(x, y, z);
+
+        Straight(s, pos, rot, 20);
+        Prefab(Prefabs + "CheckPoint.prefab", L(5.5f, 0, 4), rot, s);
+        RingLine(L(0, 1.6f, 8), L(0, 1.6f, 16), 4, s);
+
+        // Tube : noeuds en local du tube, tangentes auto ; entree au bout de la plateforme, sortie 9 m plus bas
+        var tube = Prefab("Assets/Structure/Tube Slide/Tube_Test.prefab", L(0, 0, 20), rot, s);
+        var container = tube.GetComponent<SplineContainer>();
+        var spline = container.Spline; spline.Clear();
+        foreach (var k in new[] { new Vector3(0, 1.6f, 0), new Vector3(0, -5, 22), new Vector3(7, -13, 45), new Vector3(0, -9, 70) }) spline.Add(new BezierKnot(k), TangentMode.AutoSmooth);
+        tube.transform.Find("Entree_Tube").localPosition = new Vector3(0, 1.6f, 0); tube.transform.Find("Sortie_Tube").localPosition = new Vector3(0, -9, 70); // SonicTube les recale aussi en Play
+        foreach (var mr in tube.GetComponentsInChildren<MeshRenderer>(true)) mr.sharedMaterial = Mat("M_WallCircuit");
+        foreach (var ex in tube.GetComponentsInChildren<SplineExtrude>(true)) ex.Rebuild();
+
+        // Sortie : plateforme, rampe a 25 deg, DashRing au sommet vers le ciel
+        Box("ExitDeck", L(0, -11.5f, 97), new Vector3(12, 2, 14), rot, Mat("M_FloorPanels"), s);
+        float rampLen = 12, rampH = rampLen * Mathf.Tan(25 * Mathf.Deg2Rad);
+        Box("JumpRamp", L(0, -10.5f + rampH / 2 - .25f, 104 + rampLen / 2), new Vector3(12, .5f, rampLen / Mathf.Cos(25 * Mathf.Deg2Rad)), rot * Quaternion.Euler(-25, 0, 0), Mat("M_FloorPanels"), s);
+        Box("RampStripes", L(0, -10.5f + rampH + .3f, 104 + rampLen - .4f), new Vector3(12, .01f, .8f), rot * Quaternion.Euler(-25, 0, 0), Mat("M_Hazard"), s, false);
+        foreach (float x in new[] { -6.1f, 6.1f }) Neon("RampNeon", L(x, -10.5f + rampH / 2 + .1f, 104 + rampLen / 2), new Vector3(.16f, .16f, rampLen / Mathf.Cos(25 * Mathf.Deg2Rad)), "Yellow", s, rot * Quaternion.Euler(-25, 0, 0));
+        Vector3 jump = new Vector3(0, Mathf.Sin(35 * Mathf.Deg2Rad), Mathf.Cos(35 * Mathf.Deg2Rad));
+        var ring = Prefab(Prefabs + "DashRing.prefab", L(0, -10.5f + rampH + 3, 104 + rampLen + 1), rot * Quaternion.LookRotation(jump, Vector3.up), s);
+        ring.GetComponentInChildren<SpeedPadData>().Speed = 70; // vy 40, vx 57 : ~64 m de portee jusqu'a 12 m plus bas (g=90)
+
+        // Ville en contrebas du saut : tours decoratives
+        foreach (var (x, h, z) in new[] { (-14f, 40f, 125f), (10f, 55f, 138f), (-6f, 30f, 150f), (16f, 48f, 155f) })
+            Box("CityTower", L(x, -S6Drop - 30 - 2 + h / 2 - h, z), new Vector3(10, h, 10), rot, Mat("M_WallCircuit"), s);
+
+        S6End(out var e, out _);
+        Debug.Log("NeoRing : section 6 construite, fin " + e);
+        EditorSceneManager.MarkSceneDirty(s.gameObject.scene); EditorSceneManager.SaveScene(s.gameObject.scene);
+    }
+
+    // ---------------------------------------------------------------- Section 7 : sprint final
+    const float S7Len = 130;
+    [MenuItem("Tools/Neo Ring/8 - Section 7 : Sprint final")]
+    public static void Section7()
+    {
+        var s = Section("S7_Sprint");
+        S6End(out var pos, out var rot);
+        Vector3 L(float x, float y, float z) => pos + rot * new Vector3(x, y, z);
+
+        Straight(s, pos, rot, S7Len);
+        Box("EndWall", L(0, 4, S7Len + .25f), new Vector3(RoadW + .5f, 8, .5f), rot, Mat("M_WallPanels"), s);
+        foreach (float z in new[] { 30f, 60f, 90f }) BoostPad(L(0, 0, z), rot, s);
+        RingLine(L(-3, 1.6f, 38), L(-3, 1.6f, 54), 6, s); RingLine(L(3, 1.6f, 68), L(3, 1.6f, 84), 6, s);
+        Prefab(Prefabs + "GoalRing.prefab", L(0, 5.6f, S7Len - 12), rot, s);
+        foreach (float x in new[] { -16f, 16f }) Holo(L(x, 8, S7Len - 30), Quaternion.Euler(0, x < 0 ? -90 : 90, 0), new Vector2(10, 5), s);
+
+        Debug.Log("NeoRing : section 7 construite, GoalRing a " + L(0, 5.6f, S7Len - 12));
         EditorSceneManager.MarkSceneDirty(s.gameObject.scene); EditorSceneManager.SaveScene(s.gameObject.scene);
     }
 }
