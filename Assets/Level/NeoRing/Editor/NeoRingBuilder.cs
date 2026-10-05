@@ -309,4 +309,76 @@ public static class NeoRingBuilder
         Debug.Log("NeoRing : section 3 construite, fin " + e);
         EditorSceneManager.MarkSceneDirty(s.gameObject.scene); EditorSceneManager.SaveScene(s.gameObject.scene);
     }
+
+    // ---------------------------------------------------------------- Section 4 : zone ennemis (ville basse)
+    // Rue de 150 m x 24 m entre deux rangees d'immeubles. Vide de 40 m au milieu : pont lateral en caillebotis (chemin principal)
+    // ou chaine de homing sur 3 drones au-dessus du vide (raccourci). Trigger Pit sous le vide.
+    const float S4Len = 150, S4W = 24, S4VoidA = 80, S4VoidB = 120;
+    public static void S4End(out Vector3 pos, out Quaternion rot) { S3End(out pos, out rot); pos += rot * new Vector3(0, 0, S4Len); }
+
+    // Ennemi cyberpunk ; garantit une cible de homing (tag HomingTarget) attachee au corps mobile.
+    static GameObject Enemy(string name, Vector3 pos, Quaternion rot, Transform parent)
+    {
+        var go = Prefab("Assets/Ennemy/NeoRing/" + name + ".prefab", pos, rot, parent);
+        if (!go.GetComponentsInChildren<Transform>(true).Any(t => t.CompareTag("HomingTarget")))
+        {
+            var body = go.GetComponentInChildren<EnemyHealth>(true).transform;
+            var ht = new GameObject("HomingTarget") { tag = "HomingTarget" }; ht.transform.SetParent(body, false);
+        }
+        return go;
+    }
+
+    [MenuItem("Tools/Neo Ring/5 - Section 4 : Zone ennemis")]
+    public static void Section4()
+    {
+        var s = Section("S4_Ennemis");
+        S3End(out var pos, out var rot);
+        Vector3 L(float x, float y, float z) => pos + rot * new Vector3(x, y, z);
+
+        // Sol en deux parties, de part et d'autre du vide
+        Box("Street_A", L(0, -1, S4VoidA / 2), new Vector3(S4W, 2, S4VoidA), rot, Mat("M_FloorPanels"), s);
+        Box("Street_B", L(0, -1, (S4VoidB + S4Len) / 2), new Vector3(S4W, 2, S4Len - S4VoidB), rot, Mat("M_FloorPanels"), s);
+        // Immeubles contigus des deux cotes (canyon ferme), hauteurs variees
+        for (int k = 0; k < 5; k++)
+            foreach (float side in new[] { -1f, 1f })
+            {
+                float h = 30 + ((k + (side > 0 ? 1 : 0)) % 3) * 12;
+                Box("Tower", L(side * (S4W / 2 + 4), h / 2 - 1, 15 + 30 * k), new Vector3(8, h, 30), rot, Mat("M_WallCircuit"), s);
+                if (k % 2 == 0) Holo(L(side * (S4W / 2 - .1f), 9, 15 + 30 * k), rot * Quaternion.Euler(0, side < 0 ? -90 : 90, 0), new Vector2(10, 5), s);
+            }
+        foreach (float side in new[] { -1f, 1f }) Neon("StreetNeon", L(side * (S4W / 2 - .2f), .1f, S4Len / 2), new Vector3(.16f, .16f, S4Len), "Cyan", s, rot);
+
+        Prefab(Prefabs + "CheckPoint.prefab", L(5.5f, 0, 6), rot, s);
+
+        // Zone A : rouleurs puis crabes
+        Enemy("Neo_Rouleur", L(-5, 0, 24), rot, s); Enemy("Neo_Rouleur", L(5, 0, 38), rot, s);
+        Enemy("Neo_CrabeSentinelle", L(-7, 0, 58), rot * Quaternion.Euler(0, 180, 0), s); Enemy("Neo_CrabeSentinelle", L(7, 0, 66), rot * Quaternion.Euler(0, 180, 0), s);
+        RingLine(L(0, 1.6f, 12), L(0, 1.6f, 48), 10, s);
+
+        // Vide : trigger Pit 14 m plus bas, cadre magenta
+        var pit = Group("Pit", s); pit.tag = "Pit"; pit.transform.SetPositionAndRotation(L(0, -14, (S4VoidA + S4VoidB) / 2), rot);
+        var pc = pit.AddComponent<BoxCollider>(); pc.isTrigger = true; pc.size = new Vector3(S4W + 20, 2, S4VoidB - S4VoidA - 2);
+        foreach (float z in new[] { S4VoidA, S4VoidB }) Neon("VoidNeon", L(0, .1f, z), new Vector3(S4W, .2f, .2f), "Magenta", s, rot);
+        Box("VoidStripes_A", L(0, .005f, S4VoidA - .5f), new Vector3(S4W, .01f, 1), rot, Mat("M_Hazard"), s, false);
+        Box("VoidStripes_B", L(0, .005f, S4VoidB + .5f), new Vector3(S4W, .01f, 1), rot, Mat("M_Hazard"), s, false);
+
+        // Pont lateral gauche (chemin principal), bord interieur magenta
+        float vc = (S4VoidA + S4VoidB) / 2, vl = S4VoidB - S4VoidA;
+        Box("Bridge", L(-9, -.5f, vc), new Vector3(6, 1, vl + 4), rot, Mat("M_Grate"), s);
+        Neon("BridgeNeon", L(-6.1f, .1f, vc), new Vector3(.12f, .12f, vl), "Magenta", s, rot);
+        RingLine(L(-9, 1.6f, S4VoidA + 4), L(-9, 1.6f, S4VoidB - 4), 8, s);
+
+        // Raccourci : 3 drones au-dessus du vide (corps a +4 m, route +-5 m en x), anneaux entre eux
+        foreach (float z in new[] { 86f, 100f, 114f }) Enemy("Neo_DroneGuepe", L(0, 0, z - 2.5f), rot, s);
+        Ring(L(0, 5, 93), s); Ring(L(0, 5, 107), s);
+
+        // Zone B : relance
+        Enemy("Neo_Rouleur", L(0, 0, 130), rot, s); Enemy("Neo_CrabeSentinelle", L(-6, 0, 138), rot * Quaternion.Euler(0, 180, 0), s);
+        RingLine(L(4, 1.6f, 124), L(4, 1.6f, 136), 6, s);
+        BoostPad(L(0, 0, 142), rot, s);
+
+        S4End(out var e, out _);
+        Debug.Log("NeoRing : section 4 construite, fin " + e);
+        EditorSceneManager.MarkSceneDirty(s.gameObject.scene); EditorSceneManager.SaveScene(s.gameObject.scene);
+    }
 }
