@@ -27,8 +27,8 @@ public static class NeoRingBuilder
             string p = AssetDatabase.GUIDToAssetPath(guid); var ti = (TextureImporter)AssetImporter.GetAtPath(p); string n = System.IO.Path.GetFileNameWithoutExtension(p);
             ti.wrapMode = n == "sky_gradient" ? TextureWrapMode.Clamp : TextureWrapMode.Repeat;
             ti.maxTextureSize = 2048; ti.anisoLevel = 4; ti.sRGBTexture = true;
-            ti.alphaSource = n == "floor_grate_albedo" ? TextureImporterAlphaSource.FromGrayScale : TextureImporterAlphaSource.FromInput; // la grille n'a pas d'alpha : trous = pixels sombres
-            ti.alphaIsTransparency = n.StartsWith("holo") || n == "floor_grate_albedo";
+            ti.alphaSource = TextureImporterAlphaSource.FromInput;
+            ti.alphaIsTransparency = n.StartsWith("holo");
             ti.SaveAndReimport();
         }
     }
@@ -53,8 +53,9 @@ public static class NeoRingBuilder
         Lit("M_WallPanels", "wall_panels_albedo", "wall_panels_emissive", 1.8f);
         Lit("M_WallCircuit", "wall_circuit_albedo", "wall_circuit_emissive", 1.2f);
         Lit("M_Hazard", "hazard_stripes", null, 0).mainTextureScale = new Vector2(1, .5f); // texture 4:1 -> 1 repetition = 2 m x 1 m via les UV du Box
+        // floor_grate n'a pas d'alpha (carreaux pleins) : opaque, pas de Cutout.
         var grate = Lit("M_Grate", "floor_grate_albedo", null, 0);
-        grate.SetFloat("_Mode", 1); grate.EnableKeyword("_ALPHATEST_ON"); grate.SetFloat("_Cutoff", .35f); grate.renderQueue = 2450; grate.SetOverrideTag("RenderType", "TransparentCutout");
+        grate.SetFloat("_Mode", 0); grate.DisableKeyword("_ALPHATEST_ON"); grate.renderQueue = -1; grate.SetOverrideTag("RenderType", "");
         foreach (var (n, c) in new[] { ("Cyan", Cyan), ("Magenta", Magenta), ("Yellow", Yellow) })
         {
             var m = Lit("M_Neon_" + n, "neon_strip_" + n.ToLower(), "neon_strip_" + n.ToLower(), 2f, Color.black);
@@ -120,7 +121,7 @@ public static class NeoRingBuilder
         return q;
     }
     // Tube neon sans collider le long d'un axe.
-    static GameObject Neon(string name, Vector3 center, Vector3 size, string color, Transform parent) => Box(name, center, size, Quaternion.identity, Mat("M_Neon_" + color), parent, false);
+    static GameObject Neon(string name, Vector3 center, Vector3 size, string color, Transform parent, Quaternion? rot = null) => Box(name, center, size, rot ?? Quaternion.identity, Mat("M_Neon_" + color), parent, false);
 
     // ---------------------------------------------------------------- Section 1 : depart sur le toit
     // Course le long de +Z. Joueur en (0,1,0). Toit de z=-10 a z=80, 14 m de large.
@@ -147,5 +148,110 @@ public static class NeoRingBuilder
 
         EditorSceneManager.MarkSceneDirty(s.gameObject.scene); EditorSceneManager.SaveScene(s.gameObject.scene);
         Debug.Log("NeoRing : section 1 construite");
+    }
+
+    // ---------------------------------------------------------------- Section 2 : autoroute de neon
+    // Chaine : droite 60 m, virage droite 25deg, droite 70 m (voie haute en caillebotis), virage gauche 25deg, droite 60 m.
+    const float RoadW = 14, S2A = 60, S2B = 70, S2C = 60, TurnAngle = 25, TurnInner = 50;
+    static readonly Vector3 S2Start = new Vector3(0, -2, 88); // saut de 8 m depuis le toit (fin z=80, y=0)
+
+    // Rejoue la geometrie sans rien construire : fin de la section 2 = debut de la section 3.
+    public static void S2End(out Vector3 pos, out Quaternion rot)
+    {
+        pos = S2Start; rot = Quaternion.identity;
+        pos += rot * Vector3.forward * S2A; Arc(ref pos, ref rot, true, TurnAngle, TurnInner + RoadW * .5f);
+        pos += rot * Vector3.forward * S2B; Arc(ref pos, ref rot, false, TurnAngle, TurnInner + RoadW * .5f);
+        pos += rot * Vector3.forward * S2C;
+    }
+    static void Arc(ref Vector3 pos, ref Quaternion rot, bool right, float angle, float radius)
+    {
+        float sign = right ? 1 : -1; Vector3 c = pos + rot * Vector3.right * sign * radius;
+        var d = Quaternion.AngleAxis(sign * angle, Vector3.up); pos = c + d * (pos - c); rot = d * rot;
+    }
+
+    // Troncon droit : sol (2 m d'epaisseur), murs bas wall_panels et tubes cyan. start = centre de la voie au niveau du sol.
+    static void Straight(Transform s, Vector3 start, Quaternion rot, float length, float width = RoadW, bool walls = true)
+    {
+        Box("Road", start + rot * new Vector3(0, -1, length / 2), new Vector3(width, 2, length), rot, Mat("M_FloorPanels"), s);
+        if (!walls) return;
+        foreach (float side in new[] { -1f, 1f })
+        {
+            float x = side * (width / 2 + .25f);
+            Box("Wall", start + rot * new Vector3(x, 1.25f, length / 2), new Vector3(.5f, 2.5f, length), rot, Mat("M_WallPanels"), s);
+            Neon("NeonEdge", start + rot * new Vector3(x, 2.58f, length / 2), new Vector3(.16f, .16f, length), "Cyan", s, rot);
+        }
+    }
+
+    static SonicFX.Structures.SonicBankedTurn Turn(Transform s, ref Vector3 pos, ref Quaternion rot, bool right)
+    {
+        var go = Prefab("Assets/Structure/VirageReleve/Virage_Releve_GreenHill.prefab", pos, rot, s);
+        var t = go.GetComponent<SonicFX.Structures.SonicBankedTurn>();
+        t.direction = right ? SonicFX.Structures.SonicBankedTurn.TurnDirection.Droite : SonicFX.Structures.SonicBankedTurn.TurnDirection.Gauche;
+        t.angle = TurnAngle; t.innerRadius = TurnInner; t.flatWidth = RoadW; t.rampWidth = 8; t.wallHeight = 7; t.baseDepth = 2;
+        t.fillInterior = false; t.smoothSides = true; t.sideSmoothing = .15f; t.uvSize = 2;
+        go.GetComponent<MeshRenderer>().sharedMaterial = Mat("M_FloorPanels");
+        go.transform.position = pos - rot * t.EntryPosition; // pivot = bord interieur de l'entree ; on cale le centre de la voie sur pos
+        t.Rebuild();
+        // Anneaux en arc au milieu de la voie
+        for (int i = 0; i < 7; i++) Ring(go.transform.TransformPoint(t.Point(TurnAngle * Mathf.Deg2Rad * i / 6f, TurnInner + RoadW * .5f, 1.6f)), s);
+        // Muret interieur en 8 segments (le generateur ne fait que le mur exterieur) ; le bord interieur est un vide sinon.
+        float span = TurnAngle * Mathf.Deg2Rad, rIn = TurnInner - .25f, chord = 2 * rIn * Mathf.Sin(span / 16) + .3f;
+        for (int k = 0; k < 8; k++)
+        {
+            float th = span * (k + .5f) / 8;
+            var tangent = go.transform.TransformDirection(new Vector3(t.Sign * rIn * Mathf.Sin(th), 0, rIn * Mathf.Cos(th)));
+            var wr = Quaternion.LookRotation(tangent);
+            Box("InnerWall", go.transform.TransformPoint(t.Point(th, rIn, 1.25f)), new Vector3(.5f, 2.5f, chord), wr, Mat("M_WallPanels"), s);
+            Neon("InnerNeon", go.transform.TransformPoint(t.Point(th, rIn, 2.58f)), new Vector3(.16f, .16f, chord), "Cyan", s, wr);
+        }
+        Vector3 exit = go.transform.TransformPoint(t.ExitPosition);
+        Arc(ref pos, ref rot, right, TurnAngle, TurnInner + RoadW * .5f);
+        if ((exit - pos).magnitude > .05f) Debug.LogWarning("NeoRing : ecart sortie de virage " + (exit - pos).magnitude);
+        return t;
+    }
+
+    [MenuItem("Tools/Neo Ring/3 - Section 2 : Autoroute")]
+    public static void Section2()
+    {
+        var s = Section("S2_Autoroute");
+        Vector3 pos = S2Start; Quaternion rot = Quaternion.identity;
+        Vector3 L(float x, float y, float z) => pos + rot * new Vector3(x, y, z);
+
+        // A : 60 m, checkpoint, pad, anneaux
+        Straight(s, pos, rot, S2A);
+        Prefab(Prefabs + "CheckPoint.prefab", L(5.5f, 0, 6), rot, s);
+        BoostPad(L(0, 0, 14), rot, s);
+        RingLine(L(0, 1.6f, 26), L(0, 1.6f, 46), 8, s);
+        pos += rot * Vector3.forward * S2A;
+
+        Turn(s, ref pos, ref rot, true);
+
+        // B : 70 m, voie haute en caillebotis a gauche (+6 m), rampe d'acces, pads
+        Straight(s, pos, rot, S2B);
+        BoostPad(L(2, 0, 15), rot, s);
+        RingLine(L(3, 1.6f, 30), L(3, 1.6f, 54), 8, s);
+        float rampLen = 24, h = 6; float tilt = -Mathf.Atan2(h, rampLen) * Mathf.Rad2Deg;
+        var rampRot = rot * Quaternion.Euler(tilt, 0, 0);
+        Box("Ramp", L(-4, h / 2 - .25f * Mathf.Cos(tilt * Mathf.Deg2Rad), rampLen / 2), new Vector3(4, .5f, Mathf.Sqrt(rampLen * rampLen + h * h)), rampRot, Mat("M_Grate"), s);
+        float cwStart = rampLen, cwEnd = S2B - 12;
+        Box("Catwalk", L(-4, h - .15f, (cwStart + cwEnd) / 2), new Vector3(4, .3f, cwEnd - cwStart), rot, Mat("M_Grate"), s);
+        Box("CatwalkEdge", L(-4, h + .005f, cwEnd - .5f), new Vector3(4, .01f, 1), rot, Mat("M_Hazard"), s, false);
+        Neon("CatwalkNeon", L(-6.1f, h + .08f, (cwStart + cwEnd) / 2), new Vector3(.12f, .12f, cwEnd - cwStart), "Yellow", s, rot);
+        for (float z = cwStart + 6; z < cwEnd; z += 12) Box("Arm", L(-5.6f, h - 1, z), new Vector3(3.6f, .4f, .4f), rot, Mat("M_WallCircuit"), s);
+        BoostPad(L(-4, h, cwStart + 5), rot, s);
+        RingLine(L(-4, h + 1.6f, cwStart + 14), L(-4, h + 1.6f, cwEnd - 6), 10, s);
+        pos += rot * Vector3.forward * S2B;
+
+        Turn(s, ref pos, ref rot, false);
+
+        // C : 60 m, pad, anneaux
+        Straight(s, pos, rot, S2C);
+        BoostPad(L(0, 0, 12), rot, s);
+        RingLine(L(0, 1.6f, 26), L(0, 1.6f, 50), 9, s);
+        pos += rot * Vector3.forward * S2C;
+
+        S2End(out var endPos, out var endRot);
+        Debug.Log("NeoRing : section 2 construite, fin " + pos + " / " + endPos + " cap " + endRot.eulerAngles.y);
+        EditorSceneManager.MarkSceneDirty(s.gameObject.scene); EditorSceneManager.SaveScene(s.gameObject.scene);
     }
 }
