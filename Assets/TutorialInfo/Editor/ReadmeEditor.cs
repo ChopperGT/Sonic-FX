@@ -81,8 +81,12 @@ sealed class ReadmeEditor : Editor
         var readme = (Readme)target;
 
         VisualElement root = new();
-        root.styleSheets.Add(readme.commonStyle);
-        root.styleSheets.Add(EditorGUIUtility.isProSkin ? readme.darkStyle : readme.lightStyle);
+        if (readme == null)
+            return root;
+
+        AddStyleSheet(root, readme.commonStyle, "ReadmeEditor.uss");
+        AddStyleSheet(root, EditorGUIUtility.isProSkin ? readme.darkStyle : readme.lightStyle,
+            EditorGUIUtility.isProSkin ? "ReadmeEditorDark.uss" : "ReadmeEditorLight.uss");
 
         VisualElement ChainWithClass(VisualElement created, string className)
         {
@@ -98,8 +102,10 @@ sealed class ReadmeEditor : Editor
         root.Add(title);
 
         //Content
-        foreach (var section in readme.sections)
+        foreach (var section in readme.sections ?? System.Array.Empty<Readme.Section>())
         {
+            if (section == null)
+                continue;
             VisualElement part = new();
             part.AddToClassList("section");
 
@@ -124,5 +130,15 @@ sealed class ReadmeEditor : Editor
         root.Add(button);
 
         return root;
+    }
+
+    static void AddStyleSheet(VisualElement root, StyleSheet assignedStyle, string fallbackFile)
+    {
+        // Older Readme assets may have missing references after an import or merge.
+        // Recover the bundled styles; an absent stylesheet must never break the Inspector.
+        var style = assignedStyle != null ? assignedStyle : AssetDatabase.LoadAssetAtPath<StyleSheet>(
+            k_ReadmeSourceDirectory + "/StyleSheets/" + fallbackFile);
+        if (style != null)
+            root.styleSheets.Add(style);
     }
 }

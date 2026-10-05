@@ -161,7 +161,7 @@ namespace SonicFX.Chameleon.Editor
     public sealed class ChameleonInspector:UnityEditor.Editor {
         public override void OnInspectorGUI() {
             DrawDefaultInspector();var c=(ChameleonController)target;
-            EditorGUILayout.HelpBox("Mur : placer pres de la paroi puis cocher Colle au mur. Camoufle = immobile et sans auto-lock. Un bond le fait passer au sol. Les rayons jaunes montrent la detection, le cercle rouge la portee d'attaque.",MessageType.Info);
+            EditorGUILayout.HelpBox("Mur : tire dans son champ de vision. Proximite avant le bond (orange) declenche le saut ; Jump Distance (rouge) limite sa portee totale. Un tir deja prepare se termine avant le bond. Sol : poursuit Sonic et utilise sa langue, sans projectile. Camoufle = immobile et sans auto-lock.",MessageType.Info);
             if(!Application.isPlaying && GUILayout.Button("Coller et orienter sur le mur")) {
                 Undo.RecordObjects(new UnityEngine.Object[]{c.transform,c,c.GetComponent<Rigidbody>()},"Coller et orienter le cameleon");
                 c.onWall=true;if(!c.SnapToWall())Debug.LogWarning("Aucun mur detecte : rapprocher le cameleon ou renseigner Mur support.",c);

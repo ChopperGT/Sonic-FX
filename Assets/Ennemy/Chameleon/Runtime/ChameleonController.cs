@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using UnityEngine.SceneManagement;
 
 namespace SonicFX.Chameleon
 {
@@ -30,6 +31,8 @@ namespace SonicFX.Chameleon
         [Min(.05f)] public float windup = .35f;
         [Min(.1f)] public float projectileSpeed = 16;
         [Header("Bond vers Sonic")]
+        [Tooltip("Proximite horizontale de Sonic pour declencher le bond. La portee totale reste limitee par Jump Distance, meme si Sonic est plus bas que le mur.")]
+        [InspectorName("Proximite avant le bond"), Min(.2f)] public float jumpTriggerDistance = 5;
         [Min(.2f)] public float jumpDistance = 5;
         [Min(.1f)] public float jumpHeight = 3;
         [Min(1)] public float gravity = 22;
@@ -57,6 +60,9 @@ namespace SonicFX.Chameleon
         Vector3 home, wallNormal, destination, velocity, attackDirection;
         float timer, cooldown, seenTime, searchAt, fallSpeed, leapAge;
         bool initialized, fired, tongueHit;
+        readonly RaycastHit[] hits = new RaycastHit[128];
+        readonly Collider[] contacts = new Collider[128];
+        PhysicsScene PhysicsWorld => gameObject.scene.GetPhysicsScene();
         public Vector3 Eye => transform.TransformPoint(new Vector3(0, 1.15f, .85f));
         Vector3 Aim => player.transform.position + Vector3.up * .65f;
         float Size => Mathf.Max(.1f, Mathf.Max(Mathf.Abs(transform.lossyScale.x), Mathf.Abs(transform.lossyScale.y)));
@@ -68,6 +74,8 @@ namespace SonicFX.Chameleon
             body = GetComponent<Rigidbody>(); body.isKinematic = true; body.useGravity = false;
             mode = Mode.Patrol; timer = pauseDuration; cooldown = seenTime = fallSpeed = leapAge = 0;
             if (visual == null) visual = GetComponent<ChameleonVisual>();
+            if (visual != null) visual.HideTongue();
+            AttackPose = 0;
             if (camouflage == null) camouflage = GetComponent<ChameleonCamouflage>();
             AttachedToWall = onWall && SnapToWall();
             home = destination = transform.position;
@@ -83,11 +91,13 @@ namespace SonicFX.Chameleon
                 Vector3 toward = wallCollider.ClosestPoint(origin) - origin;
                 if (toward.sqrMagnitude > .00001f && wallCollider.Raycast(new Ray(origin, toward.normalized), out var h, wallSearchDistance + .2f) && Mathf.Abs(h.normal.y) < .6f) { best = h; found = true; }
             }
-            if (!found) foreach (var direction in directions) foreach (var hit in Physics.RaycastAll(origin, direction, wallSearchDistance, environmentLayers, QueryTriggerInteraction.Ignore)) {
+            if (!found) foreach (var direction in directions) {
+                int count = PhysicsWorld.Raycast(origin, direction, hits, wallSearchDistance, environmentLayers, QueryTriggerInteraction.Ignore);
+                for (int i = 0; i < count; i++) { var hit = hits[i];
                 if (hit.transform.IsChildOf(transform) || Mathf.Abs(hit.normal.y) >= .6f || hit.distance >= nearest) continue;
                 if (wallCollider != null && hit.collider != wallCollider) continue;
                 nearest = hit.distance; best = hit; found = true;
-            }
+            } }
             if (!found) { status = "Mur introuvable : retour au sol"; SetPose(transform.position, Quaternion.Euler(0, transform.eulerAngles.y, 0)); return false; }
             wallCollider = best.collider; wallNormal = best.normal;
             SetPose(best.point + wallNormal * .04f, WallRotation());
@@ -144,8 +154,10 @@ namespace SonicFX.Chameleon
             Vector3 offset = point - Eye; if (offset.sqrMagnitude > viewDistance * viewDistance) return false;
             Vector3 forward = AttachedToWall ? wallNormal : transform.forward;
             if (offset.sqrMagnitude > .001f && Vector3.Angle(forward, offset) > viewAngle * .5f) return false;
-            foreach (var hit in Physics.RaycastAll(Eye, offset.normalized, offset.magnitude, environmentLayers, QueryTriggerInteraction.Ignore))
+            int count = PhysicsWorld.Raycast(Eye, offset.normalized, hits, offset.magnitude, environmentLayers, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < count; i++) { var hit = hits[i];
                 if (!hit.transform.IsChildOf(transform) && hit.collider.GetComponentInParent<PlayerBhysics>() == null) return false;
+            }
             return true;
         }
         void FixedUpdate() { Tick(Time.fixedDeltaTime); }
@@ -158,8 +170,11 @@ namespace SonicFX.Chameleon
             bool ready = PlayerReady(); bool seen = ready && CanSee(Aim);
             seenTime = seen ? seenTime + dt : 0;
             float distance = ready ? Vector3.Distance(Eye, Aim) : float.PositiveInfinity;
-            if (AttachedToWall && seen && distance <= jumpDistance && seenTime >= reactionTime) { BeginLeap(Aim); return; }
+            // Finish a prepared attack before choosing another one. Otherwise a
+            // player entering the leap radius during windup cancels every shot.
             if (mode == Mode.Shot || mode == Mode.Tongue) { AttackStep(dt); return; }
+            float proximity = ready ? Vector3.ProjectOnPlane(Aim - Eye, Vector3.up).magnitude : float.PositiveInfinity;
+            if (AttachedToWall && seen && distance <= jumpDistance && proximity <= jumpTriggerDistance && seenTime >= reactionTime) { BeginLeap(Aim); return; }
             AttackPose = 0;
             if (seen && seenTime >= reactionTime) {
                 if (AttachedToWall) {
@@ -176,24 +191,28 @@ namespace SonicFX.Chameleon
         void BeginAttack(Mode next, Vector3 point)
         {
             mode = next; timer = 0; fired = tongueHit = false;
-            attackDirection = (point - mouth.position).normalized;
+            attackDirection = (point - AttackOrigin).normalized;
             status = next == Mode.Shot ? "Preparation du projectile" : "Preparation de la langue";
         }
         void AttackStep(float dt)
         {
             timer += dt; AttackPose = Mathf.Sin(Mathf.Clamp01(timer / (windup + tongueDuration)) * Mathf.PI);
+            if (mode == Mode.Tongue && player != null) Face(Aim - transform.position, dt);
             if (mode == Mode.Shot && timer >= windup && !fired) {
                 fired = true;
                 if (projectilePrefab != null) {
-                    var shot = Instantiate(projectilePrefab, mouth.position, Quaternion.LookRotation(attackDirection));
+                    attackDirection = player != null ? (Aim - AttackOrigin).normalized : attackDirection;
+                    var shot = Instantiate(projectilePrefab, AttackOrigin, Quaternion.LookRotation(attackDirection));
+                    UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(shot.gameObject, gameObject.scene);
                     shot.Launch(transform, attackDirection * projectileSpeed); ProjectilesFired++;
                 }
-                status = "Un projectile tire";
+                status = projectilePrefab != null ? "Un projectile tire" : "Projectile manquant : renseigner Projectile Prefab";
             }
             if (mode == Mode.Tongue && timer >= windup) {
+                if (!fired) { fired = true; if (player != null) attackDirection = (Aim - AttackOrigin).normalized; }
                 float progress = Mathf.Clamp01((timer - windup) / tongueDuration);
                 float extension = Mathf.Sin(progress * Mathf.PI) * tongueRange;
-                Vector3 start = mouth.position; float visibleLength = extension;
+                Vector3 start = AttackOrigin; float visibleLength = extension;
                 Collider contact = FirstHit(start, tongueRadius, attackDirection, extension, out float length);
                 if (contact != null) { visibleLength = length; if (!tongueHit && contact.GetComponentInParent<PlayerBhysics>() != null) { tongueHit = true; Damage(contact); } }
                 if (visual != null) visual.ShowTongue(start, start + attackDirection * visibleLength, tongueRadius * 2);
@@ -222,7 +241,8 @@ namespace SonicFX.Chameleon
             leapAge += dt; Vector3 step = velocity * dt + Vector3.down * (.5f * gravity * dt * dt); velocity.y -= gravity * dt;
             Vector3 origin = body.position + Vector3.up * (.7f * Size);
             RaycastHit closest = default; float nearest = float.PositiveInfinity;
-            foreach (var hit in Physics.SphereCastAll(origin, .5f * Size, step.normalized, step.magnitude, environmentLayers, QueryTriggerInteraction.Ignore)) {
+            int count = PhysicsWorld.SphereCast(origin, .5f * Size, step.normalized, hits, step.magnitude, environmentLayers, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < count; i++) { var hit = hits[i];
                 if (hit.transform.IsChildOf(transform) || hit.collider.GetComponentInParent<PlayerBhysics>() != null || hit.distance >= nearest) continue;
                 closest = hit; nearest = hit.distance;
             }
@@ -260,29 +280,32 @@ namespace SonicFX.Chameleon
         {
             delta.y = 0; if (delta.sqrMagnitude < .0000001f) return false;
             Vector3 next = body.position + delta;
-            if (!Physics.Raycast(next + Vector3.up * .5f, Vector3.down, out var ground, .5f + maximumDrop, environmentLayers, QueryTriggerInteraction.Ignore) || ground.normal.y < .6f) return false;
-            if (Physics.SphereCast(body.position + Vector3.up * (.8f * Size), .45f * Size, delta.normalized, out _, delta.magnitude, environmentLayers, QueryTriggerInteraction.Ignore)) return false;
+            if (!PhysicsWorld.Raycast(next + Vector3.up * .5f, Vector3.down, out var ground, .5f + maximumDrop, environmentLayers, QueryTriggerInteraction.Ignore) || ground.normal.y < .6f) return false;
+            if (PhysicsWorld.SphereCast(body.position + Vector3.up * (.8f * Size), .45f * Size, delta.normalized, out _, delta.magnitude, environmentLayers, QueryTriggerInteraction.Ignore)) return false;
             body.MovePosition(new Vector3(next.x, ground.point.y + .04f, next.z)); MoveRate = groundSpeed; return true;
         }
         void GroundGravity(float dt)
         {
             if (MoveRate > 0) { fallSpeed = 0; return; }
-            if (Physics.Raycast(body.position + Vector3.up * .3f, Vector3.down, out var ground, .4f, environmentLayers, QueryTriggerInteraction.Ignore) && ground.normal.y > .6f) { fallSpeed = 0; return; }
+            if (PhysicsWorld.Raycast(body.position + Vector3.up * .3f, Vector3.down, out var ground, .4f, environmentLayers, QueryTriggerInteraction.Ignore) && ground.normal.y > .6f) { fallSpeed = 0; return; }
             fallSpeed += gravity * dt;
             float travel = fallSpeed * dt;
-            if (Physics.Raycast(body.position + Vector3.up * .1f, Vector3.down, out ground, travel + .1f, environmentLayers, QueryTriggerInteraction.Ignore)) { body.MovePosition(ground.point + Vector3.up * .04f); fallSpeed = 0; }
+            if (PhysicsWorld.Raycast(body.position + Vector3.up * .1f, Vector3.down, out ground, travel + .1f, environmentLayers, QueryTriggerInteraction.Ignore)) { body.MovePosition(ground.point + Vector3.up * .04f); fallSpeed = 0; }
             else body.MovePosition(body.position + Vector3.down * travel);
         }
         public Collider FirstHit(Vector3 origin, float radius, Vector3 direction, float distance, out float length)
         {
             length = distance; Collider chosen = null;
-            foreach (var other in Physics.OverlapSphere(origin, radius, ~0, QueryTriggerInteraction.Collide)) if (ValidContact(other)) { length = 0; return other; }
-            foreach (var hit in Physics.SphereCastAll(origin, radius, direction, distance, ~0, QueryTriggerInteraction.Collide)) {
+            int count = PhysicsWorld.OverlapSphere(origin, radius, contacts, ~0, QueryTriggerInteraction.Collide);
+            for (int i = 0; i < count; i++) if (ValidContact(contacts[i])) { length = 0; return contacts[i]; }
+            count = PhysicsWorld.SphereCast(origin, radius, direction, hits, distance, ~0, QueryTriggerInteraction.Collide);
+            for (int i = 0; i < count; i++) { var hit = hits[i];
                 if (!ValidContact(hit.collider) || hit.distance > length) continue; length = hit.distance; chosen = hit.collider;
             }
             return chosen;
         }
         bool ValidContact(Collider other) { return !other.transform.IsChildOf(transform) && (!other.isTrigger || other.GetComponentInParent<PlayerBhysics>() != null); }
+        Vector3 AttackOrigin => mouth != null ? mouth.position : Eye;
         public static void Damage(Collider other)
         {
             var player = other.GetComponentInParent<PlayerBhysics>(); if (player == null) return;
@@ -296,6 +319,7 @@ namespace SonicFX.Chameleon
             Gizmos.DrawRay(Eye, Quaternion.AngleAxis(viewAngle*.5f, Vector3.up)*forward*viewDistance);
             Gizmos.DrawRay(Eye, Quaternion.AngleAxis(-viewAngle*.5f, Vector3.up)*forward*viewDistance);
             Gizmos.color = Color.red; Gizmos.DrawWireSphere(transform.position, onWall ? jumpDistance : tongueRange);
+            if (onWall) { Gizmos.color = new Color(1,.5f,0); Gizmos.DrawWireSphere(transform.position, jumpTriggerDistance); }
         }
     }
 }

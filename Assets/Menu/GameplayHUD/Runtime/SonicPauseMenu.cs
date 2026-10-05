@@ -31,7 +31,7 @@ namespace SonicFX.HUD
             if(pause==null)pause=FindAnyObjectByType<PauseCotrol>(FindObjectsInactive.Include);
             if(pause==null || pause.Pause==null || !Application.isPlaying)return;
             var progress=GetComponent<LevelProgressControl>();
-            if(progress!=null)medalTimes=SonicLevelScore.MedalTimes(progress.MedalTimesSeconds,progress.IdealTimeSeconds);
+            medalTimes=SonicLevelScore.MedalTimes(gameObject.scene,progress!=null?progress.MedalTimesSeconds:null,progress!=null?progress.IdealTimeSeconds:120);
             // L'ancien menu reste actif (PauseCotrol s'en sert pour savoir si le jeu est en pause) mais devient invisible et inerte.
             var hidden=pause.Pause.GetComponent<CanvasGroup>();if(hidden==null)hidden=pause.Pause.AddComponent<CanvasGroup>();
             hidden.alpha=0;hidden.interactable=false;hidden.blocksRaycasts=false;
@@ -60,7 +60,7 @@ namespace SonicFX.HUD
             var title=SonicUi.Skew(menu,"Titre",TopLeft,Vector2.zero,new Vector2(270,76),SonicUi.Cyan,SonicUi.Cyan,Color.clear,0,0);
             SonicUi.Fill(title.transform,"PAUSE",font,54,SonicUi.Hex("0a1626"),TextAnchor.MiddleCenter);
 
-            bool hasGhost=ghost!=null && ghost.HasGhost;
+            bool hasGhost=SonicGhost.Allowed && ghost!=null && ghost.HasGhost;
             var items=new List<Item>{Item.Resume,Item.Restart};
             if(hasGhost)items.Add(Item.Ghost);
             if(pause.OptionsMenu!=null)items.Add(Item.Options);

@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &24780164829547132
 GameObject:
@@ -305,9 +305,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
   MaxHealth: 1
-  Explosion: {fileID: 7913845138386984215, guid: d006fa74baaf9974d87030de7f6768ed,
-    type: 3}
   ScoreOnDefeat: 50
+  Explosion: {fileID: 7913845138386984215, guid: d006fa74baaf9974d87030de7f6768ed, type: 3}
 --- !u!114 &5207724185530601364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -335,8 +334,7 @@ MonoBehaviour:
   tooCloseDistance: 5
   firingDistance: 11
   turnSpeed: 220
-  projectilePrefab: {fileID: 6657041890651695428, guid: 79496b3e33ba7f448a8ed905e48224aa,
-    type: 3}
+  projectilePrefab: {fileID: 6657041890651695428, guid: 79496b3e33ba7f448a8ed905e48224aa, type: 3}
   leftMuzzle: {fileID: 9087323554092289227}
   rightMuzzle: {fileID: 7441891963221343690}
   attackCooldown: 1.8

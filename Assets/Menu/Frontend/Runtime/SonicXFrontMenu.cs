@@ -20,12 +20,12 @@ namespace SonicFX.Menu
         public string tailsScene="",amyScene="",shadowScene="";
         public string speedrunCocoScene="Assets/Level/SpeerunMadeByCOCO.unity";
         public string arcadeScene="Assets/BumperEngineV1/Scenes/StageSelect.unity";
-        public enum Page { Title,Main,Story,Characters,Settings,Overwrite,Loading,Rankings,NewLevels }
+        public enum Page { Title,Main,Story,Characters,Settings,Overwrite,Loading,Rankings,NewLevels,NewLevelCharacters }
         public Page CurrentPage {get;private set;}
         public Canvas MenuCanvas {get;private set;}
         RectTransform panel;Text heading,status;Font font;readonly List<Button> buttons=new List<Button>();
         int changedFrame;bool built;string pendingCharacter;float initialMusicVolume=1;
-        GameObject rankingsContent;string rankedScene;
+        GameObject rankingsContent;string rankedScene,pendingNewLevel;
         static readonly Color Navy=new Color(.018f,.045f,.13f),Gold=new Color(1,.79f,.08f),Blue=new Color(.06f,.20f,.43f);
         void Start()
         {
@@ -92,16 +92,18 @@ namespace SonicFX.Menu
                 case Page.Story:heading.text="MODE HISTOIRE";if(SonicXProgress.CanContinue)Add("Continuer",Continue);Add("Nouvelle partie",()=>Show(Page.Characters));Add("Retour",()=>Show(Page.Main));break;
                 case Page.Characters:heading.text="CHOISIS TON PERSONNAGE";Add("Sonic (jeune)",()=>Choose("sonic"));if(SonicXProgress.IsUnlocked("tails"))Add("Tails",()=>Choose("tails"));if(SonicXProgress.IsUnlocked("amy"))Add("Amy",()=>Choose("amy"));if(SonicXProgress.IsUnlocked("shadow"))Add("Shadow",()=>Choose("shadow"));Add("Retour",()=>Show(Page.Story));break;
                 case Page.Overwrite:heading.text="NOUVELLE PARTIE";status.text="La progression actuelle sera remplacée.\nTes déblocages seront conservés.";Add("Commencer",()=>Launch(pendingCharacter,CharacterScene(pendingCharacter)));Add("Annuler",()=>Show(Page.Characters));break;
-                case Page.NewLevels:heading.text="NEW LEVELS";Add("BoundArounds",()=>LoadLevel(speedrunCocoScene));Add("Retour",()=>Show(Page.Main));break;
+                case Page.NewLevels:heading.text="NEW LEVELS";Add("BoundArounds",()=>SelectNewLevel(speedrunCocoScene));Add("Act 1-1",()=>SelectNewLevel(SonicXProgress.FirstLevel));Add("Act 1-2",()=>SelectNewLevel(SonicNewLevelSession.SecondAct));Add("Retour",()=>Show(Page.Main));break;
+                case Page.NewLevelCharacters:DrawNewLevelCharacters();break;
                 case Page.Settings:Settings();break;
                 case Page.Rankings:DrawRankings(SonicTimeRecords.ReadAll());break;
                 case Page.Loading:heading.text="CHARGEMENT…";status.text="Prépare-toi pour l'aventure !";break;
             }
             var selectable=buttons.FindAll(button=>button.interactable);
             for(int i=0;i<selectable.Count;i++){var nav=selectable[i].navigation;nav.mode=Navigation.Mode.Explicit;nav.selectOnUp=selectable[(i+selectable.Count-1)%selectable.Count];nav.selectOnDown=selectable[(i+1)%selectable.Count];if(page==Page.Rankings){nav.selectOnLeft=nav.selectOnUp;nav.selectOnRight=nav.selectOnDown;}selectable[i].navigation=nav;}
+            if(page==Page.NewLevelCharacters)NewLevelCharacterNavigation(selectable);
             if(Application.isPlaying && EventSystem.current!=null && selectable.Count>0)EventSystem.current.SetSelectedGameObject(selectable[0].gameObject);
         }
-        void Back(){if(CurrentPage==Page.Main)Show(Page.Title);else if(CurrentPage==Page.Story || CurrentPage==Page.Settings || CurrentPage==Page.Rankings || CurrentPage==Page.NewLevels)Show(Page.Main);else if(CurrentPage==Page.Characters)Show(Page.Story);else if(CurrentPage==Page.Overwrite)Show(Page.Characters);}
+        void Back(){if(CurrentPage==Page.Main)Show(Page.Title);else if(CurrentPage==Page.Story || CurrentPage==Page.Settings || CurrentPage==Page.Rankings || CurrentPage==Page.NewLevels)Show(Page.Main);else if(CurrentPage==Page.Characters)Show(Page.Story);else if(CurrentPage==Page.NewLevelCharacters)Show(Page.NewLevels);else if(CurrentPage==Page.Overwrite)Show(Page.Characters);}
         string CharacterScene(string id)=>id=="sonic"?SonicXProgress.FirstLevel:id=="tails"?tailsScene:id=="amy"?amyScene:shadowScene;
         void Choose(string id)
         {
@@ -121,7 +123,46 @@ namespace SonicFX.Menu
             try{operation=SonicXProgress.Begin(character,scene,lives,totalScore,abilities,redRingLevels);}catch(Exception e){Debug.LogException(e);}
             if(operation==null){Show(Page.Story);status.text="Impossible de charger le niveau. Réessaie.";}
         }
-        void LoadLevel(string scene){if(Application.CanStreamedLevelBeLoaded(scene)){Time.timeScale=1;SceneManager.LoadSceneAsync(scene);}else status.text="Ce niveau n'est pas disponible.";}
+        void SelectNewLevel(string scene)
+        {
+            if(!Application.CanStreamedLevelBeLoaded(scene)){status.text="Ce niveau n'est pas disponible.";return;}
+            pendingNewLevel=scene;Show(Page.NewLevelCharacters);
+        }
+        void DrawNewLevelCharacters()
+        {
+            heading.text="CHOISIS TON PERSONNAGE";
+            var catalog=SonicNewLevelCatalog.Load();int index=0;
+            if(catalog!=null)foreach(var character in catalog.characters){
+                if(character==null || character.prefab==null)continue;
+                var choice=character;Add(choice.displayName,()=>LaunchNewLevel(choice),true);
+                var rect=(RectTransform)buttons[buttons.Count-1].transform;
+                rect.anchoredPosition=new Vector2(index%2==0?-115:115,170-index/2*58);rect.sizeDelta=new Vector2(216,48);
+                var text=buttons[buttons.Count-1].GetComponentInChildren<Text>();text.rectTransform.sizeDelta=rect.sizeDelta-new Vector2(12,0);text.resizeTextForBestFit=true;text.resizeTextMinSize=14;text.resizeTextMaxSize=20;
+                index++;
+            }
+            Add("Retour",()=>Show(Page.NewLevels),true);((RectTransform)buttons[buttons.Count-1].transform).anchoredPosition=new Vector2(0,-205);
+            status.text=index>0?SonicTimeRecords.LevelName(pendingNewLevel)+"\nPartie libre — progression Histoire conservée.":"Personnages indisponibles : attends la fin de l'importation.";
+        }
+        static void NewLevelCharacterNavigation(List<Button> items)
+        {
+            if(items.Count<2)return;int count=items.Count-1;var back=items[count];
+            for(int i=0;i<count;i++){
+                var nav=items[i].navigation;nav.selectOnUp=i>=2?items[i-2]:back;nav.selectOnDown=i+2<count?items[i+2]:back;
+                nav.selectOnLeft=i%2==1?items[i-1]:items[i];nav.selectOnRight=i%2==0 && i+1<count?items[i+1]:items[i];items[i].navigation=nav;
+            }
+            var b=back.navigation;b.selectOnUp=items[count-1];b.selectOnDown=items[0];back.navigation=b;
+        }
+        void LaunchNewLevel(SonicNewLevelCharacter character)
+        {
+            if(!SonicNewLevelSession.CanLaunch(character,pendingNewLevel)){status.text="Ce personnage ou ce niveau n'est pas disponible.";return;}
+            Show(Page.Loading);StartCoroutine(LoadNewLevel(character,pendingNewLevel));
+        }
+        IEnumerator LoadNewLevel(SonicNewLevelCharacter character,string scene)
+        {
+            yield return null;AsyncOperation operation=null;
+            try{operation=SonicNewLevelSession.Begin(character,scene);}catch(Exception e){Debug.LogException(e);}
+            if(operation==null){Show(Page.NewLevelCharacters);status.text="Impossible de charger le niveau. Réessaie.";}
+        }
         void LoadArcade(){if(!SonicXProgress.IsUnlocked("arcade"))return;if(Application.CanStreamedLevelBeLoaded(arcadeScene)){Time.timeScale=1;SceneManager.LoadSceneAsync(arcadeScene);}else status.text="Le mode Arcade n'est pas encore configuré.";}
         void Quit(){PlayerPrefs.Save();Application.Quit();
 #if UNITY_EDITOR

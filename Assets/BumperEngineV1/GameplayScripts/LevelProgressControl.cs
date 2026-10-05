@@ -47,7 +47,7 @@ public class LevelProgressControl : MonoBehaviour {
         Cam = GetComponent<CameraControl>();
         Actions = GetComponent<ActionManager>();
         Player = GetComponent<PlayerBhysics>();
-        if(GetComponent<SonicFX.Score.SonicGhost>()==null)gameObject.AddComponent<SonicFX.Score.SonicGhost>();
+        if(SonicFX.Score.SonicGhost.Allowed && GetComponent<SonicFX.Score.SonicGhost>()==null)gameObject.AddComponent<SonicFX.Score.SonicGhost>();
 
     }
 
@@ -67,12 +67,8 @@ public class LevelProgressControl : MonoBehaviour {
                 Color alpha = Color.black;
                 Actions.Action04Control.FadeOutImage.color = Color.Lerp(Actions.Action04Control.FadeOutImage.color, alpha, Time.fixedTime * 0.1f);
             }
-            if(readyCount > 2.6f)
-            {
-                LoadingScreenControl.StageName1 = NextLevelNameLeft;
-                LoadingScreenControl.StageName2 = NextLevelNameRight;
-                SceneManager.LoadScene(2);
-            }
+            // CaptureThenShowResults owns the transition; a second timed load
+            // could otherwise skip the results when screenshot capture is delayed.
         }
     }
 

@@ -8,14 +8,14 @@ namespace SonicFX.HUD
     // et compteur de vitesse (variante 2a, barre segmentee). Le menu pause est dans SonicPauseMenu. Cotes de la maquette 1920x1080, mises a l'echelle du HUD.
     [DisallowMultipleComponent] public sealed class SonicRecordsHud : MonoBehaviour
     {
-        const float KmhPerUnit=3.6f; // ponytail: suppose 1 unite Unity = 1 m ; a ajuster si le compteur parait faux
-        const float SpeedMax=400;
         static readonly Vector2 TopRight=new Vector2(1,1),BottomRight=new Vector2(1,0),TopLeft=new Vector2(0,1),Mid=new Vector2(.5f,.5f);
         static readonly Color Navy=new Color(.04f,.12f,.2f,1);
 
         Font font;PlayerBhysics player;SonicGhost ghost;float[] medalTimes;string level;
         Transform hudRoot;float scale;
         Text speedText;readonly Graphic[] segments=new Graphic[12];
+        public Text SpeedText=>speedText;
+        public float CurrentSpeed {get;private set;}
         GameObject ghostPill;Text ghostDelta;Graphic ghostDot;
 
 
@@ -23,12 +23,13 @@ namespace SonicFX.HUD
 
         public void Build(Canvas hud)
         {
+            if(hudRoot!=null)return;
             font=SonicUi.DesignFont();level=gameObject.scene.path;hudRoot=hud.transform;
             scale=hud.GetComponent<CanvasScaler>().referenceResolution.y/1080f;
             player=GetComponent<PlayerBhysics>();
             var progress=GetComponent<LevelProgressControl>();
-            if(progress!=null)medalTimes=SonicLevelScore.MedalTimes(progress.MedalTimesSeconds,progress.IdealTimeSeconds);
-            BuildRecords(Corner("Meilleurs temps",TopRight,new Vector2(-52,-44)));
+            medalTimes=SonicLevelScore.MedalTimes(gameObject.scene,progress!=null?progress.MedalTimesSeconds:null,progress!=null?progress.IdealTimeSeconds:120);
+            if(SonicGhost.Allowed)BuildRecords(Corner("Meilleurs temps",TopRight,new Vector2(-52,-44)));
             BuildSpeed(Corner("Compteur de vitesse",BottomRight,new Vector2(-52,44)));
         }
 
@@ -88,7 +89,7 @@ namespace SonicFX.HUD
                 segments[i]=SonicUi.Skew(root,"Cran "+(i+1),BottomRight,new Vector2(-(segments.Length-1-i)*29,0),new Vector2(24,12),Color.white,Color.white,Color.clear,0,0);
             var box=SonicUi.Rect(root,"Vitesse",BottomRight,new Vector2(0,18),new Vector2(343,60));
             speedText=SonicUi.Fill(box,"000",font,56,Color.white,TextAnchor.MiddleRight,0,74);SonicUi.Drop(speedText);
-            SonicUi.Fill(box,"KM/H",font,14,SonicUi.Hex("9fe3f5"),TextAnchor.MiddleRight,0,4);
+            SonicUi.Fill(box,"VITESSE",font,14,SonicUi.Hex("9fe3f5"),TextAnchor.MiddleRight,0,4);
         }
 
         void Update()
@@ -96,14 +97,7 @@ namespace SonicFX.HUD
             if(ghost==null)ghost=GetComponent<SonicGhost>();
             float blink=.35f+.65f*(.5f+.5f*Mathf.Cos(Time.unscaledTime*2*Mathf.PI/1.2f));
 
-            if(speedText!=null && player.p_rigidbody!=null)
-            {
-                float speed=Mathf.Clamp(player.p_rigidbody.linearVelocity.magnitude*KmhPerUnit,0,SpeedMax),ratio=speed/SpeedMax;
-                speedText.text=Mathf.RoundToInt(speed).ToString("000");
-                int lit=Mathf.CeilToInt(ratio*segments.Length);
-                for(int i=0;i<segments.Length;i++)
-                    segments[i].color=i>=lit?SonicUi.Hex("0f3a44",.8f):SonicUi.Hex(i>=9?"ff5a5a":i>=6?"ffe14d":"5ee0ff");
-            }
+            RefreshSpeed();
 
             bool hasGhost=ghost!=null && ghost.HasGhost,on=hasGhost && SonicGhost.Enabled;
             if(ghostPill!=null)
@@ -116,6 +110,21 @@ namespace SonicFX.HUD
                     ghostDot.color=A(SonicUi.Cyan,blink);
                 }
             }
+        }
+        void LateUpdate(){RefreshSpeed();}
+        public void RefreshSpeed()
+        {
+            if(speedText==null || player==null)return;
+            // Tube travel owns SpeedMagnitude while physics is suspended. Otherwise use
+            // the live Rigidbody so Update ordering cannot leave the display a tick behind.
+            var body=player.p_rigidbody!=null?player.p_rigidbody:player.GetComponent<Rigidbody>();
+            float speed=!player.enabled || body==null || body.isKinematic?player.SpeedMagnitude:body.linearVelocity.magnitude;
+            CurrentSpeed=float.IsNaN(speed)||float.IsInfinity(speed)?0:Mathf.Max(0,speed);
+            speedText.text=CurrentSpeed.ToString("000");
+            float maximum=Mathf.Max(1,player.MaxSpeed),ratio=Mathf.Clamp01(CurrentSpeed/maximum);
+            int lit=Mathf.CeilToInt(ratio*segments.Length);
+            for(int i=0;i<segments.Length;i++)if(segments[i]!=null)
+                segments[i].color=i>=lit?SonicUi.Hex("0f3a44",.8f):SonicUi.Hex(i>=9?"ff5a5a":i>=6?"ffe14d":"5ee0ff");
         }
     }
 }

@@ -74,6 +74,9 @@ namespace SonicFX.Menu
         static void Reset(){LivesGained=null;pending=null;storySession=false;RestoreRedRingLevels(null);Lives=3;TotalScore=0;UnlockedAbilities=SonicAbility.None;Character="sonic";SceneManager.sceneLoaded-=Loaded;SceneManager.sceneLoaded+=Loaded;}
         public static AsyncOperation Begin(string character,string scene,int lives=3,long totalScore=0,SonicAbility unlockedAbilities=SonicAbility.None,string[] completedRedRingLevels=null)
         {
+            // A story launch never inherits a free-play character or its abilities.
+            SonicNewLevelSession.End();
+            if(character!="sonic" && character!="tails" && character!="amy" && character!="shadow")return null;
             if(lives<=0 || !Application.CanStreamedLevelBeLoaded(scene))return null;
             RestoreRedRingLevels(completedRedRingLevels);
             Time.timeScale=1;Character=character;Lives=lives;TotalScore=Math.Max(0,totalScore);UnlockedAbilities=unlockedAbilities&SonicAbility.All;Objects_Interaction.RingAmount=0;pending=new StorySave{character=character,scene=scene,lives=lives,totalScore=TotalScore,unlockedAbilities=(int)UnlockedAbilities};CopyRedRingProgress(pending);storySession=true;
@@ -83,10 +86,16 @@ namespace SonicFX.Menu
         static void Loaded(Scene scene,LoadSceneMode mode)
         {
             if(mode!=LoadSceneMode.Single)return;
-            if(scene.name=="LogoScreen"){storySession=false;pending=null;UnlockedAbilities=SonicAbility.None;return;}
+            if(scene.name=="LogoScreen"){storySession=false;pending=null;UnlockedAbilities=SonicAbility.None;SonicNewLevelSession.End();return;}
             if(!storySession)return;
             if(pending!=null && scene.path==pending.scene){SaveLevel(scene.path);pending=null;}
             else if(pending==null && scene.path.StartsWith("Assets/Level/",StringComparison.Ordinal))SaveLevel(scene.path);
+        }
+        // Independent run: leave the existing story save and its unlocks untouched.
+        internal static void BeginNewLevel(string character)
+        {
+            pending=null;storySession=false;RestoreRedRingLevels(null);Lives=3;TotalScore=0;
+            UnlockedAbilities=SonicAbility.None;Character=character;Objects_Interaction.RingAmount=0;
         }
         // Called once per death by HurtControl, regardless of its cause.
         public static void LoseLife()

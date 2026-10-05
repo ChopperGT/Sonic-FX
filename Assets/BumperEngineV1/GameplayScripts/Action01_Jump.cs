@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Action01_Jump : MonoBehaviour {
@@ -31,7 +31,7 @@ public class Action01_Jump : MonoBehaviour {
     public void InitialEvents()
     {
         //Set Initial Variables
-		JumpBall.SetActive(true);
+		JumpBall.SetActive(!Actions.BallBlocked);
         Counter = 0;
         jumpSlopeSpeed = 0;
         InitialNormal = Player.GroundNormal;
@@ -55,7 +55,8 @@ public class Action01_Jump : MonoBehaviour {
 
 		//Set Animator Parameters
 		if (Actions.Action == 1) {
-			CharacterAnimator.SetInteger ("Action", 1);
+			CharacterAnimator.SetInteger ("Action", Actions.BallBlocked ? 0 : 1);
+            if (JumpBall != null) JumpBall.SetActive(!Actions.BallBlocked);
 		}
 		CharacterAnimator.SetFloat ("YSpeed", Player.p_rigidbody.linearVelocity.y);
 		CharacterAnimator.SetFloat ("GroundSpeed", Player.p_rigidbody.linearVelocity.magnitude);

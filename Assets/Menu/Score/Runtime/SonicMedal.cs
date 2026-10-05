@@ -9,17 +9,19 @@ namespace SonicFX.Score
     // centre Sonic, reflet qui balaie, coche si obtenue. Textures dessinees en code puis mises en cache.
     public sealed class SonicMedal : MonoBehaviour
     {
-        public const int Silver=0,Gold=1,Diamond=2,Rainbow=3;
-        public static readonly string[] Ids={"silver","gold","diamond","rainbow"};
-        public static readonly string[] Names={"ARGENT","OR","DIAMANT","ARC-EN-CIEL"};
-        public static readonly Color[] LabelColors={SonicUi.Hex("dfe6ec"),SonicUi.Hex("ffd75e"),SonicUi.Hex("aeeeff"),Color.white};
+        public const int Bronze=0,Silver=1,Gold=2,Diamond=3,Rainbow=4;
+        public static readonly string[] Ids={"bronze","silver","gold","diamond","rainbow"};
+        public static readonly string[] Names={"BRONZE","ARGENT","OR","DIAMANT","ARC-EN-CIEL"};
+        public static readonly Color[] LabelColors={SonicUi.Hex("e8ab72"),SonicUi.Hex("dfe6ec"),SonicUi.Hex("ffd75e"),SonicUi.Hex("aeeeff"),Color.white};
 
-        // medalTimes est range arc-en-ciel, diamant, or, argent (comme dans LevelProgressControl).
-        public static float Target(float[] times,int tier)=>times[3-tier];
+        // Targets are descending tiers. Legacy four-target results still omit bronze.
+        public static bool ValidTimes(float[] times)=>times!=null && (times.Length==4 || times.Length==5);
+        public static int LowestTier(float[] times)=>times!=null && times.Length==5?Bronze:Silver;
+        public static float Target(float[] times,int tier)=>times[Rainbow-tier];
         public static int TierFor(float seconds,float[] times)
         {
-            if(times==null || times.Length!=4)return -1;
-            for(int t=Rainbow;t>=Silver;t--)if(seconds<=Target(times,t))return t;
+            if(!ValidTimes(times))return -1;
+            for(int t=Rainbow;t>=LowestTier(times);t--)if(seconds<=Target(times,t))return t;
             return -1;
         }
         // Nom arc-en-ciel lettre par lettre, comme le degrade de texte de la maquette.
@@ -38,14 +40,15 @@ namespace SonicFX.Score
         const float Halo=1.35f; // la texture du disque deborde pour le halo
 
         static Color[] Stops(int tier)=>tier switch {
+            Bronze=>new[]{SonicUi.Hex("ffe0ba"),SonicUi.Hex("b87333"),SonicUi.Hex("78411f"),SonicUi.Hex("efb47d")},
             Silver=>new[]{SonicUi.Hex("ffffff"),SonicUi.Hex("9aa4ad"),SonicUi.Hex("6b7680"),SonicUi.Hex("e9edf0")},
             Gold=>new[]{SonicUi.Hex("fff3c4"),SonicUi.Hex("d9a520"),SonicUi.Hex("b07a0c"),SonicUi.Hex("ffe99a")},
             Diamond=>new[]{SonicUi.Hex("ffffff"),SonicUi.Hex("7fd8f0"),SonicUi.Hex("cdf4ff"),SonicUi.Hex("ffffff")},
             _=>new[]{SonicUi.Hex("ff4b4b"),SonicUi.Hex("ffb13b"),SonicUi.Hex("fff35b"),SonicUi.Hex("5bff8a"),SonicUi.Hex("5ee0ff"),SonicUi.Hex("6b7bff"),SonicUi.Hex("d86bff"),SonicUi.Hex("ff4b4b")}};
         static float[] StopAt(int tier)=>tier==Diamond?new[]{0,.45f,.7f,1}:new[]{0,.5f,.75f,1};
-        static readonly Color[] Glow={new Color(.86f,.9f,.94f,.4f),new Color(1,.82f,.35f,.6f),new Color(.5f,.85f,.94f,.55f),new Color(1,1,1,.45f)};
-        static readonly Color[] Dots={new Color(.16f,.2f,.24f,.6f),new Color(.47f,.27f,0,.7f),new Color(.08f,.35f,.47f,.7f),new Color(1,1,1,.85f)};
-        static readonly Color[] Bezel={SonicUi.Hex("3a444d"),SonicUi.Hex("6b4a00"),SonicUi.Hex("1a4a5e"),SonicUi.Hex("1a1a2e")};
+        static readonly Color[] Glow={new Color(.9f,.5f,.2f,.5f),new Color(.86f,.9f,.94f,.4f),new Color(1,.82f,.35f,.6f),new Color(.5f,.85f,.94f,.55f),new Color(1,1,1,.45f)};
+        static readonly Color[] Dots={new Color(.32f,.14f,.05f,.7f),new Color(.16f,.2f,.24f,.6f),new Color(.47f,.27f,0,.7f),new Color(.08f,.35f,.47f,.7f),new Color(1,1,1,.85f)};
+        static readonly Color[] Bezel={SonicUi.Hex("512c16"),SonicUi.Hex("3a444d"),SonicUi.Hex("6b4a00"),SonicUi.Hex("1a4a5e"),SonicUi.Hex("1a1a2e")};
 
         static Color Body(int tier,float nx,float ny)
         {
