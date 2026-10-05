@@ -9,7 +9,6 @@ namespace SonicFX.HUD
     [DisallowMultipleComponent] public sealed class SonicRecordsHud : MonoBehaviour
     {
         const float KmhPerUnit=3.6f; // ponytail: suppose 1 unite Unity = 1 m ; a ajuster si le compteur parait faux
-        const float SpeedMax=400;
         static readonly Vector2 TopRight=new Vector2(1,1),BottomRight=new Vector2(1,0),TopLeft=new Vector2(0,1),Mid=new Vector2(.5f,.5f);
         static readonly Color Navy=new Color(.04f,.12f,.2f,1);
 
@@ -98,7 +97,8 @@ namespace SonicFX.HUD
 
             if(speedText!=null && player.p_rigidbody!=null)
             {
-                float speed=Mathf.Clamp(player.p_rigidbody.linearVelocity.magnitude*KmhPerUnit,0,SpeedMax),ratio=speed/SpeedMax;
+                // Jauge graduee sur le plafond reel du joueur (MaxSpeed), le chiffre n'est jamais ecrete.
+                float speed=player.p_rigidbody.linearVelocity.magnitude*KmhPerUnit,ratio=Mathf.Clamp01(speed/(Mathf.Max(1f,player.MaxSpeed)*KmhPerUnit));
                 speedText.text=Mathf.RoundToInt(speed).ToString("000");
                 int lit=Mathf.CeilToInt(ratio*segments.Length);
                 for(int i=0;i<segments.Length;i++)

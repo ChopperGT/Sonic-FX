@@ -121,7 +121,7 @@ namespace SonicFX.Menu
             try{operation=SonicXProgress.Begin(character,scene,lives,totalScore,abilities,redRingLevels);}catch(Exception e){Debug.LogException(e);}
             if(operation==null){Show(Page.Story);status.text="Impossible de charger le niveau. Réessaie.";}
         }
-        void LoadLevel(string scene){if(Application.CanStreamedLevelBeLoaded(scene)){Time.timeScale=1;SceneManager.LoadSceneAsync(scene);}else status.text="Ce niveau n'est pas disponible.";}
+        void LoadLevel(string scene){if(Application.CanStreamedLevelBeLoaded(scene)){SonicXProgress.BeginTimeTrial(scene);}else status.text="Ce niveau n'est pas disponible.";}
         void LoadArcade(){if(!SonicXProgress.IsUnlocked("arcade"))return;if(Application.CanStreamedLevelBeLoaded(arcadeScene)){Time.timeScale=1;SceneManager.LoadSceneAsync(arcadeScene);}else status.text="Le mode Arcade n'est pas encore configuré.";}
         void Quit(){PlayerPrefs.Save();Application.Quit();
 #if UNITY_EDITOR

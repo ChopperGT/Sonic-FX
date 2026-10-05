@@ -60,6 +60,9 @@ namespace SonicFX.Menu
         }
         public static bool IsGameOver=>Lives<=0;
         public static bool IsStorySession=>storySession;
+        // Niveaux "New levels" (contre la montre) : pas de plafond MaxSpeed, HUD vitesse km/h seul.
+        public static bool TimeTrial {get;private set;}
+        public static AsyncOperation BeginTimeTrial(string scene){Reset();TimeTrial=true;Time.timeScale=1;Objects_Interaction.RingAmount=0;return SceneManager.LoadSceneAsync(scene);}
         public static string Character { get; private set; }="sonic";
         public static bool IsUnlocked(string id)=>id=="sonic" || PlayerPrefs.GetInt("SonicFX.Unlock."+id,0)==1;
         public static void Unlock(string id){PlayerPrefs.SetInt("SonicFX.Unlock."+id,1);PlayerPrefs.Save();}
@@ -71,7 +74,7 @@ namespace SonicFX.Menu
         }
         public static bool CanContinue=>TryRead(out var save) && Application.CanStreamedLevelBeLoaded(save.scene);
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        static void Reset(){LivesGained=null;pending=null;storySession=false;RestoreRedRingLevels(null);Lives=3;TotalScore=0;UnlockedAbilities=SonicAbility.None;Character="sonic";SceneManager.sceneLoaded-=Loaded;SceneManager.sceneLoaded+=Loaded;}
+        static void Reset(){TimeTrial=false;LivesGained=null;pending=null;storySession=false;RestoreRedRingLevels(null);Lives=3;TotalScore=0;UnlockedAbilities=SonicAbility.None;Character="sonic";SceneManager.sceneLoaded-=Loaded;SceneManager.sceneLoaded+=Loaded;}
         public static AsyncOperation Begin(string character,string scene,int lives=3,long totalScore=0,SonicAbility unlockedAbilities=SonicAbility.None,string[] completedRedRingLevels=null)
         {
             if(lives<=0 || !Application.CanStreamedLevelBeLoaded(scene))return null;

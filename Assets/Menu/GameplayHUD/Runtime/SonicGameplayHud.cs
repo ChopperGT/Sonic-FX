@@ -67,6 +67,8 @@ namespace SonicFX.HUD
             SpeedText.rectTransform.anchorMin=SpeedText.rectTransform.anchorMax=SpeedText.rectTransform.pivot=Vector2.zero;
             SpeedText.rectTransform.anchoredPosition=Vector2.zero;
             SpeedText.verticalOverflow=VerticalWrapMode.Overflow;
+            // Contre la montre : le compteur km/h de SonicRecordsHud remplace ce compteur brut.
+            speedRoot.gameObject.SetActive(!SonicXProgress.TimeTrial);
             var records=GetComponent<SonicRecordsHud>();if(records==null)records=gameObject.AddComponent<SonicRecordsHud>();
             records.Build(HudCanvas);
             var pauseMenu=GetComponent<SonicPauseMenu>();if(pauseMenu==null)pauseMenu=gameObject.AddComponent<SonicPauseMenu>();

@@ -140,6 +140,8 @@ public class PlayerBhysics : MonoBehaviour
     private void Start()
     {
         SonicFX.Menu.SonicXProgress.ApplyRedRingSpeedBonus(this);
+        // Contre la montre : seule la limite physique de chute (360) borne la vitesse.
+        if (SonicFX.Menu.SonicXProgress.TimeTrial) MaxSpeed = FallingSpeedLimit;
         p_rigidbody = GetComponent<Rigidbody>();
         PreviousInput = transform.forward;
         Action = GetComponent<ActionManager>();
