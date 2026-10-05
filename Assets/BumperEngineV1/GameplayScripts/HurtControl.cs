@@ -28,6 +28,7 @@ public class HurtControl : MonoBehaviour {
     bool releasingRings = false;
     int RingsToRelease;
 
+    [Tooltip("Hauteur monde sous laquelle le joueur meurt (chute). A regler par niveau.")] public float FallDeathHeight = 10f;
     public bool isDead { get; set; }
     int deadCounter = 0;
     bool deathCounted;
@@ -91,7 +92,7 @@ public class HurtControl : MonoBehaviour {
     // World-space death floor: shields, rings and invincibility do not prevent a fall death.
     void CheckFallDeath()
     {
-        if (isDead || transform.position.y > 10f) return;
+        if (isDead || transform.position.y > FallDeathHeight) return;
         isDead = true;
         if (Objects != null && Objects.Sounds != null) Objects.Sounds.DieSound();
     }
