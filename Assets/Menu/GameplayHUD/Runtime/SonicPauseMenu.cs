@@ -71,7 +71,9 @@ namespace SonicFX.HUD
                 float h=item==Item.Ghost?124:72;
                 var panel=SonicUi.Skew(menu,item.ToString(),TopLeft,new Vector2(0,y),new Vector2(720,h),A(Navy,.7f),A(Navy,.7f),A(SonicUi.Cyan,.5f));
                 panel.raycastTarget=true;int index=rows.Count;
-                panel.gameObject.AddComponent<Button>().onClick.AddListener(()=>{selected=index;Refresh();Activate(rows[index].item);});
+                // Souris uniquement : sans navigation, l'EventSystem ne peut pas selectionner la ligne et doubler le Submit lu par Pressed().
+                var button=panel.gameObject.AddComponent<Button>();button.navigation=new Navigation{mode=Navigation.Mode.None};
+                button.onClick.AddListener(()=>{selected=index;Refresh();Activate(rows[index].item);});
                 if(item==Item.Ghost)BuildGhostItem(panel.transform);
                 else SonicUi.Fill(panel.transform,Label(item),font,28,SonicUi.Hex("e6f6ff"),TextAnchor.MiddleLeft,40,0);
                 rows.Add((item,panel));
@@ -181,6 +183,8 @@ namespace SonicFX.HUD
             }
             if(visible && !wasVisible){selected=0;Refresh();}
             bool closedOptions=wasOptions && !options;
+            // Aucun objet selectionne pendant le menu : sinon le Submit de l'EventSystem active un bouton (ancien menu ou options) en plus du notre.
+            if(visible && (!wasVisible || closedOptions) && EventSystem.current!=null)EventSystem.current.SetSelectedGameObject(null);
             wasVisible=visible;wasOptions=options;
 
             var stick=Gamepad.current!=null?Gamepad.current.leftStick.ReadValue():Vector2.zero;
