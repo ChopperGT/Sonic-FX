@@ -254,4 +254,59 @@ public static class NeoRingBuilder
         Debug.Log("NeoRing : section 2 construite, fin " + pos + " / " + endPos + " cap " + endRot.eulerAngles.y);
         EditorSceneManager.MarkSceneDirty(s.gameObject.scene); EditorSceneManager.SaveScene(s.gameObject.scene);
     }
+
+    // ---------------------------------------------------------------- Section 3 : chute verticale n 1
+    // Passerelle en caillebotis de 24 m, puis trou : puits de 60 m de long entre deux facades wall_circuit, sol 30 m plus bas.
+    // Helice d'anneaux dans le puits, 3 Springs inclines a 40deg (force 160, comme dans SpeerunMadeByCOCO) relancent a l'horizontale.
+    const float S3Catwalk = 24, S3Shaft = 60, S3Drop = 30;
+    public static void S3End(out Vector3 pos, out Quaternion rot) { S2End(out pos, out rot); pos += rot * new Vector3(0, -S3Drop, S3Catwalk + S3Shaft); }
+
+    [MenuItem("Tools/Neo Ring/4 - Section 3 : Chute")]
+    public static void Section3()
+    {
+        var s = Section("S3_Chute");
+        S2End(out var pos, out var rot);
+        Vector3 L(float x, float y, float z) => pos + rot * new Vector3(x, y, z);
+        float fy = -S3Drop; // sol du puits, relatif a la route
+
+        // Passerelle : murs bas mais neons magenta (danger)
+        Box("Catwalk", L(0, -.5f, S3Catwalk / 2), new Vector3(RoadW, 1, S3Catwalk), rot, Mat("M_Grate"), s);
+        foreach (float side in new[] { -1f, 1f })
+        {
+            float x = side * (RoadW / 2 + .25f);
+            Box("Wall", L(x, 1.25f, S3Catwalk / 2), new Vector3(.5f, 2.5f, S3Catwalk), rot, Mat("M_WallPanels"), s);
+            Neon("NeonEdge", L(x, 2.58f, S3Catwalk / 2), new Vector3(.16f, .16f, S3Catwalk), "Magenta", s, rot);
+        }
+        Box("EdgeStripes", L(0, .005f, S3Catwalk - .5f), new Vector3(RoadW, .01f, 1), rot, Mat("M_Hazard"), s, false);
+        Neon("EdgeNeon", L(0, .1f, S3Catwalk), new Vector3(RoadW + .5f, .2f, .2f), "Magenta", s, rot);
+
+        // Puits
+        float zc = S3Catwalk + S3Shaft / 2;
+        Box("ShaftFloor", L(0, fy - 1, zc), new Vector3(20, 2, S3Shaft), rot, Mat("M_FloorPanels"), s);
+        Box("ShaftBack", L(0, fy / 2, S3Catwalk - .5f), new Vector3(20, S3Drop, 1), rot, Mat("M_WallCircuit"), s);
+        Box("FacadeL", L(-10.5f, (fy - 1 + 17) / 2, zc), new Vector3(1, 18 - (fy - 1), S3Shaft), rot, Mat("M_WallCircuit"), s);
+        Box("FacadeR", L(10.5f, (fy - 1 + 1) / 2, zc), new Vector3(1, 2 - (fy - 1), S3Shaft), rot, Mat("M_WallCircuit"), s);
+        foreach (float x in new[] { -9.8f, 9.8f }) Neon("FloorNeon", L(x, fy + .1f, zc), new Vector3(.16f, .16f, S3Shaft), "Cyan", s, rot);
+        Holo(L(-9.9f, 6, S3Catwalk + 20), rot * Quaternion.Euler(0, -90, 0), new Vector2(12, 6), s);
+        Holo(L(-9.9f, fy + 14, S3Catwalk + 44), rot * Quaternion.Euler(0, -90, 0), new Vector2(12, 6), s);
+
+        // Helice d'anneaux : 16 anneaux, rayon 5, de -4 a -28 m
+        for (int i = 0; i < 16; i++)
+        {
+            float a = i * 60 * Mathf.Deg2Rad, y = -4 - i * 1.6f;
+            Ring(L(5 * Mathf.Cos(a), y, S3Catwalk + 10 + 5 * Mathf.Sin(a)), s);
+        }
+
+        // Relance : 3 Springs inclines vers l'avant + un pad de securite plus loin pour ceux qui ont saute long
+        foreach (float x in new[] { -4.5f, 0, 4.5f })
+        {
+            var sp = Prefab(Prefabs + "Spring.prefab", L(x, fy, S3Catwalk + 20), rot * Quaternion.Euler(40, 0, 0), s);
+            sp.GetComponent<Spring_Proprieties>().SpringForce = 160;
+        }
+        BoostPad(L(0, fy, S3Catwalk + 48), rot, s);
+
+        S3End(out var e, out _);
+        Debug.Log("NeoRing : section 3 construite, fin " + e);
+        EditorSceneManager.MarkSceneDirty(s.gameObject.scene); EditorSceneManager.SaveScene(s.gameObject.scene);
+    }
 }
