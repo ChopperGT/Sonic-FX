@@ -74,6 +74,9 @@ namespace SonicFX.Menu
                     target.MaximumTimeBonus=config.MaximumTimeBonus;target.IdealTimeSeconds=config.IdealTimeSeconds;target.TimeBonusLimitSeconds=config.TimeBonusLimitSeconds;
                     target.MedalTimesSeconds=config.MedalTimesSeconds==null?Array.Empty<float>():(float[])config.MedalTimesSeconds.Clone();
                 }
+                // La hauteur de mort par chute est reglee par niveau sur le joueur d'origine (NeoRing : -100) : l'avatar de remplacement doit l'heriter aussi.
+                var hurt=original.GetComponent<HurtControl>();var targetHurt=player.GetComponent<HurtControl>();
+                if(hurt!=null && targetHurt!=null)targetHurt.FallDeathHeight=hurt.FallDeathHeight;
                 RebindPlayerReferences(scene,original,player);
                 if(Application.isPlaying)UnityEngine.Object.Destroy(root.gameObject);else UnityEngine.Object.DestroyImmediate(root.gameObject);
                 return player;
