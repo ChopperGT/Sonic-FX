@@ -210,23 +210,32 @@ public static class NeoRingBuilder
             Box("EdgeStripes", new Vector3(0, .005f, S1Len - .5f), new Vector3(14, .01f, 1), Quaternion.identity, Mat("M_Hazard"), s, false);
         }
 
-        // Contenu du tunnel, par tranche de 150 m : pad, ligne au sol, vague d'anneaux sur les parois (gauche <-> droite)
-        BoostPad(new Vector3(0, 0, 30), Quaternion.identity, s); // un seul booster : les pads empechent de courir sur les parois
-        for (float z0 = 30; z0 < S1Len - 60; z0 += 150)
+        // Chemin d'anneaux = chemin jouable. Angle autour de l'axe du tube : -90 = fond, -35 = paroi droite, -145 = paroi gauche.
+        // Apres un booster (vitesse 200, direction verrouillee ~0.5 s) le joueur file droit ~100 m : jamais de derive dans cette zone.
+        void TubeArc(float z0, float z1, float a0, float a1, int count)
         {
-            RingLine(new Vector3(0, 1.6f, z0 + 14), new Vector3(0, 1.6f, z0 + 54), 14, s);
-            // vague : angle autour du fond du tube, -90 = fond, +-75 vers les parois
-            for (int i = 0; i <= 24; i++) { float a = (-90 + 75 * Mathf.Sin(i / 24f * 2 * Mathf.PI)) * Mathf.Deg2Rad; Ring(new Vector3(5.4f * Mathf.Cos(a), 6.9f + 5.4f * Mathf.Sin(a), z0 + 66 + i * 3), s); }
+            for (int i = 0; i < count; i++) { float u = count == 1 ? 0 : i / (count - 1f); float a = Mathf.Lerp(a0, a1, Mathf.SmoothStep(0, 1, u)) * Mathf.Deg2Rad; Ring(new Vector3(5.4f * Mathf.Cos(a), 6.9f + 5.4f * Mathf.Sin(a), Mathf.Lerp(z0, z1, u)), s); }
         }
-        // Deux boosters sur les parois (35 deg au-dessus du fond), dans le sens de la course : recompense pour qui court sur le mur.
-        // Position sur la surface du tube (rayon 7.6, axe y=6.9), "haut" du pad = normale vers l'axe, avant = +Z.
-        foreach (var (z, side) in new[] { (320f, 1f), (680f, -1f) })
+        const float Floor = -90, Right = -35, Left = -145;
+        BoostPad(new Vector3(0, 0, 30), Quaternion.identity, s);
+        TubeArc(50, 200, Floor, Floor, 26);        // ligne droite apres le booster d'entree
+        TubeArc(230, 300, Floor, Right, 15);       // montee progressive vers la paroi droite...
+        WallPad(320, Right);                       // ...jusqu'au booster mural droit
+        TubeArc(345, 445, Right, Right, 18);       // on reste sur la paroi apres le boost
+        TubeArc(470, 540, Right, Floor, 13);       // redescente douce
+        TubeArc(560, 600, Floor, Floor, 8);
+        TubeArc(610, 660, Floor, Left, 11);        // montee vers la paroi gauche
+        WallPad(680, Left);
+        TubeArc(705, 805, Left, Left, 18);
+        TubeArc(830, 900, Left, Floor, 13);
+        TubeArc(920, 1010, Floor, Floor, 16);      // ligne droite jusqu'a la sortie
+
+        // Booster colle sur la paroi : "haut" du pad = normale vers l'axe, avant = +Z.
+        void WallPad(float z, float angleDeg)
         {
-            float a = Mathf.Deg2Rad * (side > 0 ? -35f : -145f);
-            Vector3 n = -new Vector3(Mathf.Cos(a), Mathf.Sin(a), 0);
-            Vector3 surf = new Vector3(7.6f * Mathf.Cos(a), 6.9f + 7.6f * Mathf.Sin(a), z) + n * .25f; // legerement enfonce : le pad plat epouse la courbure
+            float a = angleDeg * Mathf.Deg2Rad; Vector3 n = -new Vector3(Mathf.Cos(a), Mathf.Sin(a), 0);
+            Vector3 surf = new Vector3(7.6f * Mathf.Cos(a), 6.9f + 7.6f * Mathf.Sin(a), z) + n * .25f;
             BoostPad(surf, Quaternion.LookRotation(Vector3.forward, n), s);
-            for (int i = 0; i < 6; i++) Ring(new Vector3(5.8f * Mathf.Cos(a), 6.9f + 5.8f * Mathf.Sin(a), z - 36 + i * 5), s);
         }
         // Bande hazard et neon magenta a la sortie du tube : la passerelle et le trou suivent
         Box("ExitStripes", new Vector3(0, .005f, S1Len - 3), new Vector3(6, .01f, 2), Quaternion.identity, Mat("M_Hazard"), s, false);
@@ -367,6 +376,7 @@ public static class NeoRingBuilder
             Neon("NeonEdge", L(x, 2.58f, S3Catwalk / 2), new Vector3(.16f, .16f, S3Catwalk), "Magenta", s, rot);
         }
         Box("EdgeStripes", L(0, .005f, S3Catwalk - .5f), new Vector3(RoadW, .01f, 1), rot, Mat("M_Hazard"), s, false);
+        RingLine(L(0, 1.6f, 10), L(0, 1.6f, S3Catwalk - 12), 12, s); // la ligne mene droit au trou
         Neon("EdgeNeon", L(0, .1f, S3Catwalk), new Vector3(RoadW + .5f, .2f, .2f), "Magenta", s, rot);
 
         // Puits
@@ -600,6 +610,8 @@ public static class NeoRingBuilder
         Vector3 jump = new Vector3(0, Mathf.Sin(35 * Mathf.Deg2Rad), Mathf.Cos(35 * Mathf.Deg2Rad));
         var ring = Prefab(Prefabs + "DashRing.prefab", L(0, -10.5f + rampH + 3, ez + 14 + rampLen + 1), rot * Quaternion.LookRotation(jump, Vector3.up), s);
         ring.GetComponentInChildren<SpeedPadData>().Speed = 70; // vy 40, vx 57 : ~64 m de portee jusqu'a 12 m plus bas (g=90)
+        Vector3 ringPos = new Vector3(0, -10.5f + rampH + 3, ez + 14 + rampLen + 1);
+        for (float tt = .15f; tt <= .95f; tt += .16f) Ring(L(0, ringPos.y + 70 * jump.y * tt - .5f * S5G * tt * tt, ringPos.z + 70 * jump.z * tt), s); // trajectoire exacte du saut
 
         // Ville en contrebas du saut : tours decoratives
         foreach (var (x, h, z) in new[] { (-14f, 40f, 35f), (10f, 55f, 48f), (-6f, 30f, 60f), (16f, 48f, 65f) })
@@ -622,7 +634,8 @@ public static class NeoRingBuilder
         Straight(s, pos, rot, S7Len);
         Box("EndWall", L(0, 4, S7Len + .25f), new Vector3(RoadW + .5f, 8, .5f), rot, Mat("M_WallPanels"), s);
         foreach (float z in new[] { 60f, 150f, 240f, 330f }) BoostPad(L(0, 0, z), rot, s);
-        RingLine(L(-3, 1.6f, 75), L(-3, 1.6f, 130), 14, s); RingLine(L(3, 1.6f, 165), L(3, 1.6f, 220), 14, s); RingLine(L(-3, 1.6f, 255), L(-3, 1.6f, 310), 14, s); RingLine(L(3, 1.6f, 345), L(3, 1.6f, 375), 8, s);
+        // Sur l'axe : apres un booster le joueur file droit, un decalage lateral rendrait la ligne inaccessible
+        RingLine(L(0, 1.6f, 75), L(0, 1.6f, 130), 14, s); RingLine(L(0, 1.6f, 165), L(0, 1.6f, 220), 14, s); RingLine(L(0, 1.6f, 255), L(0, 1.6f, 310), 14, s); RingLine(L(0, 1.6f, 345), L(0, 1.6f, 375), 8, s);
         var goal = Prefab(Prefabs + "GoalRing.prefab", L(0, 5.6f, S7Len - 12), rot, s);
         foreach (var r in goal.GetComponentsInChildren<Renderer>(true)) if (r.sharedMaterial && r.sharedMaterial.shader.name.Contains("RingShader")) r.sharedMaterial = Mat("M_RingCyan");
         foreach (float x in new[] { -16f, 16f }) Holo(L(x, 8, S7Len - 30), Quaternion.Euler(0, x < 0 ? -90 : 90, 0), new Vector2(10, 5), s);
