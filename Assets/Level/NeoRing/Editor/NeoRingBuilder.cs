@@ -34,6 +34,7 @@ public static class NeoRingBuilder
         }
     }
 
+    public const string RingCyanPrefab = Root + "Ring_Cyan.prefab";
     static Material M(string name, string shader)
     {
         var m = AssetDatabase.LoadAssetAtPath<Material>(Mats + name + ".mat");
@@ -69,6 +70,13 @@ public static class NeoRingBuilder
         var ring = AssetDatabase.LoadAssetAtPath<Material>(Mats + "M_RingCyan.mat");
         if (!ring) { ring = new Material(ringSrc); AssetDatabase.CreateAsset(ring, Mats + "M_RingCyan.mat"); }
         ring.SetColor("_DifuseColor", Cyan); ring.SetColor("_RimColor", Color.white); ring.SetColor("_CenterColor", Cyan * .6f);
+        // Variant de prefab Ring deja cyan : pour tout ce qui instancie des anneaux en jeu (RingSpawnerEternal du LightDashSpline)
+        if (!AssetDatabase.LoadAssetAtPath<GameObject>(RingCyanPrefab))
+        {
+            var inst = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(Prefabs + "Ring.prefab"));
+            foreach (var r in inst.GetComponentsInChildren<Renderer>(true)) r.sharedMaterial = ring;
+            PrefabUtility.SaveAsPrefabAsset(inst, RingCyanPrefab); Object.DestroyImmediate(inst);
+        }
         AssetDatabase.SaveAssets();
     }
 
@@ -146,19 +154,23 @@ public static class NeoRingBuilder
         for (int i = 1; i < arcSegments; i++) { float a = Mathf.Lerp(a0, a1, i / (float)arcSegments); prof.Add(new Vector2(radius * Mathf.Cos(a), centerY + radius * Mathf.Sin(a))); }
         int n = prof.Count; var v = new System.Collections.Generic.List<Vector3>(); var uv = new System.Collections.Generic.List<Vector2>();
         var triFloor = new System.Collections.Generic.List<int>(); var triWall = new System.Collections.Generic.List<int>();
-        Vector3 axis = new Vector3(0, centerY, length / 2); float u = 0;
-        for (int j = 0; j < n; j++)
+        int slices = Mathf.Max(1, Mathf.CeilToInt(length / 40f)); float dz = length / slices; // troncons <= 40 m : PhysX refuse les triangles > 500 m
+        for (int k = 0; k < slices; k++)
         {
-            var pa = prof[j]; var pb = prof[(j + 1) % n]; float seg = Vector2.Distance(pa, pb);
-            int o = v.Count;
-            v.Add(new Vector3(pa.x, pa.y, 0)); v.Add(new Vector3(pb.x, pb.y, 0)); v.Add(new Vector3(pb.x, pb.y, length)); v.Add(new Vector3(pa.x, pa.y, length));
-            uv.Add(new Vector2(u / 2, 0)); uv.Add(new Vector2((u + seg) / 2, 0)); uv.Add(new Vector2((u + seg) / 2, length / 2)); uv.Add(new Vector2(u / 2, length / 2));
-            Vector3 nrm = Vector3.Cross(v[o + 1] - v[o], v[o + 2] - v[o]);
-            bool inward = Vector3.Dot(nrm, axis - v[o]) > 0; // on veut voir la face depuis l'interieur
-            var tri = j == 0 ? triFloor : triWall;
-            // Unity : face avant = sens horaire ; on choisit l'ordre qui rend la face visible (et collidable) depuis l'axe du tube
-            if (inward) tri.AddRange(new[] { o, o + 1, o + 2, o, o + 2, o + 3 }); else tri.AddRange(new[] { o, o + 2, o + 1, o, o + 3, o + 2 });
-            u += seg;
+            float z0 = k * dz, z1 = (k + 1) * dz; Vector3 axis = new Vector3(0, centerY, (z0 + z1) / 2); float u = 0;
+            for (int j = 0; j < n; j++)
+            {
+                var pa = prof[j]; var pb = prof[(j + 1) % n]; float seg = Vector2.Distance(pa, pb);
+                int o = v.Count;
+                v.Add(new Vector3(pa.x, pa.y, z0)); v.Add(new Vector3(pb.x, pb.y, z0)); v.Add(new Vector3(pb.x, pb.y, z1)); v.Add(new Vector3(pa.x, pa.y, z1));
+                uv.Add(new Vector2(u / 2, z0 / 2)); uv.Add(new Vector2((u + seg) / 2, z0 / 2)); uv.Add(new Vector2((u + seg) / 2, z1 / 2)); uv.Add(new Vector2(u / 2, z1 / 2));
+                Vector3 nrm = Vector3.Cross(v[o + 1] - v[o], v[o + 2] - v[o]);
+                bool inward = Vector3.Dot(nrm, axis - v[o]) > 0; // on veut voir la face depuis l'interieur
+                var tri = j == 0 ? triFloor : triWall;
+                // Unity : face avant = sens horaire ; on choisit l'ordre qui rend la face visible (et collidable) depuis l'axe du tube
+                if (inward) tri.AddRange(new[] { o, o + 1, o + 2, o, o + 2, o + 3 }); else tri.AddRange(new[] { o, o + 2, o + 1, o, o + 3, o + 2 });
+                u += seg;
+            }
         }
         var m = new Mesh { name = name, subMeshCount = 2 }; m.SetVertices(v); m.SetUVs(0, uv); m.SetTriangles(triFloor, 0); m.SetTriangles(triWall, 1); m.RecalculateNormals(); m.RecalculateBounds(); m.RecalculateTangents();
         var go = new GameObject(name); go.transform.SetParent(parent, false); go.transform.SetPositionAndRotation(start, rot);
@@ -173,7 +185,7 @@ public static class NeoRingBuilder
     // ---------------------------------------------------------------- Section 1 : depart sur le toit
     // Course le long de +Z. Joueur en (0,1,0). Toit de z=-10 a z=S1Len, 14 m de large.
     // Les 70 premiers metres sont un tunnel ferme (murs pleins + plafond) : un joueur booste ne peut plus etre ejecte du niveau.
-    const float S1Len = 320, S1Tunnel = 140; // vitesses du pack sans nerf : sections longues
+    const float S1Len = 1050, S1Tunnel = S1Len; // tunnel sur toute la longueur, il debouche directement sur la chute (section 3)
     [MenuItem("Tools/Neo Ring/2 - Section 1 : Depart (toit)")]
     public static void Section1()
     {
@@ -186,25 +198,28 @@ public static class NeoRingBuilder
         TubeShell("Tunnel", new Vector3(0, 0, -10), Quaternion.identity, tl, 7.6f, 6.9f, 28, s);
         foreach (float x in new[] { -3f, 3f }) Neon("TunnelNeon", new Vector3(x, .15f, tz), new Vector3(.16f, .16f, tl), "Cyan", s);
         Box("BackWall", new Vector3(0, 7, -10.25f), new Vector3(16, 16, .5f), Quaternion.identity, Mat("M_WallPanels"), s);
-        // Apres le tunnel : parapets bas jusqu'au bord
+        // Apres le tunnel (s'il reste du toit a l'air libre) : parapets bas jusqu'au bord
         float pz = (S1Tunnel + S1Len) / 2, pl = S1Len - S1Tunnel;
-        foreach (float x in new[] { -7.25f, 7.25f })
+        if (pl > 0)
         {
-            Box("Parapet", new Vector3(x, .6f, pz), new Vector3(.5f, 1.2f, pl), Quaternion.identity, Mat("M_WallPanels"), s);
-            Neon("NeonEdge", new Vector3(x, 1.28f, pz), new Vector3(.16f, .16f, pl), "Cyan", s);
+            foreach (float x in new[] { -7.25f, 7.25f })
+            {
+                Box("Parapet", new Vector3(x, .6f, pz), new Vector3(.5f, 1.2f, pl), Quaternion.identity, Mat("M_WallPanels"), s);
+                Neon("NeonEdge", new Vector3(x, 1.28f, pz), new Vector3(.16f, .16f, pl), "Cyan", s);
+            }
+            Box("EdgeStripes", new Vector3(0, .005f, S1Len - .5f), new Vector3(14, .01f, 1), Quaternion.identity, Mat("M_Hazard"), s, false);
         }
-        Box("EdgeStripes", new Vector3(0, .005f, S1Len - .5f), new Vector3(14, .01f, 1), Quaternion.identity, Mat("M_Hazard"), s, false);
 
-        foreach (float z in new[] { 30f, 150f, 260f }) BoostPad(new Vector3(0, 0, z), Quaternion.identity, s);
-        RingLine(new Vector3(0, 1.6f, 42), new Vector3(0, 1.6f, 80), 14, s);
-        // Dans la voute : lignes d'anneaux qui montent sur une paroi puis redescendent (invite a courir sur le mur)
-        foreach (var (z0, side) in new[] { (60f, 1f), (100f, -1f) })
-            for (int i = 0; i < 11; i++) { float a = Mathf.Lerp(-60, -5, Mathf.Sin(i / 10f * Mathf.PI)) * Mathf.Deg2Rad; Ring(new Vector3(side * 6.4f * Mathf.Cos(a), 6.9f + 6.4f * Mathf.Sin(a), z0 + i * 3), s); }
-        RingLine(new Vector3(0, 1.6f, 165), new Vector3(0, 1.6f, 210), 14, s);
-        RingLine(new Vector3(3, 1.6f, 275), new Vector3(3, 1.6f, 305), 10, s);
-
-        foreach (float x in new[] { -16f, 16f })
-            Holo(new Vector3(x, 8, 230), Quaternion.Euler(0, x < 0 ? -90 : 90, 0), new Vector2(10, 5), s);
+        // Contenu du tunnel, par tranche de 150 m : pad, ligne au sol, vague d'anneaux sur les parois (gauche <-> droite)
+        for (float z0 = 30; z0 < S1Len - 60; z0 += 150)
+        {
+            BoostPad(new Vector3(0, 0, z0), Quaternion.identity, s);
+            RingLine(new Vector3(0, 1.6f, z0 + 14), new Vector3(0, 1.6f, z0 + 54), 14, s);
+            // vague : angle autour du fond du tube, -90 = fond, +-75 vers les parois
+            for (int i = 0; i <= 24; i++) { float a = (-90 + 75 * Mathf.Sin(i / 24f * 2 * Mathf.PI)) * Mathf.Deg2Rad; Ring(new Vector3(5.4f * Mathf.Cos(a), 6.9f + 5.4f * Mathf.Sin(a), z0 + 66 + i * 3), s); }
+        }
+        // Bande hazard et neon magenta a la sortie du tube : la passerelle et le trou suivent
+        Box("ExitStripes", new Vector3(0, .005f, S1Len - 3), new Vector3(6, .01f, 2), Quaternion.identity, Mat("M_Hazard"), s, false);
 
         EditorSceneManager.MarkSceneDirty(s.gameObject.scene); EditorSceneManager.SaveScene(s.gameObject.scene);
         Debug.Log("NeoRing : section 1 construite");
@@ -216,7 +231,9 @@ public static class NeoRingBuilder
     static readonly Vector3 S2Start = new Vector3(0, -2, S1Len + 8); // saut de 8 m depuis le toit (y=0)
 
     // Rejoue la geometrie sans rien construire : fin de la section 2 = debut de la section 3.
-    public static void S2End(out Vector3 pos, out Quaternion rot)
+    // Section 2 (autoroute) desactivee a la demande : le tunnel va jusqu'a la chute. S2End = sortie du tunnel.
+    public static void S2End(out Vector3 pos, out Quaternion rot) { pos = new Vector3(0, 0, S1Len); rot = Quaternion.identity; }
+    public static void S2EndHighway(out Vector3 pos, out Quaternion rot)
     {
         pos = S2Start; rot = Quaternion.identity;
         pos += rot * Vector3.forward * S2A; Arc(ref pos, ref rot, true, TurnAngle, TurnInner + RoadW * .5f);
@@ -270,8 +287,9 @@ public static class NeoRingBuilder
         return t;
     }
 
-    [MenuItem("Tools/Neo Ring/3 - Section 2 : Autoroute")]
-    public static void Section2()
+    [MenuItem("Tools/Neo Ring/3 - Section 2 : Autoroute (desactivee)")]
+    public static void Section2() { Section("S2_Autoroute"); Debug.Log("NeoRing : section 2 desactivee, le tunnel mene a la chute (Section2Highway pour la reconstruire)"); }
+    public static void Section2Highway()
     {
         var s = Section("S2_Autoroute");
         Vector3 pos = S2Start; Quaternion rot = Quaternion.identity;
@@ -311,7 +329,7 @@ public static class NeoRingBuilder
         RingLine(L(0, 1.6f, 26), L(0, 1.6f, 70), 14, s); RingLine(L(2, 1.6f, 106), L(2, 1.6f, 150), 14, s);
         pos += rot * Vector3.forward * S2C;
 
-        S2End(out var endPos, out var endRot);
+        S2EndHighway(out var endPos, out var endRot);
         Debug.Log("NeoRing : section 2 construite, fin " + pos + " / " + endPos + " cap " + endRot.eulerAngles.y);
         EditorSceneManager.MarkSceneDirty(s.gameObject.scene); EditorSceneManager.SaveScene(s.gameObject.scene);
     }
@@ -413,7 +431,7 @@ public static class NeoRingBuilder
         Prefab(Prefabs + "CheckPoint.prefab", L(-5.5f, 0, 6), rot, s);
 
         // Zone A : rouleurs puis crabes
-        foreach (var (x, z) in new[] { (-5f, 40f), (5f, 80f), (0f, 120f), (-6f, 160f), (6f, 200f) }) Enemy("Neo_Rouleur", L(x, 0, z), rot, s);
+        foreach (var (x, z) in new[] { (-5f, 40f), (5f, 80f), (0f, 120f), (6f, 160f), (6f, 200f) }) Enemy("Neo_Rouleur", L(x, 0, z), rot, s);
         foreach (var (x, z) in new[] { (-7f, 100f), (7f, 140f), (-7f, 215f), (7f, 240f) }) Enemy("Neo_CrabeSentinelle", L(x, 0, z), rot * Quaternion.Euler(0, 180, 0), s);
         RingLine(L(0, 1.6f, 12), L(0, 1.6f, 60), 14, s); RingLine(L(-4, 1.6f, 125), L(-4, 1.6f, 180), 14, s); // pas de booster : ennemis juste apres
 
@@ -524,6 +542,8 @@ public static class NeoRingBuilder
         spline.nodes[0].SetPosition(new Vector3(-xExit, 2, 3)); spline.nodes[0].SetDirection(new Vector3(-xExit, 14, 6));
         spline.nodes[1].SetPosition(new Vector3(xExit, S5H + 3, zc)); spline.nodes[1].SetDirection(new Vector3(xExit, S5H + 13, zc + 1));
         var sower = ld.GetComponent<SplineSower>(); sower.spacing = 3; sower.Sow();
+        var cyanRing = AssetDatabase.LoadAssetAtPath<GameObject>(RingCyanPrefab);
+        foreach (var sp in ld.GetComponentsInChildren<RingSpawnerEternal>(true)) sp.Ring = cyanRing; // sinon anneaux jaunes en jeu
 
         // Panneaux holo qui scintillent dans le puits
         for (int h = 0; 6 + 18 * h < S5H; h++)
@@ -593,7 +613,8 @@ public static class NeoRingBuilder
         Box("EndWall", L(0, 4, S7Len + .25f), new Vector3(RoadW + .5f, 8, .5f), rot, Mat("M_WallPanels"), s);
         foreach (float z in new[] { 60f, 150f, 240f, 330f }) BoostPad(L(0, 0, z), rot, s);
         RingLine(L(-3, 1.6f, 75), L(-3, 1.6f, 130), 14, s); RingLine(L(3, 1.6f, 165), L(3, 1.6f, 220), 14, s); RingLine(L(-3, 1.6f, 255), L(-3, 1.6f, 310), 14, s); RingLine(L(3, 1.6f, 345), L(3, 1.6f, 375), 8, s);
-        Prefab(Prefabs + "GoalRing.prefab", L(0, 5.6f, S7Len - 12), rot, s);
+        var goal = Prefab(Prefabs + "GoalRing.prefab", L(0, 5.6f, S7Len - 12), rot, s);
+        foreach (var r in goal.GetComponentsInChildren<Renderer>(true)) if (r.sharedMaterial && r.sharedMaterial.shader.name.Contains("RingShader")) r.sharedMaterial = Mat("M_RingCyan");
         foreach (float x in new[] { -16f, 16f }) Holo(L(x, 8, S7Len - 30), Quaternion.Euler(0, x < 0 ? -90 : 90, 0), new Vector2(10, 5), s);
 
         Debug.Log("NeoRing : section 7 construite, GoalRing a " + L(0, 5.6f, S7Len - 12));
