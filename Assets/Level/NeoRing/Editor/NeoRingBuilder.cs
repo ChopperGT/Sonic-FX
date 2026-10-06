@@ -87,16 +87,28 @@ public static class NeoRingBuilder
         sun.type = LightType.Directional; sun.color = Hex("b0a8ff"); sun.intensity = .7f; sun.shadows = LightShadows.Soft;
         sun.transform.rotation = Quaternion.Euler(45, -35, 0);
 
-        var player = Prefab("Assets/BumperEngineV1/PlayerPrefabs/PO_Mania.prefab", new Vector3(0, 1, 0), Quaternion.identity, null);
-        var lpc = player.GetComponentInChildren<LevelProgressControl>(true);
-        lpc.IdealTimeSeconds = 60; lpc.MedalTimesSeconds = new[] { 60f, 70f, 85f, 110f };
-        lpc.GetComponent<HurtControl>().FallDeathHeight = -100; // le moteur tue sous y=10 par defaut ; la ville basse descend sous 0
+        UsePlayer(null);
 
         Group("NeoRing");
         EditorSceneManager.SaveScene(scene, ScenePath);
         if (!EditorBuildSettings.scenes.Any(s => s.path == ScenePath))
             EditorBuildSettings.scenes = EditorBuildSettings.scenes.Append(new EditorBuildSettingsScene(ScenePath, true)).ToArray();
         Debug.Log("NeoRing : scene creee " + ScenePath);
+    }
+
+    // Joueur du niveau : SonicManiaFree (vitesses du pack, sans nerf). Remplace l'instance existante si on en passe une.
+    public const string PlayerPrefab = "Assets/BumperEngineV1/PlayerPrefabs/SonicManiaFree.prefab";
+    [MenuItem("Tools/Neo Ring/Joueur : SonicManiaFree")]
+    public static void SwapPlayer() { var cur = Object.FindFirstObjectByType<LevelProgressControl>(); UsePlayer(cur ? cur.transform.root.gameObject : null); EditorSceneManager.SaveOpenScenes(); }
+    static GameObject UsePlayer(GameObject existing)
+    {
+        Vector3 pos = existing ? existing.transform.position : new Vector3(0, 1, 0); Quaternion rot = existing ? existing.transform.rotation : Quaternion.identity;
+        if (existing) Object.DestroyImmediate(existing);
+        var player = Prefab(PlayerPrefab, pos, rot, null);
+        var lpc = player.GetComponentInChildren<LevelProgressControl>(true);
+        lpc.IdealTimeSeconds = 60; lpc.MedalTimesSeconds = new[] { 60f, 70f, 85f, 110f };
+        lpc.GetComponent<HurtControl>().FallDeathHeight = -100; // le moteur tue sous y=10 par defaut ; la ville basse descend sous 0
+        return player;
     }
 
     // ---------------------------------------------------------------- Briques communes
@@ -161,7 +173,7 @@ public static class NeoRingBuilder
     // ---------------------------------------------------------------- Section 1 : depart sur le toit
     // Course le long de +Z. Joueur en (0,1,0). Toit de z=-10 a z=S1Len, 14 m de large.
     // Les 70 premiers metres sont un tunnel ferme (murs pleins + plafond) : un joueur booste ne peut plus etre ejecte du niveau.
-    const float S1Len = 160, S1Tunnel = 70;
+    const float S1Len = 320, S1Tunnel = 140; // vitesses du pack sans nerf : sections longues
     [MenuItem("Tools/Neo Ring/2 - Section 1 : Depart (toit)")]
     public static void Section1()
     {
@@ -183,15 +195,16 @@ public static class NeoRingBuilder
         }
         Box("EdgeStripes", new Vector3(0, .005f, S1Len - .5f), new Vector3(14, .01f, 1), Quaternion.identity, Mat("M_Hazard"), s, false);
 
-        BoostPad(new Vector3(0, 0, 24), Quaternion.identity, s);
-        BoostPad(new Vector3(0, 0, 110), Quaternion.identity, s);
-        RingLine(new Vector3(0, 1.6f, 34), new Vector3(0, 1.6f, 60), 12, s);
-        // Dans la voute : ligne d'anneaux qui monte sur la paroi droite puis redescend (invite a courir sur le mur)
-        for (int i = 0; i < 9; i++) { float a = Mathf.Lerp(-60, -10, Mathf.Sin(i / 8f * Mathf.PI)) * Mathf.Deg2Rad; Ring(new Vector3(6.4f * Mathf.Cos(a), 6.9f + 6.4f * Mathf.Sin(a), 44 + i * 3), s); }
-        RingLine(new Vector3(0, 1.6f, 78), new Vector3(0, 1.6f, 100), 10, s);
+        foreach (float z in new[] { 30f, 150f, 260f }) BoostPad(new Vector3(0, 0, z), Quaternion.identity, s);
+        RingLine(new Vector3(0, 1.6f, 42), new Vector3(0, 1.6f, 80), 14, s);
+        // Dans la voute : lignes d'anneaux qui montent sur une paroi puis redescendent (invite a courir sur le mur)
+        foreach (var (z0, side) in new[] { (60f, 1f), (100f, -1f) })
+            for (int i = 0; i < 11; i++) { float a = Mathf.Lerp(-60, -5, Mathf.Sin(i / 10f * Mathf.PI)) * Mathf.Deg2Rad; Ring(new Vector3(side * 6.4f * Mathf.Cos(a), 6.9f + 6.4f * Mathf.Sin(a), z0 + i * 3), s); }
+        RingLine(new Vector3(0, 1.6f, 165), new Vector3(0, 1.6f, 210), 14, s);
+        RingLine(new Vector3(3, 1.6f, 275), new Vector3(3, 1.6f, 305), 10, s);
 
         foreach (float x in new[] { -16f, 16f })
-            Holo(new Vector3(x, 8, 120), Quaternion.Euler(0, x < 0 ? -90 : 90, 0), new Vector2(10, 5), s);
+            Holo(new Vector3(x, 8, 230), Quaternion.Euler(0, x < 0 ? -90 : 90, 0), new Vector2(10, 5), s);
 
         EditorSceneManager.MarkSceneDirty(s.gameObject.scene); EditorSceneManager.SaveScene(s.gameObject.scene);
         Debug.Log("NeoRing : section 1 construite");
@@ -199,7 +212,7 @@ public static class NeoRingBuilder
 
     // ---------------------------------------------------------------- Section 2 : autoroute de neon
     // Chaine : droite 60 m, virage droite 25deg, droite 70 m (voie haute en caillebotis), virage gauche 25deg, droite 60 m.
-    const float RoadW = 14, S2A = 100, S2B = 120, S2C = 100, TurnAngle = 25, TurnInner = 50;
+    const float RoadW = 14, S2A = 200, S2B = 240, S2C = 200, TurnAngle = 25, TurnInner = 90;
     static readonly Vector3 S2Start = new Vector3(0, -2, S1Len + 8); // saut de 8 m depuis le toit (y=0)
 
     // Rejoue la geometrie sans rien construire : fin de la section 2 = debut de la section 3.
@@ -268,16 +281,16 @@ public static class NeoRingBuilder
         Straight(s, pos, rot, S2A);
         // CheckPos du prefab est a +7 m en X local : poteau a gauche, respawn a x=+1.5 sur la route (a droite, il tombait dans le vide).
         Prefab(Prefabs + "CheckPoint.prefab", L(-5.5f, 0, 6), rot, s);
-        BoostPad(L(0, 0, 14), rot, s); BoostPad(L(0, 0, 66), rot, s);
-        RingLine(L(0, 1.6f, 26), L(0, 1.6f, 50), 10, s); RingLine(L(-3, 1.6f, 78), L(-3, 1.6f, 94), 7, s);
+        foreach (float z in new[] { 14f, 80f, 150f }) BoostPad(L(0, 0, z), rot, s);
+        RingLine(L(0, 1.6f, 26), L(0, 1.6f, 60), 12, s); RingLine(L(-3, 1.6f, 96), L(-3, 1.6f, 130), 12, s); RingLine(L(3, 1.6f, 166), L(3, 1.6f, 190), 9, s);
         pos += rot * Vector3.forward * S2A;
 
         Turn(s, ref pos, ref rot, true);
 
         // B : 70 m, voie haute en caillebotis a gauche (+6 m), rampe d'acces, pads
         Straight(s, pos, rot, S2B);
-        BoostPad(L(2, 0, 15), rot, s); BoostPad(L(2, 0, 80), rot, s);
-        RingLine(L(3, 1.6f, 30), L(3, 1.6f, 66), 12, s);
+        foreach (float z in new[] { 15f, 100f, 190f }) BoostPad(L(2, 0, z), rot, s);
+        RingLine(L(3, 1.6f, 30), L(3, 1.6f, 80), 14, s); RingLine(L(3, 1.6f, 120), L(3, 1.6f, 170), 14, s);
         float rampLen = 24, h = 6; float tilt = -Mathf.Atan2(h, rampLen) * Mathf.Rad2Deg;
         var rampRot = rot * Quaternion.Euler(tilt, 0, 0);
         Box("Ramp", L(-4, h / 2 - .25f * Mathf.Cos(tilt * Mathf.Deg2Rad), rampLen / 2), new Vector3(4, .5f, Mathf.Sqrt(rampLen * rampLen + h * h)), rampRot, Mat("M_Grate"), s);
@@ -285,17 +298,17 @@ public static class NeoRingBuilder
         Box("Catwalk", L(-4, h - .15f, (cwStart + cwEnd) / 2), new Vector3(4, .3f, cwEnd - cwStart), rot, Mat("M_Grate"), s);
         Box("CatwalkEdge", L(-4, h + .005f, cwEnd - .5f), new Vector3(4, .01f, 1), rot, Mat("M_Hazard"), s, false);
         Neon("CatwalkNeon", L(-6.1f, h + .08f, (cwStart + cwEnd) / 2), new Vector3(.12f, .12f, cwEnd - cwStart), "Yellow", s, rot);
-        for (float z = cwStart + 6; z < cwEnd; z += 12) Box("Arm", L(-5.6f, h - 1, z), new Vector3(3.6f, .4f, .4f), rot, Mat("M_WallCircuit"), s);
-        BoostPad(L(-4, h, cwStart + 5), rot, s);
-        RingLine(L(-4, h + 1.6f, cwStart + 14), L(-4, h + 1.6f, cwEnd - 6), 10, s);
+        for (float z = cwStart + 6; z < cwEnd; z += 16) Box("Arm", L(-5.6f, h - 1, z), new Vector3(3.6f, .4f, .4f), rot, Mat("M_WallCircuit"), s);
+        BoostPad(L(-4, h, cwStart + 5), rot, s); BoostPad(L(-4, h, (cwStart + cwEnd) / 2), rot, s);
+        RingLine(L(-4, h + 1.6f, cwStart + 14), L(-4, h + 1.6f, cwEnd - 6), 24, s);
         pos += rot * Vector3.forward * S2B;
 
         Turn(s, ref pos, ref rot, false);
 
         // C : 60 m, pad, anneaux
         Straight(s, pos, rot, S2C);
-        BoostPad(L(0, 0, 12), rot, s); BoostPad(L(0, 0, 64), rot, s);
-        RingLine(L(0, 1.6f, 26), L(0, 1.6f, 50), 9, s); RingLine(L(2, 1.6f, 76), L(2, 1.6f, 92), 7, s);
+        foreach (float z in new[] { 12f, 90f, 170f }) BoostPad(L(0, 0, z), rot, s);
+        RingLine(L(0, 1.6f, 26), L(0, 1.6f, 70), 14, s); RingLine(L(2, 1.6f, 106), L(2, 1.6f, 150), 14, s);
         pos += rot * Vector3.forward * S2C;
 
         S2End(out var endPos, out var endRot);
@@ -306,7 +319,7 @@ public static class NeoRingBuilder
     // ---------------------------------------------------------------- Section 3 : chute verticale n 1
     // Passerelle en caillebotis de 24 m, puis trou : puits de 60 m de long entre deux facades wall_circuit, sol 30 m plus bas.
     // Helice d'anneaux dans le puits, 3 Springs inclines a 40deg (force 160, comme dans SpeerunMadeByCOCO) relancent a l'horizontale.
-    const float S3Catwalk = 40, S3Shaft = 80, S3Drop = 30;
+    const float S3Catwalk = 80, S3Shaft = 160, S3Drop = 30;
     public static void S3End(out Vector3 pos, out Quaternion rot) { S2End(out pos, out rot); pos += rot * new Vector3(0, -S3Drop, S3Catwalk + S3Shaft); }
 
     [MenuItem("Tools/Neo Ring/4 - Section 3 : Chute")]
@@ -351,7 +364,8 @@ public static class NeoRingBuilder
             var sp = Prefab(Prefabs + "Spring.prefab", L(x, fy, S3Catwalk + 20), rot * Quaternion.Euler(40, 0, 0), s);
             sp.GetComponent<Spring_Proprieties>().SpringForce = 160;
         }
-        BoostPad(L(0, fy, S3Catwalk + 48), rot, s);
+        BoostPad(L(0, fy, S3Catwalk + 48), rot, s); BoostPad(L(0, fy, S3Catwalk + 110), rot, s);
+        RingLine(L(0, fy + 1.6f, S3Catwalk + 60), L(0, fy + 1.6f, S3Catwalk + 100), 12, s);
 
         S3End(out var e, out _);
         Debug.Log("NeoRing : section 3 construite, fin " + e);
@@ -361,7 +375,7 @@ public static class NeoRingBuilder
     // ---------------------------------------------------------------- Section 4 : zone ennemis (ville basse)
     // Rue de 150 m x 24 m entre deux rangees d'immeubles. Vide de 40 m au milieu : pont lateral en caillebotis (chemin principal)
     // ou chaine de homing sur 3 drones au-dessus du vide (raccourci). Trigger Pit sous le vide.
-    const float S4Len = 250, S4W = 24, S4VoidA = 130, S4VoidB = 170;
+    const float S4Len = 500, S4W = 24, S4VoidA = 260, S4VoidB = 320;
     public static void S4End(out Vector3 pos, out Quaternion rot) { S3End(out pos, out rot); pos += rot * new Vector3(0, 0, S4Len); }
 
     // Ennemi cyberpunk ; garantit une cible de homing (tag HomingTarget) attachee au corps mobile.
@@ -387,7 +401,7 @@ public static class NeoRingBuilder
         Box("Street_A", L(0, -1, S4VoidA / 2), new Vector3(S4W, 2, S4VoidA), rot, Mat("M_FloorPanels"), s);
         Box("Street_B", L(0, -1, (S4VoidB + S4Len) / 2), new Vector3(S4W, 2, S4Len - S4VoidB), rot, Mat("M_FloorPanels"), s);
         // Immeubles contigus des deux cotes (canyon ferme), hauteurs variees
-        for (int k = 0; k < 8; k++)
+        for (int k = 0; k < Mathf.CeilToInt(S4Len / 30); k++)
             foreach (float side in new[] { -1f, 1f })
             {
                 float h = 30 + ((k + (side > 0 ? 1 : 0)) % 3) * 12;
@@ -399,9 +413,9 @@ public static class NeoRingBuilder
         Prefab(Prefabs + "CheckPoint.prefab", L(-5.5f, 0, 6), rot, s);
 
         // Zone A : rouleurs puis crabes
-        Enemy("Neo_Rouleur", L(-5, 0, 30), rot, s); Enemy("Neo_Rouleur", L(5, 0, 55), rot, s); Enemy("Neo_Rouleur", L(0, 0, 80), rot, s);
-        Enemy("Neo_CrabeSentinelle", L(-7, 0, 98), rot * Quaternion.Euler(0, 180, 0), s); Enemy("Neo_CrabeSentinelle", L(7, 0, 112), rot * Quaternion.Euler(0, 180, 0), s);
-        RingLine(L(0, 1.6f, 12), L(0, 1.6f, 48), 10, s); RingLine(L(-4, 1.6f, 62), L(-4, 1.6f, 90), 8, s); // pas de booster : ennemis juste apres
+        foreach (var (x, z) in new[] { (-5f, 40f), (5f, 80f), (0f, 120f), (-6f, 160f), (6f, 200f) }) Enemy("Neo_Rouleur", L(x, 0, z), rot, s);
+        foreach (var (x, z) in new[] { (-7f, 100f), (7f, 140f), (-7f, 215f), (7f, 240f) }) Enemy("Neo_CrabeSentinelle", L(x, 0, z), rot * Quaternion.Euler(0, 180, 0), s);
+        RingLine(L(0, 1.6f, 12), L(0, 1.6f, 60), 14, s); RingLine(L(-4, 1.6f, 125), L(-4, 1.6f, 180), 14, s); // pas de booster : ennemis juste apres
 
         // Vide : trigger Pit 14 m plus bas, cadre magenta
         var pit = Group("Pit", s); pit.tag = "Pit"; pit.transform.SetPositionAndRotation(L(0, -14, (S4VoidA + S4VoidB) / 2), rot);
@@ -414,16 +428,15 @@ public static class NeoRingBuilder
         float vc = (S4VoidA + S4VoidB) / 2, vl = S4VoidB - S4VoidA;
         Box("Bridge", L(-9, -.5f, vc), new Vector3(6, 1, vl + 4), rot, Mat("M_Grate"), s);
         Neon("BridgeNeon", L(-6.1f, .1f, vc), new Vector3(.12f, .12f, vl), "Magenta", s, rot);
-        RingLine(L(-9, 1.6f, S4VoidA + 4), L(-9, 1.6f, S4VoidB - 4), 8, s);
+        RingLine(L(-9, 1.6f, S4VoidA + 4), L(-9, 1.6f, S4VoidB - 4), 12, s);
 
         // Raccourci : 3 drones au-dessus du vide (corps a +4 m, route +-5 m en x), anneaux entre eux
-        foreach (float z in new[] { S4VoidA + 6, S4VoidA + 20, S4VoidA + 34 }) Enemy("Neo_DroneGuepe", L(0, 0, z - 2.5f), rot, s);
-        Ring(L(0, 5, S4VoidA + 13), s); Ring(L(0, 5, S4VoidA + 27), s);
+        for (float z = S4VoidA + 8; z < S4VoidB - 4; z += 15) { Enemy("Neo_DroneGuepe", L(0, 0, z - 2.5f), rot, s); if (z + 15 < S4VoidB - 4) Ring(L(0, 5, z + 7.5f), s); }
 
         // Zone B : relance
-        Enemy("Neo_Rouleur", L(0, 0, 185), rot, s); Enemy("Neo_CrabeSentinelle", L(-6, 0, 200), rot * Quaternion.Euler(0, 180, 0), s);
-        Enemy("Neo_Rouleur", L(6, 0, 222), rot, s); Enemy("Neo_CrabeSentinelle", L(-5, 0, 236), rot * Quaternion.Euler(0, 180, 0), s);
-        RingLine(L(4, 1.6f, 176), L(4, 1.6f, 196), 8, s); RingLine(L(-4, 1.6f, 206), L(-4, 1.6f, 230), 8, s); // pas de pad en fin : la section 5 est un puits vertical
+        foreach (var (x, z) in new[] { (0f, 350f), (6f, 410f), (-6f, 460f) }) Enemy("Neo_Rouleur", L(x, 0, z), rot, s);
+        foreach (var (x, z) in new[] { (-6f, 375f), (5f, 435f), (-5f, 480f) }) Enemy("Neo_CrabeSentinelle", L(x, 0, z), rot * Quaternion.Euler(0, 180, 0), s);
+        RingLine(L(4, 1.6f, 328), L(4, 1.6f, 365), 10, s); RingLine(L(-4, 1.6f, 385), L(-4, 1.6f, 430), 12, s); RingLine(L(0, 1.6f, 448), L(0, 1.6f, 476), 8, s); // pas de pad en fin : la section 5 est un puits vertical
 
         S4End(out var e, out _);
         Debug.Log("NeoRing : section 4 construite, fin " + e);
@@ -434,7 +447,7 @@ public static class NeoRingBuilder
     // Puits de 14 m x 16 m entre deux tours, 40 m de haut. Corniches alternees gauche/droite tous les 10 m ;
     // sur chacune un lanceur (Spring ou DashRing) vise la corniche opposee. Balistique calee sur la gravite du joueur (S5G).
     // Raccourci : LightDashSpline en diagonale du bas vers la sortie.
-    const float S5H = 50, S5D = 16, S5W = 14;
+    const float S5H = 60, S5D = 16, S5W = 14;
     // PlayerBhysics ajoute Gravity (0,-1.5,0) a la vitesse a chaque FixedUpdate : g effectif = 1.5 / pas fixe (mesure en Play : ~150 m/s2 a 100 Hz).
     static float S5G => 1.5f / Time.fixedDeltaTime;
     public static void S5End(out Vector3 pos, out Quaternion rot) { S4End(out pos, out rot); pos += rot * new Vector3(0, S5H, S5D); }
@@ -524,7 +537,7 @@ public static class NeoRingBuilder
     // ---------------------------------------------------------------- Section 6 : tube final + grand saut
     // Plateforme de depart (CheckPoint), tube SonicTube qui plonge et vire a droite, plateforme de sortie, rampe,
     // DashRing au sommet qui propulse au-dessus de la ville jusqu'au sprint final (section 7, 15 m plus bas).
-    const float S6Deck = 60, S6TubeLen = 110, S6ExitZ = S6Deck + S6TubeLen, S6Jump = S6ExitZ + 71, S6Drop = 15;
+    const float S6Deck = 120, S6TubeLen = 220, S6ExitZ = S6Deck + S6TubeLen, S6Jump = S6ExitZ + 71, S6Drop = 15;
     public static void S6End(out Vector3 pos, out Quaternion rot) { S5End(out pos, out rot); pos += rot * new Vector3(0, -S6Drop, S6Jump); }
 
     [MenuItem("Tools/Neo Ring/7 - Section 6 : Tube")]
@@ -536,7 +549,7 @@ public static class NeoRingBuilder
 
         Straight(s, pos, rot, S6Deck);
         Prefab(Prefabs + "CheckPoint.prefab", L(-5.5f, 0, 4), rot, s);
-        RingLine(L(0, 1.6f, 14), L(0, 1.6f, 44), 11, s);
+        RingLine(L(0, 1.6f, 14), L(0, 1.6f, 60), 14, s); RingLine(L(0, 1.6f, 70), L(0, 1.6f, 100), 10, s);
 
         // Tube : noeuds en local du tube, tangentes auto ; entree au bout de la plateforme, sortie 9 m plus bas
         var tube = Prefab("Assets/Structure/Tube Slide/Tube_Test.prefab", L(0, 0, S6Deck), rot, s);
@@ -568,7 +581,7 @@ public static class NeoRingBuilder
     }
 
     // ---------------------------------------------------------------- Section 7 : sprint final
-    const float S7Len = 200;
+    const float S7Len = 400;
     [MenuItem("Tools/Neo Ring/8 - Section 7 : Sprint final")]
     public static void Section7()
     {
@@ -578,8 +591,8 @@ public static class NeoRingBuilder
 
         Straight(s, pos, rot, S7Len);
         Box("EndWall", L(0, 4, S7Len + .25f), new Vector3(RoadW + .5f, 8, .5f), rot, Mat("M_WallPanels"), s);
-        foreach (float z in new[] { 40f, 90f, 140f }) BoostPad(L(0, 0, z), rot, s);
-        RingLine(L(-3, 1.6f, 50), L(-3, 1.6f, 74), 8, s); RingLine(L(3, 1.6f, 100), L(3, 1.6f, 124), 8, s); RingLine(L(-3, 1.6f, 150), L(-3, 1.6f, 170), 7, s);
+        foreach (float z in new[] { 60f, 150f, 240f, 330f }) BoostPad(L(0, 0, z), rot, s);
+        RingLine(L(-3, 1.6f, 75), L(-3, 1.6f, 130), 14, s); RingLine(L(3, 1.6f, 165), L(3, 1.6f, 220), 14, s); RingLine(L(-3, 1.6f, 255), L(-3, 1.6f, 310), 14, s); RingLine(L(3, 1.6f, 345), L(3, 1.6f, 375), 8, s);
         Prefab(Prefabs + "GoalRing.prefab", L(0, 5.6f, S7Len - 12), rot, s);
         foreach (float x in new[] { -16f, 16f }) Holo(L(x, 8, S7Len - 30), Quaternion.Euler(0, x < 0 ? -90 : 90, 0), new Vector2(10, 5), s);
 
