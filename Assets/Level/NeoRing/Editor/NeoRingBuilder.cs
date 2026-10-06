@@ -220,7 +220,8 @@ public static class NeoRingBuilder
 
         // A : 60 m, checkpoint, pad, anneaux
         Straight(s, pos, rot, S2A);
-        Prefab(Prefabs + "CheckPoint.prefab", L(5.5f, 0, 6), rot, s);
+        // CheckPos du prefab est a +7 m en X local : poteau a gauche, respawn a x=+1.5 sur la route (a droite, il tombait dans le vide).
+        Prefab(Prefabs + "CheckPoint.prefab", L(-5.5f, 0, 6), rot, s);
         BoostPad(L(0, 0, 14), rot, s);
         RingLine(L(0, 1.6f, 26), L(0, 1.6f, 46), 8, s);
         pos += rot * Vector3.forward * S2A;
@@ -349,7 +350,7 @@ public static class NeoRingBuilder
             }
         foreach (float side in new[] { -1f, 1f }) Neon("StreetNeon", L(side * (S4W / 2 - .2f), .1f, S4Len / 2), new Vector3(.16f, .16f, S4Len), "Cyan", s, rot);
 
-        Prefab(Prefabs + "CheckPoint.prefab", L(5.5f, 0, 6), rot, s);
+        Prefab(Prefabs + "CheckPoint.prefab", L(-5.5f, 0, 6), rot, s);
 
         // Zone A : rouleurs puis crabes
         Enemy("Neo_Rouleur", L(-5, 0, 24), rot, s); Enemy("Neo_Rouleur", L(5, 0, 38), rot, s);
@@ -482,7 +483,7 @@ public static class NeoRingBuilder
         Vector3 L(float x, float y, float z) => pos + rot * new Vector3(x, y, z);
 
         Straight(s, pos, rot, 20);
-        Prefab(Prefabs + "CheckPoint.prefab", L(5.5f, 0, 4), rot, s);
+        Prefab(Prefabs + "CheckPoint.prefab", L(-5.5f, 0, 4), rot, s);
         RingLine(L(0, 1.6f, 8), L(0, 1.6f, 16), 4, s);
 
         // Tube : noeuds en local du tube, tangentes auto ; entree au bout de la plateforme, sortie 9 m plus bas
