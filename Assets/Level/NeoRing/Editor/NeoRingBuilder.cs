@@ -218,6 +218,16 @@ public static class NeoRingBuilder
             // vague : angle autour du fond du tube, -90 = fond, +-75 vers les parois
             for (int i = 0; i <= 24; i++) { float a = (-90 + 75 * Mathf.Sin(i / 24f * 2 * Mathf.PI)) * Mathf.Deg2Rad; Ring(new Vector3(5.4f * Mathf.Cos(a), 6.9f + 5.4f * Mathf.Sin(a), z0 + 66 + i * 3), s); }
         }
+        // Deux boosters sur les parois (35 deg au-dessus du fond), dans le sens de la course : recompense pour qui court sur le mur.
+        // Position sur la surface du tube (rayon 7.6, axe y=6.9), "haut" du pad = normale vers l'axe, avant = +Z.
+        foreach (var (z, side) in new[] { (320f, 1f), (680f, -1f) })
+        {
+            float a = Mathf.Deg2Rad * (side > 0 ? -35f : -145f);
+            Vector3 n = -new Vector3(Mathf.Cos(a), Mathf.Sin(a), 0);
+            Vector3 surf = new Vector3(7.6f * Mathf.Cos(a), 6.9f + 7.6f * Mathf.Sin(a), z) + n * .25f; // legerement enfonce : le pad plat epouse la courbure
+            BoostPad(surf, Quaternion.LookRotation(Vector3.forward, n), s);
+            for (int i = 0; i < 6; i++) Ring(new Vector3(5.8f * Mathf.Cos(a), 6.9f + 5.8f * Mathf.Sin(a), z - 36 + i * 5), s);
+        }
         // Bande hazard et neon magenta a la sortie du tube : la passerelle et le trou suivent
         Box("ExitStripes", new Vector3(0, .005f, S1Len - 3), new Vector3(6, .01f, 2), Quaternion.identity, Mat("M_Hazard"), s, false);
 
