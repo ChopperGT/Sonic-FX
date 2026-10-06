@@ -114,7 +114,7 @@ public static class NeoRingBuilder
         if (existing) Object.DestroyImmediate(existing);
         var player = Prefab(PlayerPrefab, pos, rot, null);
         var lpc = player.GetComponentInChildren<LevelProgressControl>(true);
-        lpc.IdealTimeSeconds = 60; lpc.MedalTimesSeconds = new[] { 60f, 70f, 85f, 110f };
+        lpc.IdealTimeSeconds = 25; lpc.MedalTimesSeconds = new[] { 25f, 35f, 50f, 70f }; // arc-en-ciel, diamant, or, argent
         lpc.GetComponent<HurtControl>().FallDeathHeight = -100; // le moteur tue sous y=10 par defaut ; la ville basse descend sous 0
         return player;
     }
@@ -211,9 +211,9 @@ public static class NeoRingBuilder
         }
 
         // Contenu du tunnel, par tranche de 150 m : pad, ligne au sol, vague d'anneaux sur les parois (gauche <-> droite)
+        BoostPad(new Vector3(0, 0, 30), Quaternion.identity, s); // un seul booster : les pads empechent de courir sur les parois
         for (float z0 = 30; z0 < S1Len - 60; z0 += 150)
         {
-            BoostPad(new Vector3(0, 0, z0), Quaternion.identity, s);
             RingLine(new Vector3(0, 1.6f, z0 + 14), new Vector3(0, 1.6f, z0 + 54), 14, s);
             // vague : angle autour du fond du tube, -90 = fond, +-75 vers les parois
             for (int i = 0; i <= 24; i++) { float a = (-90 + 75 * Mathf.Sin(i / 24f * 2 * Mathf.PI)) * Mathf.Deg2Rad; Ring(new Vector3(5.4f * Mathf.Cos(a), 6.9f + 5.4f * Mathf.Sin(a), z0 + 66 + i * 3), s); }
