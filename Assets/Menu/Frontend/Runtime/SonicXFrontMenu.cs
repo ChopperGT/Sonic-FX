@@ -19,6 +19,7 @@ namespace SonicFX.Menu
         [Tooltip("Scenes propres aux personnages, une fois leurs aventures pretes.")]
         public string tailsScene="",amyScene="",shadowScene="";
         public string speedrunCocoScene="Assets/Level/SpeerunMadeByCOCO.unity";
+        public string neoRingScene="Assets/Level/NeoRing.unity";
         public string arcadeScene="Assets/BumperEngineV1/Scenes/StageSelect.unity";
         public enum Page { Title,Main,Story,Characters,Settings,Overwrite,Loading,Rankings,NewLevels,NewLevelCharacters }
         public Page CurrentPage {get;private set;}
@@ -92,7 +93,7 @@ namespace SonicFX.Menu
                 case Page.Story:heading.text="MODE HISTOIRE";if(SonicXProgress.CanContinue)Add("Continuer",Continue);Add("Nouvelle partie",()=>Show(Page.Characters));Add("Retour",()=>Show(Page.Main));break;
                 case Page.Characters:heading.text="CHOISIS TON PERSONNAGE";Add("Sonic (jeune)",()=>Choose("sonic"));if(SonicXProgress.IsUnlocked("tails"))Add("Tails",()=>Choose("tails"));if(SonicXProgress.IsUnlocked("amy"))Add("Amy",()=>Choose("amy"));if(SonicXProgress.IsUnlocked("shadow"))Add("Shadow",()=>Choose("shadow"));Add("Retour",()=>Show(Page.Story));break;
                 case Page.Overwrite:heading.text="NOUVELLE PARTIE";status.text="La progression actuelle sera remplacée.\nTes déblocages seront conservés.";Add("Commencer",()=>Launch(pendingCharacter,CharacterScene(pendingCharacter)));Add("Annuler",()=>Show(Page.Characters));break;
-                case Page.NewLevels:heading.text="NEW LEVELS";Add("BoundArounds",()=>SelectNewLevel(speedrunCocoScene));Add("Act 1-1",()=>SelectNewLevel(SonicXProgress.FirstLevel));Add("Act 1-2",()=>SelectNewLevel(SonicNewLevelSession.SecondAct));Add("Retour",()=>Show(Page.Main));break;
+                case Page.NewLevels:heading.text="NEW LEVELS";Add("BoundArounds",()=>SelectNewLevel(speedrunCocoScene));Add("Act 1-1",()=>SelectNewLevel(SonicXProgress.FirstLevel));Add("Act 1-2",()=>SelectNewLevel(SonicNewLevelSession.SecondAct));Add("Neo Ring Zone",()=>SelectNewLevel(neoRingScene));Add("Retour",()=>Show(Page.Main));break;
                 case Page.NewLevelCharacters:DrawNewLevelCharacters();break;
                 case Page.Settings:Settings();break;
                 case Page.Rankings:DrawRankings(SonicTimeRecords.ReadAll());break;
