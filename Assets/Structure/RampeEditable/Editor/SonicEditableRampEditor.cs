@@ -11,7 +11,7 @@ namespace SonicFX.Structures.Editor
         int insertionAxis;
         float insertionPosition=.5f;
         bool automaticRowAxis;
-        void OnEnable(){Undo.undoRedoPerformed+=OnUndo;automaticRowAxis=target is SonicEditableCube;if(automaticRowAxis)UpdateRowAxis((SonicEditableRamp)target);}
+        void OnEnable(){Undo.undoRedoPerformed+=OnUndo;automaticRowAxis=target is SonicEditableCube || target is SonicRoundPlatform;if(automaticRowAxis)UpdateRowAxis((SonicEditableRamp)target);}
         void OnDisable(){Undo.undoRedoPerformed-=OnUndo;}
         void OnUndo(){if(target!=null){selected.Clear();((SonicEditableRamp)target).Rebuild();Repaint();SceneView.RepaintAll();}}
         static void Changed(SonicEditableRamp r)
@@ -99,7 +99,7 @@ namespace SonicFX.Structures.Editor
             EditorGUILayout.HelpBox("2 : lissage normal. 3 ou 4 : courbes plus precises pour une pente raide. 0 : polygones d'origine. Les collisions utilisent la meme surface. Les points de controle restent identiques.",MessageType.None);
             EditorGUILayout.Space();EditorGUILayout.LabelField("Ajouter des points",EditorStyles.boldLabel);
             EditorGUILayout.LabelField("Grille : "+counts.x+" x "+counts.y+" x "+counts.z+" ("+r.Points.Length+" points)");
-            if(r is SonicEditableCube){
+            if(r is SonicEditableCube || r is SonicRoundPlatform){
                 EditorGUI.BeginChangeCheck();
                 automaticRowAxis=EditorGUILayout.Toggle("Rangee parallele automatique",automaticRowAxis);
                 if(EditorGUI.EndChangeCheck()){UpdateRowAxis(r);SuggestPosition(r,true);SceneView.RepaintAll();}
@@ -119,7 +119,7 @@ namespace SonicFX.Structures.Editor
             else if(!r.CanInsertPoints(insertionAxis,insertionPosition))
                 EditorGUILayout.HelpBox("Une rangee existe deja a cette position. Choisis une position voisine ou utilise le bouton de placement automatique.",MessageType.None);
             EditorGUILayout.HelpBox("Apres chaque ajout, la position suivante est proposee dans la zone la moins dense pour repartir les points. Tu peux choisir le pourcentage ou placer l'ajout pres de la selection. La forme actuelle est conservee. X / Y / Z sont les axes locaux.",MessageType.None);
-            if(r is SonicEditableCube)EditorGUILayout.HelpBox("Automatique : selectionne une ligne avec Maj/Ctrl + clic pour ajouter une rangee parallele. Avec un seul point, la face vue dans Scene determine la direction (Y sur un mur, Z sur le dessus). L'axe reste identique pour les ajouts suivants. Choisir X / Y / Z desactive l'automatisme.",MessageType.None);
+            if(r is SonicEditableCube || r is SonicRoundPlatform)EditorGUILayout.HelpBox("Automatique : selectionne une ligne avec Maj/Ctrl + clic pour ajouter une rangee parallele. Avec un seul point, la face vue dans Scene determine la direction (Y sur un mur, Z sur le dessus). L'axe reste identique pour les ajouts suivants. Choisir X / Y / Z desactive l'automatisme.",MessageType.None);
             EditorGUILayout.Space();
             EditorGUI.BeginChangeCheck();
             float verticalScale=r.transform.TransformVector(Vector3.up).magnitude;
@@ -184,7 +184,7 @@ namespace SonicFX.Structures.Editor
             }
             if(selected.Count==0)return;
             Vector3 center=Center(r),world=t.TransformPoint(center);
-            if(r is SonicEditableCube){
+            if(r is SonicEditableCube || r is SonicRoundPlatform){
                 Handles.color=new Color(.3f,1,.4f);
                 Vector3 direction=insertionAxis==0?t.right:insertionAxis==1?t.up:t.forward;
                 float length=HandleUtility.GetHandleSize(world)*.55f;

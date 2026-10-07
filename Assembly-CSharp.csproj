@@ -80,6 +80,7 @@
     <Compile Include="Assets\Ennemy\crab\Crab_Combat\CrabBallistics.cs" />
     <Compile Include="Assets\SplineMesh\Scripts\MeshBender.cs" />
     <Compile Include="Assets\Structure\RampeEditable\Runtime\SonicRampMeshSubdivision.cs" />
+    <Compile Include="Assets\Object\MonitorVie\LifeMonitorIcon.cs" />
     <Compile Include="Assets\Ennemy\crab\Crab_Combat\CrabCombatController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\Action08_DropDash.cs" />
@@ -88,6 +89,8 @@
     <Compile Include="Assets\Structure\SonicWater\SonicWaterVolume.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\TestDebug.cs" />
     <Compile Include="Assets\Structure\BlocDestructible\Runtime\SonicBreakBlockUI.cs" />
+    <Compile Include="Assets\Object\SpringLarge\Runtime\SonicWideSpringSlot.cs" />
+    <Compile Include="Assets\Structure\PierresMagma\Runtime\SonicMagmaRock.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\Action05_Rail.cs" />
     <Compile Include="Assets\Lux 2.02 Personal\Lux Scripts\Lux TexturePostprocessor\LuxTexturePostprocessor.cs" />
     <Compile Include="Assets\Prototyping\TitleScreenControl.cs" />
@@ -104,6 +107,7 @@
     <Compile Include="Assets\Prototyping\PauseCotrol.cs" />
     <Compile Include="Assets\SplineMesh\Scripts\Bezier\SplineNode.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexJitter.cs" />
+    <Compile Include="Assets\Object\SpringLarge\Runtime\SonicWideSpring.cs" />
     <Compile Include="Assets\Structure\Tube Slide\SonicTubeEntryZones.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\Action06_Bounce.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\LevelProgressControl.cs" />
@@ -118,6 +122,7 @@
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\Action03_SpinDash.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\EnemySpawner.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\MotobugControl.cs" />
+    <Compile Include="Assets\Structure\PlateformeFlottante\Runtime\SonicFloatingPlatform.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\HomingAttackControl.cs" />
     <Compile Include="Assets\Menu\Frontend\Runtime\SonicTimeRecords.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeA.cs" />
@@ -127,6 +132,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01_UGUI.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\SimpleScript.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark04.cs" />
+    <Compile Include="Assets\Object\SpringLarge\Runtime\SonicWideSpringHitState.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ChatController.cs" />
     <Compile Include="Assets\Ennemy\NeoRing\NeonEnemyFX.cs" />
     <Compile Include="Assets\Structure\SonicWater\SonicWaterPlayer.cs" />
@@ -160,10 +166,12 @@
     <Compile Include="Assets\DeferredCustomLights\CustomLightRenderer.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\PlayerSkin.cs" />
     <Compile Include="Assets\Ennemy\Chameleon\Runtime\ChameleonController.cs" />
+    <Compile Include="Assets\Structure\GeyserLave\Runtime\SonicGeyserWarning.cs" />
     <Compile Include="Assets\Menu\Frontend\Runtime\SonicNewLevelCatalog.cs" />
     <Compile Include="Assets\Menu\Score\Runtime\SonicGhost.cs" />
     <Compile Include="Assets\Menu\Score\Runtime\SonicLevelResults.cs" />
     <Compile Include="Assets\Menu\Score\Runtime\SonicLevelScore.cs" />
+    <Compile Include="Assets\Ennemy\Caterpillar\Runtime\CaterpillarController.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\StageConpleteControl.cs" />
     <Compile Include="Assets\Menu\Frontend\Runtime\SonicStoryRoute.cs" />
     <Compile Include="Assets\Structure\ChainSwing\Runtime\SonicSwingPlatform.cs" />
@@ -172,12 +180,12 @@
     <Compile Include="Assets\Structure\BlocDestructible\Runtime\SonicBlockDebris.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\EnvMapAnimator.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\LightDashControl.cs" />
+    <Compile Include="Assets\Structure\PlateformeArrondie\Runtime\SonicRoundPlatform.cs" />
     <Compile Include="Assets\Menu\GameplayHUD\Runtime\SonicHudSettings.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_A.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\RotateTowardsPlayer.cs" />
     <Compile Include="Assets\Object\RedRings\Runtime\RedRingChallenge.cs" />
     <Compile Include="Assets\Menu\Score\Runtime\SonicMedal.cs" />
-    <Compile Include="Assets\Structure\MonitorVie\LifeMonitorIcon.cs" />
     <Compile Include="Assets\Menu\Frontend\Runtime\SonicNewLevelSession.cs" />
     <Compile Include="Assets\Structure\VirageReleve\Runtime\SonicBankedTurn.cs" />
     <Compile Include="Assets\Ennemy\Chameleon\Runtime\ChameleonProjectile.cs" />
@@ -194,10 +202,12 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMPro_InstructionOverlay.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\RotateRing.cs" />
     <Compile Include="Assets\Menu\ExtraLifeAudio\Runtime\SonicExtraLifeAudio.cs" />
+    <Compile Include="Assets\Structure\GeyserLave\Runtime\SonicGeyserProjectile.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\SpawnCharacter.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\SetFrameRate.cs" />
     <Compile Include="Assets\Level\NeoRing\Scripts\NeonPulse.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />
+    <Compile Include="Assets\Ennemy\Caterpillar\Runtime\CaterpillarVisual.cs" />
     <Compile Include="Assets\Ennemy\Chameleon\Runtime\ChameleonLifetime.cs" />
     <Compile Include="Assets\Structure\BlocDestructible\Runtime\SonicBreakChallenge.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\LoadingScreenControl.cs" />
@@ -213,6 +223,7 @@
     <Compile Include="Assets\Ennemy\BuzzBomber\BuzzLifetime.cs" />
     <Compile Include="Assets\Ennemy\BuzzBomber\BuzzRoutePoint.cs" />
     <Compile Include="Assets\Prototyping\StageSelectControl.cs" />
+    <Compile Include="Assets\Structure\PlateformeFlottante\Runtime\SonicFloatingPlatformEffects.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextInfoDebugTool.cs" />
     <Compile Include="Assets\Ennemy\crab\Crab_Animations\CrabLocomotionAnimator.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\DeactivateOnStart.cs" />
@@ -243,19 +254,23 @@
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\RingGiverControl.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\SonicSoundsControl.cs" />
     <Compile Include="Assets\Menu\Frontend\Runtime\SonicXFrontMenu.cs" />
+    <Compile Include="Assets\Structure\GeyserLave\Runtime\SonicGeyserTriggerZone.cs" />
     <Compile Include="Assets\Structure\RampeEditable\Runtime\SonicEditableRamp.cs" />
     <Compile Include="Assets\SplineMesh\Scripts\Exemple\SplineSower.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\DropdownSample.cs" />
+    <Compile Include="Assets\Structure\GeyserLave\Runtime\SonicLavaGeyser.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
     <Compile Include="Assets\SplineMesh\Scripts\Bezier\CubicBezierCurve.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\ShieldGiverControl.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\DebugUI.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\SonicEffectsControl.cs" />
+    <Compile Include="Assets\Structure\GeyserLave\Runtime\SonicGeyserLandingZone.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_PhoneNumberValidator.cs" />
     <Compile Include="Assets\Ennemy\Chameleon\Runtime\ChameleonVisual.cs" />
     <Compile Include="Assets\Menu\GameplayHUD\Runtime\SonicHudPlate.cs" />
     <Compile Include="Assets\Lux 2.02 Personal\Lux Scripts\LuxAttributes.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\SceneController.cs" />
+    <Compile Include="Assets\Object\SpringLarge\Runtime\SonicWideSpringGeometry.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\Action01_Jump.cs" />
     <Compile Include="Assets\Ennemy\BuzzBomber\BuzzController.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\EnemyBhysics.cs" />
@@ -268,6 +283,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Skin Shaders\Lux Skin Standard Lighting.shader" />
+    <None Include="Assets\Structure\GeyserLave\Shaders\GeyserLavaJet.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Standard Shaders\Standard FullFeatures DoubleSided Cutout.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
     <None Include="Assets\Lux 2.02 Personal\Lux Scripts\Resources\RainRipplesComposite.shader" />
@@ -302,6 +318,7 @@
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Standard Shaders\Standard FullFeatures LOD Dither.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Standard Shaders\Standard FullFeatures CustomSnowMask.shader" />
     <None Include="Assets\Structure\décore\Tree\GreenHill\Textures_appliquees.txt" />
+    <None Include="Assets\Structure\GeyserLave\Shaders\GeyserDroplet.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Anisotropic Shaders\Anisotropic Hair.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Demos\Art\Textures\LASciFiPanel - free from asset store\LASciFiPanel\_ChangeLog.txt" />
@@ -314,6 +331,7 @@
     <None Include="Assets\Structure\SonicWater\Cascades\Shaders\SonicWaterfallFoam.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Core\Resources\Lux Personal Internal-DeferredShading.shader" />
+    <None Include="Assets\Structure\PierresMagma\Shaders\MagmaRockSurface.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF SpaceWarp.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Skin Shaders\Lux Skin.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Standard Shader\Lux_StandardCore_oldtest.cginc" />
@@ -341,6 +359,7 @@
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\Shaders\Dissolving.shader" />
     <None Include="Assets\TutorialInfo\StyleSheets\ReadmeEditorLight.uss" />
+    <None Include="Assets\Structure\PlateformeFlottante\Shaders\FloatingFire.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Standard Shaders\Standard FullFeatures.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Anisotropic Shaders\AutoLight.cginc" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Standard Shaders\Standard WavingGrass.shader" />
@@ -348,7 +367,7 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile SpaceWarp.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Core\_Lux ShaderProperties.txt" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Standard Shaders\Standard Tessellation DynamicWeather MixMapping.shader" />
-    <None Include="Assets\Structure\MonitorVie\CharacterScreen.shader" />
+    <None Include="Assets\Object\MonitorVie\CharacterScreen.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Demos\Art\Textures\LASciFiPanel - free from asset store\LASciFiPanel\_ProductFeatures.txt" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Translucent Shaders\AutoLight.cginc" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Standard Shader\LuxStandardMeta.cginc" />
@@ -374,12 +393,15 @@
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Standard Shaders\Standard Terrain Base.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Core\Lux Lighting\LuxSkinPBSLighting.cginc" />
+    <None Include="Assets\Structure\GeyserLave\Shaders\GeyserWarning.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Core\Lux Config.cginc" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Core\Lux Features\LuxParallax.cginc" />
+    <None Include="Assets\Structure\PlateformeFlottante\Shaders\Embers.shader" />
     <None Include="Assets\DeferredDecals\_ReadMe.txt" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Standard Shaders\Includes\Lux TerrainSplatmapCommon.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Mobile.shader" />
+    <None Include="Assets\Structure\PlateformeFlottante\Shaders\AnimatedFlames.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Core\Lux Features\LuxDiffuseScattering.cginc" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Standard Shader\Lux_StandardMetallic.shader" />
     <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
@@ -390,6 +412,7 @@
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Translucent Shaders\Translucent DoubleSided.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD SpaceWarp.shader" />
     <None Include="Assets\DeferredDecals\DecalShaderNormalsOnly.shader" />
+    <None Include="Assets\Object\SpringLarge\Materials\SonicWideSpring.shader" />
     <None Include="Assets\SplineMesh\Doc.txt" />
     <None Include="Assets\Shaders\SkyboxHDR.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />

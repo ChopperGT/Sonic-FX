@@ -97,6 +97,13 @@ namespace SonicFX.Lava
                 foreach (var col in player.GetComponentsInChildren<Collider>()) previous.Remove(col);
                 return false;
             }
+            // A floating deck shields its supported rider even when its edge dips into lava.
+            // Clear sweep history so leaving the deck cannot replay the old submerged contact.
+            if (SonicFX.Structures.SonicFloatingPlatform.IsSupportedOverLava(player, this))
+            {
+                foreach (var col in player.GetComponentsInChildren<Collider>()) previous.Remove(col);
+                return false;
+            }
             seen.Clear(); bool touched = false;
             foreach (var col in player.GetComponentsInChildren<Collider>())
             {
@@ -168,3 +175,4 @@ namespace SonicFX.Lava
         }
     }
 }
+

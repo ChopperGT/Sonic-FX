@@ -353,6 +353,8 @@ public class Objects_Interaction : MonoBehaviour {
 
         if (col.tag == "Spring")
         {
+            var wideSlot = col.GetComponent<SonicFX.Structures.SonicWideSpringSlot>();
+            if (wideSlot != null && !wideSlot.TryActivate(this)) return;
 			Actions.Action01.JumpBall.SetActive(false);
 			if (Actions.Action08 != null) {
 				if (Actions.Action08.DropEffect.isPlaying == true) {
