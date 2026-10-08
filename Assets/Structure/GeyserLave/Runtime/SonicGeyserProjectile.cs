@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Audio;
 namespace SonicFX.Lava
 {
     public sealed class SonicGeyserProjectile : MonoBehaviour
@@ -8,9 +9,12 @@ namespace SonicFX.Lava
         Vector3 start,end,normal;Quaternion landedRotation;float duration,height,time,lifetime,landedTime;
         Collider[] colliders;SonicFX.Magma.SonicMagmaRock[] damage;
         SonicGeyserWarning warning;
-        public void Initialise(Vector3 origin,Vector3 destination,Vector3 groundNormal,float flightDuration,float arc,float retainedLifetime,SonicGeyserWarning marker)
+        AudioClip impactSound;float impactVolume;AudioMixerGroup impactMixer;
+        public AudioSource ImpactSource {get;private set;}
+        public void Initialise(Vector3 origin,Vector3 destination,Vector3 groundNormal,float flightDuration,float arc,float retainedLifetime,SonicGeyserWarning marker,AudioClip landingSound=null,float landingVolume=1,AudioMixerGroup mixer=null)
         {
             start=origin;end=destination;normal=groundNormal;duration=Mathf.Max(.3f,flightDuration);height=Mathf.Max(1,arc);lifetime=Mathf.Max(0,retainedLifetime);warning=marker;
+            impactSound=landingSound;impactVolume=Mathf.Clamp01(landingVolume);impactMixer=mixer;ImpactSource=null;
             landedRotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,Random.Range(0,360),0);
             colliders=GetComponentsInChildren<Collider>();damage=GetComponentsInChildren<SonicFX.Magma.SonicMagmaRock>();
             foreach(var c in colliders)c.enabled=false;foreach(var d in damage)d.contactDamage=false;
@@ -31,8 +35,25 @@ namespace SonicFX.Lava
             if(warning!=null)warning.SetProgress(Progress);
             if(Progress<1)return;
             transform.position=end;transform.rotation=landedRotation;Landed=true;landedTime=0;
+            PlayImpact();
             foreach(var c in colliders)if(c!=null)c.enabled=true;foreach(var d in damage)if(d!=null){d.contactDamage=true;d.Refresh();}
             if(warning!=null){warning.gameObject.SetActive(false);Dispose(warning.gameObject);warning=null;}
+        }
+        void PlayImpact()
+        {
+            if(impactSound==null || impactVolume<=0)return;
+            // Independent of the rock so its audio tail survives a short rock lifetime.
+            var sound=new GameObject("Son impact roche du geyser");
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(sound,gameObject.scene);
+            sound.transform.position=end;
+            ImpactSource=sound.AddComponent<AudioSource>();ImpactSource.playOnAwake=false;
+            ImpactSource.clip=impactSound;ImpactSource.volume=impactVolume;ImpactSource.loop=false;
+            ImpactSource.spatialBlend=1;ImpactSource.minDistance=8;ImpactSource.maxDistance=90;
+            ImpactSource.dopplerLevel=0;ImpactSource.outputAudioMixerGroup=impactMixer;
+            if(Application.IsPlaying(gameObject))
+            {
+                ImpactSource.Play();Destroy(sound,impactSound.length+.1f);
+            }
         }
         public static void Dispose(Object obj){if(obj==null)return;if(Application.isPlaying)Destroy(obj);else DestroyImmediate(obj);}
         void OnDestroy(){if(warning!=null)Dispose(warning.gameObject);}

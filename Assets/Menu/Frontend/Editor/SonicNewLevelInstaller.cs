@@ -48,13 +48,28 @@ namespace SonicFX.Menu.Editor
                     new[]{"mighty","Mighty",folder+"PO_MIghty.prefab"},new[]{"silver","Silver",folder+"PO_Silver.prefab"},
                     new[]{"blaze","Blaze",folder+"PO_Blaze.prefab"},new[]{"espio","Espio",folder+"PO_Espio.prefab"},new[]{"sally","Sally",folder+"PO_Sally.prefab"}
                 };
-                catalog.characters=entries.Select(entry=>new SonicNewLevelCharacter{id=entry[0],displayName=entry[1],prefab=AssetDatabase.LoadAssetAtPath<GameObject>(entry[2])}).ToArray();
+                var pack=entries.Select(entry=>new SonicNewLevelCharacter{id=entry[0],displayName=entry[1],prefab=AssetDatabase.LoadAssetAtPath<GameObject>(entry[2])}).ToArray();
+                if(pack.Any(entry=>entry.prefab==null))throw new Exception("Un prefab du pack est introuvable.");
+                catalog.characters=MergeCharacters(catalog.characters,pack);
                 if(catalog.characters.Any(entry=>entry.prefab==null))throw new Exception("Un prefab du pack est introuvable.");
                 EditorUtility.SetDirty(catalog);AssetDatabase.SaveAssetIfDirty(catalog);
                 File.WriteAllText(Path.Combine(Reports,"installation.txt"),"INSTALLED\n"+DateTime.Now.ToString("s")+"\n11 personnages, SonicManiaFree 65/350, toutes capacites. Prefab original et musique du menu conserves.\n");
                 SonicNewLevelVerification.Verify();
             }catch(Exception e){File.WriteAllText(Path.Combine(Reports,"installation.txt"),"FAIL\n"+e);Debug.LogException(e);}
             finally{if(root!=null)PrefabUtility.UnloadPrefabContents(root);}
+        }
+        public static SonicNewLevelCharacter[] MergeCharacters(SonicNewLevelCharacter[] previous,SonicNewLevelCharacter[] pack)
+        {
+            var characters=pack.Concat(previous??Array.Empty<SonicNewLevelCharacter>()).Where(c=>c!=null&&c.prefab!=null&&!string.IsNullOrEmpty(c.id)).ToList();
+            foreach(var entry in new[]{
+                new[]{"classicsonic","Sonic Classique","Assets/Characters/ClassicSonic/Resources/SonicClassique.prefab"},
+                new[]{"classicsonicfree","Sonic Classique Free","Assets/Characters/ClassicSonic/SonicClassiqueFree.prefab"},
+                new[]{"sonia","Sonia","Assets/Characters/Sonia/Sonia.prefab"}})
+            {
+                var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(entry[2]);
+                if(prefab&&!characters.Any(c=>c.id==entry[0]))characters.Add(new SonicNewLevelCharacter{id=entry[0],displayName=entry[1],prefab=prefab});
+            }
+            return characters.GroupBy(c=>c.id).Select(g=>g.First()).ToArray();
         }
     }
 }

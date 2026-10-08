@@ -13,6 +13,11 @@ public sealed class SonicTubeEntryZonesEditor : Editor
             if (targets.Length > 1) EditorGUILayout.LabelField(zones.name, EditorStyles.boldLabel);
             SonicTubeZoneHandles.Inspector(zones.FindEntrance(false), "Rayon entree");
             SonicTubeZoneHandles.Inspector(zones.FindEntrance(true), "Rayon sortie");
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Vitesse minimale dans les montees", EditorStyles.boldLabel);
+            SonicTubeZoneHandles.MinimumSpeedInspector(zones.FindEntrance(false), "Depuis l'entree");
+            SonicTubeZoneHandles.MinimumSpeedInspector(zones.FindEntrance(true), "Depuis la sortie");
+            EditorGUILayout.HelpBox("Ce reglage evite de s'arreter dans une montee. Il ne definit pas une vitesse obligatoire pour entrer et n'accelere pas une entree plus lente.", MessageType.Info);
         }
     }
 
@@ -43,6 +48,22 @@ public sealed class SonicTubeEntranceEditor : Editor
 
 internal static class SonicTubeZoneHandles
 {
+    internal static void MinimumSpeedInspector(SonicTube entrance, string label)
+    {
+        if (entrance == null) return;
+        var settings = new SerializedObject(entrance);
+        settings.Update();
+        var speed = settings.FindProperty("minimumSpeed");
+        EditorGUI.BeginChangeCheck();
+        EditorGUILayout.PropertyField(speed, new GUIContent(label,
+            "Vitesse minimale conservee dans les montees, limitee a la vitesse reelle d'entree si elle est plus lente."));
+        if (EditorGUI.EndChangeCheck())
+        {
+            speed.floatValue = Mathf.Max(0.1f, speed.floatValue);
+            settings.ApplyModifiedProperties();
+        }
+    }
+
     internal static void Inspector(SonicTube entrance, string label)
     {
         if (entrance == null)

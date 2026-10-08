@@ -1,0 +1,26 @@
+SONIC CLASSIQUE
+
+Deux personnages independants :
+- SonicClassique : copie de PO_Mania (Histoire), capacites et vitesses conservees.
+- SonicClassiqueFree : copie de SonicManiaFree, capacites et vitesses conservees.
+
+Le menu Histoire propose Sonic Classique avec le parcours Act 1-1, Act 1-2,
+puis Act 1-3 lorsqu'il sera disponible. Continuer conserve ce personnage.
+Le menu New Level propose les deux copies. Le mode Free reste reserve a New Level.
+
+Les animations du controleur Sonic Moderne sont adaptees au squelette Classic.
+La tete suit le mouvement de la tete Moderne. Les controles du visage conservent leur pose originale : les expressions du rig Moderne ne sont pas transferees, afin de ne pas deformer les yeux ou le museau.
+Les autres animations .anim du dossier ModernSonic sont egalement disponibles
+dans Animations. Les voix combat, saut et douleur proviennent de Sonic Moderne.
+La capsule, les cameras, les interactions et les reglages de Mania sont conserves.
+La boule utilise le maillage et les materiaux de Mania. ClassicSonicAppearance synchronise les dix parties du corps, la boule et le clignotement apres les degats.
+
+Le menu Sonic FX > Personnages permet de reconstruire ou verifier ces prefabs.
+La reconstruction remplace les assets generes : faire une copie avant de les personnaliser.
+
+ATTRIBUTION DU MODELE
+Classic Sonic, par DetexkiModels.
+https://sketchfab.com/3d-models/classic-sonic-10e97550a32f4014801de970e45c53f1
+Licence Creative Commons Attribution 4.0 (CC BY 4.0).
+https://creativecommons.org/licenses/by/4.0/
+Modifications : adaptation des animations, materiaux Unity et integration Sonic FX.

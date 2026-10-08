@@ -6,10 +6,9 @@ namespace SonicFX.Lava
     [ExecuteAlways,DisallowMultipleComponent,AddComponentMenu("Sonic FX/Lave/Geyser de lave")]
     public sealed class SonicLavaGeyser : MonoBehaviour
     {
-        [Header("Lave")]
-        [InspectorName("Volume de lave (automatique si vide)")] public SonicLavaVolume lava;
-        [InspectorName("Exiger de la lave sous le geyser")] public bool requireLava=true;
-        [Min(.1f), InspectorName("Distance maximale a la surface")] public float surfaceTolerance=5;
+        [Header("Alignement facultatif sur la lave")]
+        [Tooltip("Utilise uniquement par le bouton d'alignement. Aucune lave n'est necessaire pour declencher l'eruption."), InspectorName("Volume de lave pour l'alignement")] public SonicLavaVolume lava;
+        [Min(.1f), InspectorName("Distance de recherche pour l'alignement")] public float surfaceTolerance=5;
         [Header("Eruption")]
         [Min(.2f), InspectorName("Delai d'avertissement (secondes)")] public float warningDelay=1.2f;
         [Min(0), InspectorName("Delai entre deux rochers")] public float rockInterval=.18f;
@@ -21,6 +20,11 @@ namespace SonicFX.Lava
         [Min(.1f), InspectorName("Hauteur du rebord")] public float ventHeight=.8f;
         [Min(1), InspectorName("Hauteur du jet visuel")] public float jetHeight=12;
         [InspectorName("Son de l'eruption (facultatif)")] public AudioClip eruptionSound;
+        [Header("Son des impacts")]
+        [InspectorName("Jouer le son a l'atterrissage")] public bool playImpactSound=true;
+        [Tooltip("Vide : utilise le bruit de debris fourni par defaut."), InspectorName("Son d'atterrissage des rochers")] public AudioClip impactSound;
+        [Range(0,1), InspectorName("Volume des impacts")] public float impactVolume=1;
+        public AudioClip ResolvedImpactSound=>impactSound!=null?impactSound:Resources.Load<AudioClip>("Geyser_Roche_Impact");
         [Header("Zones et modeles")]
         public SonicGeyserLandingZone[] landingZones=new SonicGeyserLandingZone[0];
         public GameObject[] rockPrefabs=new GameObject[0];
@@ -75,7 +79,6 @@ namespace SonicFX.Lava
         {
             LastRefusal=null;
             if(!isActiveAndEnabled || erupting || readyIn>0){LastRefusal="Geyser en eruption ou en recharge.";return false;}
-            if(requireLava && !FindLava()){LastRefusal="Placer le geyser sur un volume de lave, ou renseigner Lave.";return false;}
             if(warningMaterial==null || mouth==null){LastRefusal="References du prefab manquantes.";return false;}
             Physics.SyncTransforms();int index=0;
             foreach(var zone in landingZones)
@@ -112,7 +115,7 @@ namespace SonicFX.Lava
                 var p=plans[i];if(elapsed<p.due)continue;
                 if(p.zone==null || p.prefab==null){if(p.warning!=null)SonicGeyserProjectile.Dispose(p.warning.gameObject);plans.RemoveAt(i);continue;}
                 var go=Instantiate(p.prefab);UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(go,gameObject.scene);go.name="Roche volcanique projetee";go.transform.localScale*=p.scale;
-                var r=go.AddComponent<SonicGeyserProjectile>();r.Initialise(mouth.position,p.point,p.normal,p.zone.flightTime,p.zone.arcHeight,rockLifetime,p.warning);rocks.Add(r);r.Tick(Mathf.Max(0,elapsed-p.due));plans.RemoveAt(i);
+                var r=go.AddComponent<SonicGeyserProjectile>();r.Initialise(mouth.position,p.point,p.normal,p.zone.flightTime,p.zone.arcHeight,rockLifetime,p.warning,playImpactSound?ResolvedImpactSound:null,impactVolume,audioSource!=null?audioSource.outputAudioMixerGroup:null);rocks.Add(r);r.Tick(Mathf.Max(0,elapsed-p.due));plans.RemoveAt(i);
                 if(jet!=null){var main=jet.main;main.startSpeed=Mathf.Sqrt(2*24*jetHeight);jet.Play();}if(sparks!=null)sparks.Play();
                 jetRemaining=1;SetJetStrength(1);
                 if(!soundPlayed){if(audioSource!=null && eruptionSound!=null)audioSource.PlayOneShot(eruptionSound);soundPlayed=true;}

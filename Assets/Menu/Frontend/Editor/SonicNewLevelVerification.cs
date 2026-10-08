@@ -22,8 +22,8 @@ namespace SonicFX.Menu.Editor
             var scene=EditorSceneManager.NewPreviewScene();
             try{
                 var catalog=SonicNewLevelCatalog.Load();
-                Check(catalog!=null && catalog.characters.Length==11,"Catalogue complet du pack");
-                Check(catalog.characters.Select(c=>c.id).Distinct().Count()==11,"Identifiants uniques");
+                Check(catalog!=null && catalog.characters.Length>=11,"Catalogue complet du pack");
+                Check(catalog.characters.Select(c=>c.id).Distinct().Count()==catalog.characters.Length,"Identifiants uniques");
                 var free=catalog.Find(SonicNewLevelSession.FreeCharacterId).prefab.GetComponentInChildren<PlayerBhysics>(true);
                 Check(free.TopSpeed==65 && free.MaxSpeed==350,"SonicManiaFree 65 / 350");
                 Check(new SerializedObject(free.GetComponent<ActionManager>()).FindProperty("startingAbilities").intValue==(int)SonicAbility.All,"Toutes les capacites du personnage Free");
@@ -38,7 +38,7 @@ namespace SonicFX.Menu.Editor
                     var playerField=typeof(MotobugControl).GetField("Player",BindingFlags.Instance|BindingFlags.NonPublic);
                     playerField.SetValue(enemy,old.transform.GetComponentsInChildren<Transform>().First(t=>t.name=="CharacterCapsule"));
                     var method=typeof(SonicNewLevelSession).GetMethod("InstallCharacter",BindingFlags.Static|BindingFlags.NonPublic);
-                    var player=(PlayerBhysics)method.Invoke(null,new object[]{scene,character});
+                    var player=(PlayerBhysics)method.Invoke(null,new object[]{scene,character,true});
                     Check(player!=null && Vector3.Distance(player.transform.position,new Vector3(121,87,32))<.001f,"Position de depart : "+character.id);
                     Check(player.GetComponent<LevelProgressControl>().IdealTimeSeconds==83,"Parametres du niveau : "+character.id);
                     Check(player.GetComponent<CameraControl>().Cam!=null,"Camera du personnage : "+character.id);
@@ -48,21 +48,21 @@ namespace SonicFX.Menu.Editor
                 }
                 var menuObject=new GameObject("Menu verification");SceneManager.MoveGameObjectToScene(menuObject,scene);
                 var menu=menuObject.AddComponent<SonicXFrontMenu>();menu.logo=AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Menu/image/logo SonicX.png");
-                foreach(string label in new[]{"BoundArounds","Act 1-1","Act 1-2"}){
+                foreach(string label in new[]{"BoundArounds","Act 1-1","Act 1-2","Act 2-1"}){
                     menu.Show(SonicXFrontMenu.Page.NewLevels);
                     Check(menu.GetComponentsInChildren<Button>().Any(b=>b.name==label),"Niveau present : "+label);
-                    string path=label=="BoundArounds"?menu.speedrunCocoScene:label=="Act 1-1"?SonicXProgress.FirstLevel:SonicNewLevelSession.SecondAct;
+                    string path=label=="BoundArounds"?menu.speedrunCocoScene:label=="Act 1-1"?SonicXProgress.FirstLevel:label=="Act 1-2"?SonicNewLevelSession.SecondAct:SonicStoryRoute.MarbleFirstLevel;
                     Check(EditorBuildSettings.scenes.Any(s=>s.enabled && s.path==path),"Scene incluse : "+label);
                     // CanStreamedLevelBeLoaded is a Play-mode API. Preview the page without loading a user scene.
                     typeof(SonicXFrontMenu).GetField("pendingNewLevel",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(menu,path);
                     menu.Show(SonicXFrontMenu.Page.NewLevelCharacters);
-                    Check(menu.GetComponentsInChildren<Button>().Length==12,"Tous les personnages accessibles : "+label);
+                    Check(menu.GetComponentsInChildren<Button>().Length==catalog.characters.Length+1,"Tous les personnages accessibles : "+label);
                 }
                 Capture(menu.MenuCanvas,scene,Path.Combine(SonicNewLevelInstaller.Reports,"characters.png"));
                 menu.Show(SonicXFrontMenu.Page.Characters);
                 Check(!menu.GetComponentsInChildren<Button>().Any(b=>b.name=="SonicManiaFree"),"Free absent de l'Histoire");
                 SonicFX.HUD.Editor.SonicSpeedHudVerification.Verify();
-                File.WriteAllText(report,"PASS\n"+DateTime.Now.ToString("s")+"\n11 personnages : remplacement, position de depart, camera et configuration du niveau. Trois scenes incluses, selection complete ; Free exclu du menu Histoire. HUD verifie separement.\n");
+                File.WriteAllText(report,"PASS\n"+DateTime.Now.ToString("s")+"\n"+catalog.characters.Length+" personnages : remplacement, position de depart, camera et configuration du niveau. Quatre scenes incluses, selection complete ; Free exclu du menu Histoire. HUD verifie separement.\n");
             }catch(Exception e){File.WriteAllText(report,"FAIL\n"+e);Debug.LogException(e);}
             finally{EditorSceneManager.ClosePreviewScene(scene);}
         }

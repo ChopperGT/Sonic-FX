@@ -193,6 +193,7 @@
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\AngleTest.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\SpeedPadData.cs" />
     <Compile Include="Assets\Structure\BlocDestructible\Runtime\SonicBlockContactProbe.cs" />
+    <Compile Include="Assets\Characters\Sonia\SoniaAppearance.cs" />
     <Compile Include="Assets\Object\RedRings\Runtime\RedRingStarGuide.cs" />
     <Compile Include="Assets\Prototyping\SelectAtTheStartSlider.cs" />
     <Compile Include="Assets\Prototyping\LandingSound.cs" />
@@ -227,6 +228,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextInfoDebugTool.cs" />
     <Compile Include="Assets\Ennemy\crab\Crab_Animations\CrabLocomotionAnimator.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\DeactivateOnStart.cs" />
+    <Compile Include="Assets\Characters\ClassicSonic\ClassicSonicAppearance.cs" />
     <Compile Include="Assets\Lux 2.02 Personal\Lux Scripts\LuxDynamicWeather.cs" />
     <Compile Include="Assets\Menu\GameplayHUD\Runtime\SonicSkewPanel.cs" />
     <Compile Include="Assets\Ennemy\BuzzBomber\BuzzRoute.cs" />
@@ -253,12 +255,13 @@
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\HurtControl.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\RingGiverControl.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\SonicSoundsControl.cs" />
+    <Compile Include="Assets\Characters\Sonia\CharacterGroundContact.cs" />
     <Compile Include="Assets\Menu\Frontend\Runtime\SonicXFrontMenu.cs" />
     <Compile Include="Assets\Structure\GeyserLave\Runtime\SonicGeyserTriggerZone.cs" />
     <Compile Include="Assets\Structure\RampeEditable\Runtime\SonicEditableRamp.cs" />
     <Compile Include="Assets\SplineMesh\Scripts\Exemple\SplineSower.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\DropdownSample.cs" />
     <Compile Include="Assets\Structure\GeyserLave\Runtime\SonicLavaGeyser.cs" />
+    <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\DropdownSample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
     <Compile Include="Assets\SplineMesh\Scripts\Bezier\CubicBezierCurve.cs" />
     <Compile Include="Assets\BumperEngineV1\GameplayScripts\ShieldGiverControl.cs" />
@@ -321,6 +324,7 @@
     <None Include="Assets\Structure\GeyserLave\Shaders\GeyserDroplet.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Anisotropic Shaders\Anisotropic Hair.shader" />
+    <None Include="Assets\Characters\Sonia\Lisez-moi.txt" />
     <None Include="Assets\Lux 2.02 Personal\Lux Demos\Art\Textures\LASciFiPanel - free from asset store\LASciFiPanel\_ChangeLog.txt" />
     <None Include="Assets\Lux 2.02 Personal\Lux Internal Textures\_TextureCredits.txt" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Standard Shader\LuxStandardShadow.cginc" />
@@ -336,6 +340,7 @@
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Skin Shaders\Lux Skin.shader" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Standard Shader\Lux_StandardCore_oldtest.cginc" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Core\Lux Features\LuxMixMapping.cginc" />
+    <None Include="Assets\Characters\ClassicSonic\Lisez-moi.txt" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux Core\Lux Features\LuxDitherCrossfade.cginc" />
     <None Include="Assets\Lux 2.02 Personal\Lux Shaders\Lux custom Standard Shaders\Standard SimpleMetallic.shader" />
     <None Include="Assets\Prototyping\PrototypingObjects\Unlit-AlphaTest.shader" />

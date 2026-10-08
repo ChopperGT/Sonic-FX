@@ -1,12 +1,12 @@
 # Geyser de lave
 
-Glisser `Geyser_Lave.prefab` dans la scene sur un volume de lave. Son enfant
+Glisser `Geyser_Lave.prefab` librement dans la scene, avec ou sans lave. Son enfant
 `Zone_Declenchement` active l'eruption lorsque Sonic entre dans son Box Collider.
 Les dimensions et la position de cette zone se reglent avec les outils Unity.
 
 Selectionner le geyser : **Aligner le geyser sur la lave** le met exactement a la
 surface si un volume est proche. Le champ **Lave** peut aussi etre renseigne.
-**Exiger de la lave** est actif par defaut.
+Cet alignement est facultatif et ne conditionne jamais le declenchement.
 
 ## Zones de chute
 
@@ -21,6 +21,22 @@ et indiquent la position et la taille de chaque rocher, avant son lancement et
 jusqu'a son impact. Ajuster les couches et distances de recherche si necessaire.
 Decocher **Projeter la cible sur le sol** permet d'imposer la hauteur manuellement.
 
+Pour regler facilement les rochers, selectionner le geyser et utiliser
+**Taille des rochers par zone** dans son Inspector. Chaque zone a ses propres
+tailles minimale et maximale : 0,5 donne une demi-taille, 1 la taille du modele,
+2 le double. Le bouton **Taille fixe** rend les deux valeurs identiques ; sinon
+la taille est choisie aleatoirement entre ces deux valeurs. Les collisions et
+les marques rouges suivent automatiquement la taille des rochers.
+
+**Afficher l'apercu des rochers** montre leur forme directement dans la vue Scene
+lorsque le geyser ou une zone de chute est selectionne (bouton Gizmos actif).
+Le contour cyan represente la taille minimale, le contour orange la maximale.
+Pour une taille fixe, seul le contour orange est affiche. L'apercu se pose sur
+le sol au centre de la zone et se met a jour lorsque les tailles changent.
+Si plusieurs modeles peuvent etre projetes, **Modele de l'apercu** permet de les
+comparer sans modifier leur selection aleatoire en jeu. Aucun rocher reel n'est
+cree par l'apercu, qui est masque pendant le jeu.
+
 ## Eruption et degats
 
 Regler sur le geyser le delai d'avertissement, l'intervalle entre les projectiles,
@@ -29,6 +45,12 @@ Un emplacement pour le son est prevu. Les rochers deviennent solides et infligen
 un degat normal au contact une fois poses. Les protections habituelles de Sonic
 (bouclier, invincibilite) restent actives. La duree des rochers 0 les conserve
 jusqu'a la fin du niveau. Une valeur positive les retire apres ce delai.
+
+Le bruit de debris fourni est joue une seule fois a l'atterrissage de chaque
+rocher, en audio 3D a sa position d'impact. Dans **Son des impacts**, changer
+le son ou son volume, ou decocher **Jouer le son a l'atterrissage** pour le couper.
+Un champ de son vide utilise le bruit fourni par defaut. Le son suit le meme
+groupe audio que le geyser et termine sa lecture meme si le rocher disparait.
 
 La zone de declenchement permet **Une seule activation**, ou des activations
 repetees avec la recharge du geyser. **Repeter tant que Sonic reste dedans**

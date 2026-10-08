@@ -201,7 +201,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SonicFX.Lava.SonicLavaGeyser
   lava: {fileID: 0}
-  requireLava: 1
   surfaceTolerance: 5
   warningDelay: 1.2
   rockInterval: 0.18
@@ -211,7 +210,10 @@ MonoBehaviour:
   ventRadius: 2
   ventHeight: 0.8
   jetHeight: 12
-  eruptionSound: {fileID: 0}
+  eruptionSound: {fileID: 8300000, guid: 8c7b75a065c79d04cb6e6ef2a52e43ff, type: 3}
+  playImpactSound: 1
+  impactSound: {fileID: 8300000, guid: 853ef76bd35a49c09a455d9596497c6f, type: 3}
+  impactVolume: 1
   landingZones:
   - {fileID: 2629941069000593731}
   - {fileID: 2725717580883120431}
@@ -242,7 +244,7 @@ AudioSource:
   m_GameObject: {fileID: 3756499191872223604}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 52ecf63b219f6844eadf60e95393e9ae, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0

@@ -33,7 +33,8 @@ namespace SonicFX.Menu.Editor
                 route=ScriptableObject.CreateInstance<SonicStoryRoute>();
                 route.stages=new[]{
                     new SonicStoryRoute.StageLink{character="sonic",levelScene=SonicXProgress.FirstLevel,nextScene=SonicStoryRoute.SecondLevel},
-                    new SonicStoryRoute.StageLink{character="sonic",levelScene=SonicStoryRoute.SecondLevel,nextScene=SonicStoryRoute.ThirdLevel}
+                    new SonicStoryRoute.StageLink{character="sonic",levelScene=SonicStoryRoute.SecondLevel,nextScene=SonicStoryRoute.MarbleFirstLevel},
+                    new SonicStoryRoute.StageLink{character="sonic",levelScene=SonicStoryRoute.MarbleFirstLevel,nextScene=""}
                 };
                 AssetDatabase.CreateAsset(route,Path);AssetDatabase.SaveAssetIfDirty(route);
             }

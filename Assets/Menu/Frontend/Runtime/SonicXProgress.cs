@@ -61,13 +61,13 @@ namespace SonicFX.Menu
         public static bool IsGameOver=>Lives<=0;
         public static bool IsStorySession=>storySession;
         public static string Character { get; private set; }="sonic";
-        public static bool IsUnlocked(string id)=>id=="sonic" || PlayerPrefs.GetInt("SonicFX.Unlock."+id,0)==1;
+        public static bool IsUnlocked(string id)=>id=="sonic" || id=="classicsonic" || PlayerPrefs.GetInt("SonicFX.Unlock."+id,0)==1;
         public static void Unlock(string id){PlayerPrefs.SetInt("SonicFX.Unlock."+id,1);PlayerPrefs.Save();}
         public static bool TryRead(out StorySave data)=>TryParse(PlayerPrefs.GetString(SaveKey,""),out data);
         public static bool TryParse(string json,out StorySave data)
         {
             data=null;if(string.IsNullOrEmpty(json))return false;
-            try{var value=JsonUtility.FromJson<StorySave>(json);if(value==null || value.version<1 || value.version>5 || string.IsNullOrEmpty(value.scene) || (value.character!="sonic" && value.character!="tails" && value.character!="amy" && value.character!="shadow"))return false;if(value.version==1){value.lives=3;value.version=2;}if(value.version<3){value.totalScore=0;value.version=3;}if(value.version<4){value.unlockedAbilities=0;value.version=4;}if(value.version<5)value.redRingLevels=Array.Empty<string>();value.version=5;value.redRingLevels=(value.redRingLevels??Array.Empty<string>()).Where(s=>!string.IsNullOrEmpty(s)).Distinct(StringComparer.Ordinal).ToArray();value.unlockedAbilities&=(int)SonicAbility.All;if(value.lives<=0 || value.totalScore<0)return false;data=value;return true;}catch{return false;}
+            try{var value=JsonUtility.FromJson<StorySave>(json);if(value==null || value.version<1 || value.version>5 || string.IsNullOrEmpty(value.scene) || (value.character!="sonic" && value.character!="classicsonic" && value.character!="tails" && value.character!="amy" && value.character!="shadow"))return false;if(value.version==1){value.lives=3;value.version=2;}if(value.version<3){value.totalScore=0;value.version=3;}if(value.version<4){value.unlockedAbilities=0;value.version=4;}if(value.version<5)value.redRingLevels=Array.Empty<string>();value.version=5;value.redRingLevels=(value.redRingLevels??Array.Empty<string>()).Where(s=>!string.IsNullOrEmpty(s)).Distinct(StringComparer.Ordinal).ToArray();value.unlockedAbilities&=(int)SonicAbility.All;if(value.lives<=0 || value.totalScore<0)return false;data=value;return true;}catch{return false;}
         }
         public static bool CanContinue=>TryRead(out var save) && Application.CanStreamedLevelBeLoaded(save.scene);
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -76,7 +76,7 @@ namespace SonicFX.Menu
         {
             // A story launch never inherits a free-play character or its abilities.
             SonicNewLevelSession.End();
-            if(character!="sonic" && character!="tails" && character!="amy" && character!="shadow")return null;
+            if(character!="sonic" && character!="classicsonic" && character!="tails" && character!="amy" && character!="shadow")return null;
             if(lives<=0 || !Application.CanStreamedLevelBeLoaded(scene))return null;
             RestoreRedRingLevels(completedRedRingLevels);
             Time.timeScale=1;Character=character;Lives=lives;TotalScore=Math.Max(0,totalScore);UnlockedAbilities=unlockedAbilities&SonicAbility.All;Objects_Interaction.RingAmount=0;pending=new StorySave{character=character,scene=scene,lives=lives,totalScore=TotalScore,unlockedAbilities=(int)UnlockedAbilities};CopyRedRingProgress(pending);storySession=true;
@@ -88,6 +88,8 @@ namespace SonicFX.Menu
             if(mode!=LoadSceneMode.Single)return;
             if(scene.name=="LogoScreen"){storySession=false;pending=null;UnlockedAbilities=SonicAbility.None;SonicNewLevelSession.End();return;}
             if(!storySession)return;
+            if(Character=="classicsonic" && scene.path.StartsWith("Assets/Level/",StringComparison.Ordinal))
+                SonicNewLevelSession.InstallCharacter(scene,new SonicNewLevelCharacter{id="classicsonic",displayName="Sonic Classique",prefab=Resources.Load<GameObject>("SonicClassique")},false);
             if(pending!=null && scene.path==pending.scene){SaveLevel(scene.path);pending=null;}
             else if(pending==null && scene.path.StartsWith("Assets/Level/",StringComparison.Ordinal))SaveLevel(scene.path);
         }

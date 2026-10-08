@@ -8,6 +8,7 @@ namespace SonicFX.Menu
     {
         public const string SecondLevel="Assets/Level/Sonic 1/Act 1 GreenHiill/act 1-2/act 1-2.unity";
         public const string ThirdLevel="Assets/Level/Sonic 1/Act 1 GreenHiill/act 1-3/act 1-3.unity";
+        public const string MarbleFirstLevel="Assets/Level/Sonic 1/Act 2 Marble Zone/Act 2-1.unity";
         [Serializable] public sealed class StageLink
         {
             [Tooltip("sonic, tails, amy ou shadow.")] public string character="sonic";
@@ -19,6 +20,8 @@ namespace SonicFX.Menu
         public bool TryGetNextScene(string character,string currentScene,out string nextScene)
         {
             nextScene=null;
+            // Classic uses the same adventure as the young Mania character.
+            if(character=="classicsonic")character="sonic";
             if(stages==null)return false;
             foreach(var stage in stages)
                 if(stage!=null&&stage.character==character&&stage.levelScene==currentScene)

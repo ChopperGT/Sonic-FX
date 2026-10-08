@@ -90,9 +90,9 @@ namespace SonicFX.Menu
                 case Page.Title:heading.text="BIENVENUE";Add("Appuie sur START",()=>Show(Page.Main));status.text="Une nouvelle aventure t'attend.";break;
                 case Page.Main:heading.text="MENU PRINCIPAL";Add("Mode Histoire",()=>Show(Page.Story));if(SonicXProgress.IsUnlocked("arcade"))Add("Mode Arcade",()=>LoadArcade());Add("New levels",()=>Show(Page.NewLevels));Add("Paramètre",()=>Show(Page.Settings));Add("Classement",()=>Show(Page.Rankings));Add("Quitter",Quit);break;
                 case Page.Story:heading.text="MODE HISTOIRE";if(SonicXProgress.CanContinue)Add("Continuer",Continue);Add("Nouvelle partie",()=>Show(Page.Characters));Add("Retour",()=>Show(Page.Main));break;
-                case Page.Characters:heading.text="CHOISIS TON PERSONNAGE";Add("Sonic (jeune)",()=>Choose("sonic"));if(SonicXProgress.IsUnlocked("tails"))Add("Tails",()=>Choose("tails"));if(SonicXProgress.IsUnlocked("amy"))Add("Amy",()=>Choose("amy"));if(SonicXProgress.IsUnlocked("shadow"))Add("Shadow",()=>Choose("shadow"));Add("Retour",()=>Show(Page.Story));break;
+                case Page.Characters:heading.text="CHOISIS TON PERSONNAGE";Add("Sonic (jeune)",()=>Choose("sonic"));if(Resources.Load<GameObject>("SonicClassique"))Add("Sonic Classique",()=>Choose("classicsonic"));if(SonicXProgress.IsUnlocked("tails"))Add("Tails",()=>Choose("tails"));if(SonicXProgress.IsUnlocked("amy"))Add("Amy",()=>Choose("amy"));if(SonicXProgress.IsUnlocked("shadow"))Add("Shadow",()=>Choose("shadow"));Add("Retour",()=>Show(Page.Story));break;
                 case Page.Overwrite:heading.text="NOUVELLE PARTIE";status.text="La progression actuelle sera remplacée.\nTes déblocages seront conservés.";Add("Commencer",()=>Launch(pendingCharacter,CharacterScene(pendingCharacter)));Add("Annuler",()=>Show(Page.Characters));break;
-                case Page.NewLevels:heading.text="NEW LEVELS";Add("BoundArounds",()=>SelectNewLevel(speedrunCocoScene));Add("Act 1-1",()=>SelectNewLevel(SonicXProgress.FirstLevel));Add("Act 1-2",()=>SelectNewLevel(SonicNewLevelSession.SecondAct));Add("Retour",()=>Show(Page.Main));break;
+                case Page.NewLevels:heading.text="NEW LEVELS";Add("BoundArounds",()=>SelectNewLevel(speedrunCocoScene));Add("Act 1-1",()=>SelectNewLevel(SonicXProgress.FirstLevel));Add("Act 1-2",()=>SelectNewLevel(SonicNewLevelSession.SecondAct));Add("Act 2-1",()=>SelectNewLevel(SonicStoryRoute.MarbleFirstLevel));Add("Retour",()=>Show(Page.Main));break;
                 case Page.NewLevelCharacters:DrawNewLevelCharacters();break;
                 case Page.Settings:Settings();break;
                 case Page.Rankings:DrawRankings(SonicTimeRecords.ReadAll());break;
@@ -104,7 +104,7 @@ namespace SonicFX.Menu
             if(Application.isPlaying && EventSystem.current!=null && selectable.Count>0)EventSystem.current.SetSelectedGameObject(selectable[0].gameObject);
         }
         void Back(){if(CurrentPage==Page.Main)Show(Page.Title);else if(CurrentPage==Page.Story || CurrentPage==Page.Settings || CurrentPage==Page.Rankings || CurrentPage==Page.NewLevels)Show(Page.Main);else if(CurrentPage==Page.Characters)Show(Page.Story);else if(CurrentPage==Page.NewLevelCharacters)Show(Page.NewLevels);else if(CurrentPage==Page.Overwrite)Show(Page.Characters);}
-        string CharacterScene(string id)=>id=="sonic"?SonicXProgress.FirstLevel:id=="tails"?tailsScene:id=="amy"?amyScene:shadowScene;
+        string CharacterScene(string id)=>(id=="sonic"||id=="classicsonic")?SonicXProgress.FirstLevel:id=="tails"?tailsScene:id=="amy"?amyScene:shadowScene;
         void Choose(string id)
         {
             if(!SonicXProgress.IsUnlocked(id))return;

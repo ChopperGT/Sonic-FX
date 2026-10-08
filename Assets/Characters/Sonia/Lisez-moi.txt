@@ -1,0 +1,13 @@
+﻿SONIA
+Personnage disponible uniquement dans New Level, avec toutes les capacites.
+Base : PO_ModernSonic. Vitesses de la base conservees (TopSpeed 65 / MaxSpeed 343).
+Forme en boule et animation de boule reprises de PO_Amy.
+Voix desactivees. Bruitages de gameplay conserves.
+Animations ModernSonic adaptees au corps ; visage et cheveux dans leur pose originale.
+Prefab : Assets/Characters/Sonia/Sonia.prefab
+Menu Sonic FX > Personnages : reconstruire et verifier Sonia.
+
+MODELE : Sonia the Hedgehog, DetexkiModels.
+https://sketchfab.com/3d-models/sonia-the-hedgehog-de1ab379f8c04370928b4f352253596f
+Licence CC BY 4.0 : https://creativecommons.org/licenses/by/4.0/
+Modifications : correction du placement et de l'orientation des yeux, adaptation des animations, materiaux Unity, integration Sonic FX.

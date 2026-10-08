@@ -40,7 +40,7 @@ namespace SonicFX.Menu
             InstallCharacter(scene,selected);
         }
         // sceneLoaded runs before Start: enemies and camera scripts then discover the chosen avatar.
-        internal static PlayerBhysics InstallCharacter(Scene scene,SonicNewLevelCharacter character)
+        internal static PlayerBhysics InstallCharacter(Scene scene,SonicNewLevelCharacter character,bool restorePackAbilities=true)
         {
             if(character==null || character.prefab==null)return null;
             var players=scene.GetRootGameObjects().SelectMany(root=>root.GetComponentsInChildren<PlayerBhysics>()).Where(p=>p.gameObject.activeInHierarchy).ToArray();
@@ -66,7 +66,8 @@ namespace SonicFX.Menu
                 var player=replacement.GetComponentInChildren<PlayerBhysics>(true);
                 if(player==null)throw new InvalidOperationException("Le prefab choisi ne contient pas Player Bhysics.");
                 player.transform.SetPositionAndRotation(position,rotation);
-                player.GetComponent<ActionManager>()?.RestorePackAbilities();
+                if(restorePackAbilities)player.GetComponent<ActionManager>()?.RestorePackAbilities();
+                else {player.TopSpeed=original.TopSpeed;player.MaxSpeed=original.MaxSpeed;}
                 var target=player.GetComponent<LevelProgressControl>();
                 if(config!=null && target!=null){
                     target.LevelToGoNext=config.LevelToGoNext;target.NextLevelScene=config.NextLevelScene;
